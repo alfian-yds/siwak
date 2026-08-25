@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TV Banner for Android TV Leanback Launcher (320dp x 180dp) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Background gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#1a4d2e"
+                android:centerColor="#2d6a4f"
+                android:endColor="#52b788"
+                android:type="linear" />
+        </shape>
+    </item>
+    
+    <!-- Subtle overlay pattern -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#10000000" />
+        </shape>
+    </item>
+    
+    <!-- Mosque Logo - centered -->
+    <item
+        android:width="80dp"
+        android:height="80dp"
+        android:gravity="center_vertical|start"
+        android:left="30dp">
+        <bitmap
+            android:src="@drawable/mosque_logo"
+            android:gravity="center"
+            android:tint="#FFFFFF" />
+    </item>
+    
+    <!-- App name text area (you can customize this further) -->
+    <item
+        android:left="130dp"
+        android:right="20dp"
+        android:top="50dp"
+        android:bottom="50dp">
+        <shape android:shape="rectangle">
+            <!-- This creates space for the app name that will be shown by the system -->
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    
+</layer-list>

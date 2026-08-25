@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base background -->
+    <item android:drawable="@color/splash_grad_center" />
+
+    <!-- Radial gradient overlay for modern look (gelap/redup agar logo menonjol) -->
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:startColor="@color/splash_grad_start"
+                android:centerColor="@color/splash_grad_center"
+                android:endColor="@color/black"
+                android:gradientRadius="800dp" />
+        </shape>
+    </item>
+
+    <!-- Logo SIWAK (baru) di tengah -->
+    <item android:width="350dp" android:height="350dp" android:gravity="center">
+        <bitmap
+            android:src="@drawable/mosque_logo"
+            android:gravity="fill" />
+    </item>
+</layer-list>

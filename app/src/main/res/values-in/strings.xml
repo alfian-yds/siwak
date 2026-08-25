@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bahasa Indonesia (locale qualifier "in") — SIWAK FT-UNY -->
+<resources>
+
+    <!-- Nama Waktu Shalat -->
+    <string name="fajr">Subuh</string>
+    <string name="dhuhr">Dzuhur</string>
+    <string name="asr">Ashar</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isya</string>
+    <string name="sunrise">Terbit</string>
+    <string name="imsak">Imsak</string>
+    <string name="jummah">Jumat</string>
+
+    <!-- Label Waktu -->
+    <string name="azan">Adzan</string>
+    <string name="iqamah">Iqamah</string>
+    <string name="current_time">Waktu Sekarang</string>
+    <string name="next_prayer">Berikutnya</string>
+    <string name="time_remaining">Sisa Waktu</string>
+    <string name="current_prayer">Sekarang</string>
+    <string name="in_progress">Berlangsung</string>
+
+    <!-- Hari &amp; Tanggal -->
+    <string name="today">Hari Ini</string>
+    <string name="islamic_date">Tanggal Hijriah</string>
+    <string name="gregorian_date">Tanggal</string>
+
+    <!-- Pengaturan -->
+    <string name="settings">Pengaturan</string>
+    <string name="language">Bahasa</string>
+    <string name="region">Wilayah</string>
+    <string name="city">Kota</string>
+    <string name="mosque_name">Nama Masjid</string>
+    <string name="clock_type">Jenis Jam</string>
+    <string name="theme">Tema</string>
+    <string name="font_size">Ukuran Font</string>
+    <string name="show_seconds">Tampilkan Detik</string>
+    <string name="hour_format_24">Format 24 Jam</string>
+
+    <!-- Pengaturan Suara -->
+    <string name="azan_sound_settings">Pengaturan Suara Adzan</string>
+    <string name="iqamah_sound_settings">Pengaturan Suara Iqamah</string>
+    <string name="enable_azan_sound">Aktifkan Suara Adzan</string>
+    <string name="enable_iqamah_sound">Aktifkan Suara Iqamah</string>
+    <string name="azan_sound_description">Bunyikan notifikasi suara saat waktu adzan</string>
+    <string name="iqamah_sound_description">Bunyikan notifikasi suara saat waktu iqamah</string>
+    <string name="sound_type">Jenis Suara</string>
+    <string name="sound_type_countdown">Detik Hitung Mundur (tik)</string>
+    <string name="sound_type_beep">Bunyi Bip</string>
+    <string name="sound_type_custom">Suara Kustom</string>
+    <string name="select_custom_audio">Pilih Berkas Suara</string>
+    <string name="no_audio_selected">Belum ada berkas suara dipilih</string>
+    <string name="audio_file_selected">Berkas suara: %s</string>
+    <string name="preview_sound">Pratinjau Suara</string>
+    <string name="battery_optimization_title">Layanan Latar Belakang</string>
+    <string name="battery_optimization_description">Pastikan notifikasi shalat berjalan andal</string>
+    <string name="battery_optimized">Optimasi baterai aktif</string>
+    <string name="battery_not_optimized">Optimasi baterai nonaktif</string>
+    <string name="request_battery_exemption">Minta Pengecualian</string>
+    <string name="battery_exemption_info">Agar notifikasi waktu shalat andal, mohon nonaktifkan optimasi baterai untuk aplikasi ini</string>
+
+    <!-- Notifikasi Shalat -->
+    <string name="prayer_notification_title">%1$s %2$s</string>
+    <string name="prayer_notification_content">Telah masuk waktu %1$s %2$s</string>
+    <string name="stop_sound">Hentikan Suara</string>
+    <string name="prayer_notification_channel_name">Notifikasi Shalat</string>
+    <string name="prayer_notification_channel_desc">Notifikasi untuk waktu Adzan dan Iqamah</string>
+
+    <!-- Hitung Mundur Layar Penuh -->
+    <string name="fullscreen_countdown_title">Hitung Mundur Layar Penuh</string>
+    <string name="fullscreen_countdown_description">Tampilkan hitung mundur layar penuh sebelum adzan dan selama jeda iqamah</string>
+
+    <!-- Jenis Jam -->
+    <string name="digital_clock">Digital</string>
+    <string name="analog_clock">Analog</string>
+
+    <!-- Tema -->
+    <string name="theme_default">Bawaan</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_mosque_green">Hijau Masjid</string>
+    <string name="theme_blue">Biru</string>
+
+    <!-- Pesan -->
+    <string name="error_network">Kesalahan Jaringan</string>
+    <string name="error_no_data">Jadwal shalat tidak tersedia</string>
+    <string name="refresh">Muat Ulang</string>
+
+    <!-- Navigasi -->
+    <string name="back">Kembali</string>
+    <string name="cancel">Batal</string>
+    <string name="exit_app">Keluar Aplikasi</string>
+    <string name="exit_confirmation">Yakin ingin keluar dari aplikasi?</string>
+    <string name="exit">Keluar</string>
+
+    <!-- Sapuan terjemahan setting (SIWAK) -->
+    <string name="unit_minute_short">mnt</string>
+    <string name="manual_coordinates">Koordinat Manual</string>
+    <string name="manual_coordinates_desc">Masukkan lintang &amp; bujur persis lokasi masjid untuk akurasi maksimum</string>
+    <string name="latitude">Lintang (Latitude)</string>
+    <string name="longitude">Bujur (Longitude)</string>
+    <string name="iqamah_gaps_title">Jeda Iqamah (menit setelah Adzan)</string>
+    <string name="prayer_offset_title">Koreksi Menit</string>
+    <string name="prayer_offset_desc">Geser tiap waktu (+/−) agar sama persis dengan jadwal cetak Kemenag setempat</string>
+    <string name="countdown_minutes_before">Menit sebelum Adzan</string>
+    <string name="display_visibility_title">Tampilkan / Sembunyikan Waktu</string>
+    <string name="show_sunrise_label">Tampilkan Terbit</string>
+    <string name="show_imsak_label">Tampilkan Imsak</string>
+    <string name="iqamah_cycle_label">Pergantian Adzan / Iqamah</string>
+    <string name="iqamah_cycle_desc">Kartu bergantian menampilkan waktu Adzan &amp; Iqamah; jika mati = tampil Adzan saja</string>
+    <string name="prayer_times_setup_title">Jadwal Manual</string>
+    <string name="jumma_bayan_title">Bayan Malam Jumat</string>
+    <string name="jumma_bayan_desc">Pengaturan khusus malam Jumat (Kamis malam)</string>
+    <string name="jumma_bayan_info">Jika aktif, Iqamah Isya pada Kamis malam ditunda sesuai durasi untuk Bayan.</string>
+    <string name="bayan_duration">Durasi Bayan</string>
+    <string name="prayer_display_title">Pengaturan Tampilan Waktu Shalat</string>
+    <string name="jumuah_duration_desc">Berapa lama menampilkan shalat Jumat sebagai aktif setelah Adzan</string>
+    <string name="jumuah_duration_label">Durasi Jumat</string>
+    <string name="show_jumuah_screen_label">Tampilkan Layar Jumat</string>
+    <string name="show_jumuah_screen_desc">Tampilkan layar khusus saat shalat Jumat</string>
+    <string name="dua_duration_desc">Berapa lama menampilkan layar \'Masuk Waktu Shalat\' setelah Iqamah</string>
+    <string name="dua_duration_label">Durasi Layar Shalat</string>
+    <string name="weather_api_free_key">Dapatkan kunci gratis di weatherapi.com</string>
+    <string name="openweather_free_key">Dapatkan kunci gratis di openweathermap.org/api</string>
+    <string name="clock_both_auto">Keduanya (Bergantian)</string>
+    <string name="hijri_date_source">Sumber Tanggal Hijriah</string>
+    <string name="provider_label">Penyedia</string>
+    <string name="sync_now">Sinkronkan</string>
+    <string name="syncing">Menyinkronkan…</string>
+    <string name="never_synced">Belum pernah</string>
+    <string name="hijri_offset_label">Penyesuaian Tanggal (±hari)</string>
+    <string name="hijri_offset_desc">Geser tanggal Hijriah agar cocok dengan penetapan setempat</string>
+    <string name="clock_size_label">Ukuran Jam</string>
+    <string name="clock_size_normal">Normal</string>
+    <string name="clock_size_large">Besar</string>
+    <string name="clock_size_xlarge">Sangat Besar</string>
+    <string name="running_text_title">Running Text (Teks Berjalan)</string>
+    <string name="running_text_desc">Pengumuman/hadits yang tampil di bagian bawah. Pisahkan beberapa pesan dengan ||</string>
+    <string name="running_text_hint">Luruskan &amp; rapatkan shaf || Mohon senyapkan HP</string>
+    <string name="media_title">Logo &amp; Background</string>
+    <string name="logo_label">Logo Masjid</string>
+    <string name="background_label">Background Utama</string>
+    <string name="background_prayer_label">Background Layar Masuk Waktu Shalat</string>
+    <string name="background_iqamah_label">Background Layar Iqamah</string>
+    <string name="no_image">Belum diatur (bawaan)</string>
+    <string name="image_set">Gambar terpasang</string>
+    <string name="choose_image">Pilih</string>
+    <string name="clear_image">Hapus</string>
+    <string name="night_mode_title">Mode Istirahat Malam</string>
+    <string name="night_mode_desc">Redupkan layar pada rentang jam malam (hemat listrik)</string>
+    <string name="night_start">Jam mulai</string>
+    <string name="night_end">Jam selesai</string>
+    <string name="night_dim_level">Tingkat kegelapan</string>
+
+    <!-- Override menu sistem (aslinya translatable=false) -->
+    <string name="both_clocks">Keduanya</string>
+    <string name="manual_prayer_times">Jadwal Manual</string>
+    <string name="manual_prayer_times_description">Gunakan jadwal manual, bukan otomatis</string>
+    <string name="prayer_times_setup">Pengaturan Jadwal Manual</string>
+    <string name="app_control">Kontrol Aplikasi</string>
+    <string name="exit_prayer_clock">Keluar Aplikasi</string>
+    <string name="location">Lokasi</string>
+    <string name="select_city">Pilih Kota</string>
+    <string name="clock_format">Format Jam</string>
+    <string name="system_settings">Pengaturan Sistem</string>
+    <string name="android_settings">Pengaturan Android</string>
+    <string name="date_time_settings">Tanggal &amp; Waktu</string>
+    <string name="system_settings_description">Akses pengaturan sistem Android dan aplikasi lain</string>
+    <string name="open_android_settings">Buka Pengaturan Android</string>
+    <string name="open_date_time_settings">Buka Pengaturan Tanggal &amp; Waktu</string>
+    <string name="quick_access">Akses Cepat</string>
+    <string name="open_app_drawer">Buka Daftar Aplikasi</string>
+    <string name="open_app_drawer_description">Akses aplikasi lain yang terpasang</string>
+    <string name="choose_launcher">Ganti Launcher</string>
+    <string name="choose_launcher_description">Beralih sementara ke launcher lain</string>
+    <string name="open_file_manager">Pengelola Berkas</string>
+    <string name="open_file_manager_description">Jelajahi berkas dan folder</string>
+    <string name="set_as_default_launcher">Jadikan Launcher Utama</string>
+    <string name="set_as_default_launcher_description">Jadikan aplikasi ini layar utama</string>
+    <string name="already_default_launcher">Sudah menjadi launcher utama</string>
+    <string name="api_configuration">Konfigurasi API</string>
+    <string name="api_configuration_description">Atur kunci API dan URL server untuk layanan</string>
+    <string name="developer">Pengembang</string>
+    <string name="github_repository">Repositori GitHub</string>
+    <string name="about_app">Tentang</string>
+    <string name="app_version">Versi</string>
+    <string name="check_for_updates">Cek Pembaruan</string>
+    <string name="loading">Memuat…</string>
+    <string name="last_updated">Terakhir Diperbarui</string>
+    <string name="save">Simpan</string>
+    <string name="font_small">Kecil</string>
+    <string name="font_medium">Sedang</string>
+    <string name="font_large">Besar</string>
+    <string name="font_extra_large">Sangat Besar</string>
+    <string name="language_english">English</string>
+    <string name="language_tamil">Tamil</string>
+
+    <!-- Sumber Jadwal Shalat (SIWAK) -->
+    <string name="prayer_service_title">Sumber Jadwal Shalat</string>
+    <string name="prayer_service_desc">Pilih cara memperoleh jadwal shalat</string>
+    <string name="select_city_kabupaten">Kota / Kabupaten</string>
+    <string name="select_city_hint">Pilih kota</string>
+    <string name="mosque_name_hint">Masukkan nama masjid</string>
+
+    <!-- Cuaca -->
+    <string name="weather">Cuaca</string>
+    <string name="weather_city">Kota Cuaca</string>
+    <string name="weather_uses_shared_location">Cuaca memakai lokasi yang sama dengan jadwal shalat (atur di Lokasi &amp; Jadwal).</string>
+    <string name="weather_city_description">Kota untuk informasi cuaca (terpisah dari lokasi jadwal shalat)</string>
+    <string name="weather_placeholder">Masukkan nama kota untuk cuaca</string>
+
+    <!-- Label Adzan/Iqamah untuk highlight -->
+    <string name="azan_letter">Adzan</string>
+    <string name="iqamah_letter">Iqamah</string>
+
+    <!-- Label waktu berikutnya (urutan Indonesia): "Adzan Dzuhur" -->
+    <string name="prayer_azan_label">Adzan %1$s</string>
+    <string name="prayer_iqamah_label">Iqamah %1$s</string>
+
+    <!-- Nama Hari (urut: Senin dulu, samakan dengan default) -->
+    <string-array name="day_names">
+        <item>Senin</item>
+        <item>Selasa</item>
+        <item>Rabu</item>
+        <item>Kamis</item>
+        <item>Jumat</item>
+        <item>Sabtu</item>
+        <item>Minggu</item>
+    </string-array>
+
+    <!-- Nama Bulan Hijriah -->
+    <string-array name="hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabiul Awal</item>
+        <item>Rabiul Akhir</item>
+        <item>Jumadil Awal</item>
+        <item>Jumadil Akhir</item>
+        <item>Rajab</item>
+        <item>Sya\'ban</item>
+        <item>Ramadhan</item>
+        <item>Syawal</item>
+        <item>Dzulqa\'dah</item>
+        <item>Dzulhijjah</item>
+    </string-array>
+
+    <!-- Hitung Mundur Layar Penuh -->
+    <string name="countdown_azan_title">HITUNG MUNDUR ADZAN</string>
+    <string name="countdown_iqamah_title">HITUNG MUNDUR IQAMAH</string>
+    <string name="countdown_label_minutes">MENIT</string>
+    <string name="countdown_label_seconds">DETIK</string>
+    <string name="best_time_dua">Waktu terbaik untuk berdoa</string>
+
+    <!-- Layar "Masuk Waktu Shalat" (pengganti Dua Saff) -->
+    <string name="dua_joining_saff_title">Telah Masuk Waktu Shalat</string>
+    <string name="dua_joining_saff_meaning">Marilah menunaikan shalat berjamaah</string>
+    <string name="silent_your_phone">🔇 Mohon matikan / senyapkan (silent) HP Anda</string>
+
+    <!-- Shalat Jumat -->
+    <string name="jummah_in_progress_title">Khutbah Berlangsung</string>
+    <string name="jummah_prayer_reminder">Mohon senyapkan ponsel dan dengarkan khutbah dengan tenang.</string>
+
+</resources>
