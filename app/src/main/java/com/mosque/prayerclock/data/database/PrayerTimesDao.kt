@@ -1,0 +1,93 @@
+package com.mosque.prayerclock.data.database
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.mosque.prayerclock.data.model.PrayerTimes
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface PrayerTimesDao {
+    // Year-agnostic query by ID (primary key)
+    @Query("SELECT * FROM prayer_times WHERE id = :id")
+    suspend fun getPrayerTimesById(id: String): PrayerTimes?
+    
+    // Provider-specific queries
+    @Query("SELECT * FROM prayer_times WHERE date = :date AND providerKey = :providerKey")
+    suspend fun getPrayerTimesByDateAndProvider(
+        date: String,
+        providerKey: String,
+    ): PrayerTimes?
+
+    @Query("SELECT * FROM prayer_times WHERE date = :date AND providerKey = :providerKey")
+    fun getPrayerTimesByDateAndProviderFlow(
+        date: String,
+        providerKey: String,
+    ): Flow<PrayerTimes?>
+
+    // Legacy method for backward compatibility (gets first match by date)
+    @Query("SELECT * FROM prayer_times WHERE date = :date LIMIT 1")
+    suspend fun getPrayerTimesByDate(date: String): PrayerTimes?
+
+    @Query("SELECT * FROM prayer_times WHERE date = :date")
+    fun getPrayerTimesByDateFlow(date: String): Flow<PrayerTimes?>
+
+    @Query("SELECT * FROM prayer_times ORDER BY date DESC LIMIT 30")
+    fun getAllPrayerTimes(): Flow<List<PrayerTimes>>
+
+    // SIWAK: jadwal tersimpan TERBARU untuk sebuah provider — fallback saat offline/gagal sinkron
+    @Query("SELECT * FROM prayer_times WHERE providerKey = :providerKey ORDER BY date DESC LIMIT 1")
+    suspend fun getMostRecentPrayerTimes(providerKey: String): PrayerTimes?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPrayerTimes(prayerTimes: PrayerTimes)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPrayerTimesList(prayerTimesList: List<PrayerTimes>)
+
+    @Delete
+    suspend fun deletePrayerTimes(prayerTimes: PrayerTimes)
+
+    @Query("DELETE FROM prayer_times WHERE date < :date")
+    suspend fun deleteOldPrayerTimes(date: String)
+
+    @Query("SELECT COUNT(*) FROM prayer_times WHERE date >= :fromDate AND date <= :toDate")
+    suspend fun getPrayerTimesCount(
+        fromDate: String,
+        toDate: String,
+    ): Int
+
+    // Monthly caching queries for ACJU Direct
+    @Query(
+        "SELECT * FROM prayer_times WHERE providerKey = :providerKey AND date >= :startDate AND date <= :endDate ORDER BY date ASC",
+    )
+    suspend fun getMonthlyPrayerTimes(
+        providerKey: String,
+        startDate: String,
+        endDate: String,
+    ): List<PrayerTimes>
+
+    @Query(
+        "SELECT COUNT(*) FROM prayer_times WHERE providerKey = :providerKey AND date >= :startDate AND date <= :endDate",
+    )
+    suspend fun getMonthlyPrayerTimesCount(
+        providerKey: String,
+        startDate: String,
+        endDate: String,
+    ): Int
+
+    @Query("DELETE FROM prayer_times WHERE providerKey = :providerKey AND date >= :startDate AND date <= :endDate")
+    suspend fun deleteMonthlyPrayerTimes(
+        providerKey: String,
+        startDate: String,
+        endDate: String,
+    )
+
+    @Query("DELETE FROM prayer_times")
+    suspend fun deleteAllPrayerTimes()
+
+    @Query("SELECT COUNT(*) FROM prayer_times")
+    suspend fun getAllPrayerTimesCount(): Int
+}
