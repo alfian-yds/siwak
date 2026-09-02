@@ -125,7 +125,32 @@ fun OpenWeatherMapResponse.toWeatherInfo(): WeatherInfo {
         humidity = main.humidity,
         feelsLike = main.feels_like,
         visibility = visibility / 1000.0, // Convert meters to kilometers
-        uvIndex = 0.0, // UV index not available in current weather endpoint
+        // SIWAK: endpoint /weather gratis TIDAK menyediakan UV → diestimasi dari posisi matahari
+        // (waktu terhadap sunrise/sunset) dan tutupan awan. 0 di malam hari, puncak di tengah hari.
+        uvIndex = estimateUvIndex(dt, sys.sunrise, sys.sunset, clouds.all),
         windSpeed = wind.speed * 3.6, // Convert m/s to km/h
     )
+}
+
+/**
+ * Estimasi indeks UV tanpa endpoint berbayar.
+ * Model sederhana: kurva harian berpuncak di tengah hari (antara sunrise & sunset),
+ * dikalikan faktor tutupan awan. Cocok untuk wilayah tropis (Indonesia), puncak cerah ~11.
+ * Semua waktu dalam detik epoch (UTC), jadi tak bergantung zona waktu.
+ */
+private fun estimateUvIndex(
+    dtSec: Long,
+    sunriseSec: Long,
+    sunsetSec: Long,
+    cloudsPercent: Int,
+): Double {
+    if (sunsetSec <= sunriseSec) return 0.0
+    if (dtSec <= sunriseSec || dtSec >= sunsetSec) return 0.0 // malam → UV 0
+    val noon = (sunriseSec + sunsetSec) / 2.0
+    val halfDay = (sunsetSec - sunriseSec) / 2.0
+    val x = ((dtSec - noon) / halfDay).coerceIn(-1.0, 1.0) // -1 (sunrise) .. 0 (siang) .. 1 (sunset)
+    val elevation = kotlin.math.cos(x * Math.PI / 2.0).coerceIn(0.0, 1.0) // 1 di tengah hari
+    val peakClearSky = 11.0 // puncak langit cerah wilayah tropis
+    val cloudFactor = 1.0 - 0.7 * (cloudsPercent.coerceIn(0, 100) / 100.0) // awan mengurangi s/d 70%
+    return peakClearSky * elevation * cloudFactor
 }

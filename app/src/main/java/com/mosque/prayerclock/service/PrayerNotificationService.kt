@@ -361,45 +361,48 @@ class PrayerNotificationService : Service() {
         if (!settings.soundEnabled) return
 
         try {
-            // Calculate all iqamah times dynamically from settings
-            val fajrIqamah = TimeUtils.addMinutesToTime(prayerTimes.fajrAzan, settings.fajrIqamahGap)
-            val dhuhrIqamah = TimeUtils.addMinutesToTime(prayerTimes.dhuhrAzan, settings.dhuhrIqamahGap)
-            val asrIqamah = TimeUtils.addMinutesToTime(prayerTimes.asrAzan, settings.asrIqamahGap)
-            val maghribIqamah = TimeUtils.addMinutesToTime(prayerTimes.maghribAzan, settings.maghribIqamahGap)
-            val ishaIqamah = TimeUtils.addMinutesToTime(prayerTimes.ishaAzan, settings.ishaIqamahGap)
+            // SIWAK: gunakan waktu TERKOREKSI (koreksi menit) — sama persis dengan yang ditampilkan,
+            // BUKAN jadwal mentah dari API. Iqamah dihitung dari azan yang sudah dikoreksi.
+            val wi = prayerTimes.withIqamahTimes(settings)
+            val pt = wi.prayerTimes // azan & sunrise terkoreksi
+            val fajrIqamah = wi.fajrIqamah
+            val dhuhrIqamah = wi.dhuhrIqamah
+            val asrIqamah = wi.asrIqamah
+            val maghribIqamah = wi.maghribIqamah
+            val ishaIqamah = wi.ishaIqamah
 
             // Check all azan times for 5-second countdown ticking
             checkAndPlayCountdownTicking(
                 PrayerType.FAJR,
-                prayerTimes.fajrAzan,
+                pt.fajrAzan,
                 currentDateTime,
                 settings,
                 "Azan",
             )
             checkAndPlayCountdownTicking(
                 PrayerType.DHUHR,
-                prayerTimes.dhuhrAzan,
+                pt.dhuhrAzan,
                 currentDateTime,
                 settings,
                 "Azan",
             )
             checkAndPlayCountdownTicking(
                 PrayerType.ASR,
-                prayerTimes.asrAzan,
+                pt.asrAzan,
                 currentDateTime,
                 settings,
                 "Azan",
             )
             checkAndPlayCountdownTicking(
                 PrayerType.MAGHRIB,
-                prayerTimes.maghribAzan,
+                pt.maghribAzan,
                 currentDateTime,
                 settings,
                 "Azan",
             )
             checkAndPlayCountdownTicking(
                 PrayerType.ISHA,
-                prayerTimes.ishaAzan,
+                pt.ishaAzan,
                 currentDateTime,
                 settings,
                 "Azan",
@@ -408,7 +411,7 @@ class PrayerNotificationService : Service() {
             // Check sunrise time for 5-second countdown ticking
             checkAndPlayCountdownTicking(
                 PrayerType.SUNRISE,
-                prayerTimes.sunrise,
+                pt.sunrise,
                 currentDateTime,
                 settings,
                 "Sunrise",
