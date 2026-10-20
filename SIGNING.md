@@ -16,7 +16,7 @@ keytool -genkeypair -v -keystore siwak-release.keystore -alias siwak -keyalg RSA
 
 Akan ditanya:
 - **password keystore** — catat, jangan lupa
-- nama, organisasi, kota → boleh diisi bebas (mis. "SIWAK FT UNY", "UNY", "Yogyakarta")
+- nama, organisasi, kota → boleh diisi bebas (mis. "SIWAK", "Yogyakarta")
 - **password key** — boleh sama dengan password keystore (tekan Enter untuk menyamakan)
 
 Hasilnya: file `siwak-release.keystore` di folder project.

@@ -5,7 +5,7 @@ jadwal shalat, tanggal Hijriah, cuaca, dan pengumuman berjalan (running text) di
 maupun musholla. Dirancang untuk layar besar dan navigasi remote (D-Pad), serta **offline-first**
 sehingga tetap berjalan meski internet mati.
 
-> Proyek Fakultas Teknik, Universitas Negeri Yogyakarta. Basis: [MosqueClock](https://github.com/mhdzumair/MosqueClock)
+> Proyek open source mandiri. Basis: [MosqueClock](https://github.com/mhdzumair/MosqueClock)
 > (open-source, Android TV) oleh Mohamed Zumair, diadaptasi penuh untuk Indonesia. Lisensi MIT.
 
 ---
@@ -149,8 +149,25 @@ app/src/main/java/com/mosque/prayerclock/
 
 ---
 
+## ⚠️ Penafian jadwal shalat
+
+Jadwal shalat dihitung dari koordinat masjid dengan metode Kemenag RI, sehingga dapat berbeda beberapa
+menit dari jadwal resmi setempat. Pengurus masjid wajib mencocokkannya dengan jadwal Kementerian Agama
+setempat dan memakai fitur koreksi menit bila perlu.
+
+---
+
 ## 📜 Lisensi & Kredit
 
 MIT.<br>
 Berbasis MosqueClock (open-source) oleh Mohamed Zumair.<br>
-Dikembangkan oleh Alfian Yudisurya — Departemen Pendidikan Teknik Elektro, FT UNY.
+Dikembangkan oleh Alfian Yudisurya.
+
+| Dokumen | Isi |
+|---|---|
+| [LICENSE](LICENSE) | Lisensi kode (MIT) |
+| [NOTICE.md](NOTICE.md) | Pustaka, data, dan aset pihak ketiga beserta lisensinya |
+| [PRIVACY.md](PRIVACY.md) | Kebijakan privasi aplikasi dan layanan siwak.web.id |
+| [TERMS.md](TERMS.md) | Syarat penggunaan layanan |
+
+Data cuaca dari [OpenWeather](https://openweathermap.org). Nama dan logo SIWAK tidak termasuk lisensi MIT.

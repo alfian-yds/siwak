@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SIWAK FT-UNY</string>
+    <string name="app_name">SIWAK</string>
     
     <!-- Prayer Names -->
     <string name="fajr">Fajr</string>
@@ -296,7 +296,7 @@
     <string name="open_file_manager" translatable="false">File Manager</string>
     <string name="open_file_manager_description" translatable="false">Browse files and folders</string>
     <string name="set_as_default_launcher" translatable="false">Set as Default Launcher</string>
-    <string name="set_as_default_launcher_description" translatable="false">Jadikan SIWAK FT-UNY sebagai layar utama</string>
+    <string name="set_as_default_launcher_description" translatable="false">Jadikan SIWAK sebagai layar utama</string>
     <string name="already_default_launcher" translatable="false">Already set as default launcher</string>
     
     <!-- API Configuration -->
@@ -326,8 +326,10 @@
     <string name="install_update" translatable="false">Install Update</string>
     <string name="update_check_failed" translatable="false">Failed to check for updates</string>
     <string name="developer" translatable="false">Developer</string>
-    <string name="developer_name" translatable="false">Alfian Yudisurya — Departemen Pendidikan Teknik Elektro, FT UNY</string>
+    <string name="developer_name" translatable="false">Alfian Yudisurya</string>
     <string name="based_on_credit">Berbasis MosqueClock (open-source) oleh Mohamed Zumair · Lisensi MIT</string>
+    <string name="weather_attribution" translatable="false">Data cuaca: OpenWeather (openweathermap.org)</string>
+    <string name="legal_links" translatable="false">Lisensi, kebijakan privasi &amp; syarat: github.com/alfian-yds/siwak</string>
     <string name="open_source_licenses" translatable="false">Open Source Licenses</string>
     <string name="github_repository" translatable="false">GitHub Repository</string>
     

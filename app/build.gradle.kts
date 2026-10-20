@@ -15,8 +15,8 @@ android {
         applicationId = "com.mosque.prayerclock"
         minSdk = 21
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -184,10 +184,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-
-    // PDF Processing & Web Scraping
-    implementation("com.itextpdf:itextg:5.5.10")
-    implementation("org.jsoup:jsoup:1.17.2")
 
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")

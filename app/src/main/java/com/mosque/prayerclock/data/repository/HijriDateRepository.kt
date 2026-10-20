@@ -29,7 +29,6 @@ class HijriDateRepository
         private val mosqueClockApi: MosqueClockApi,
         private val prayerTimesApi: com.mosque.prayerclock.data.network.PrayerTimesApi,
         private val hijriDateDao: HijriDateDao,
-        private val hijriDateScraper: com.mosque.prayerclock.data.scraping.HijriDateScraper,
     ) {
         data class HijriDate(
             val day: Int,
@@ -54,19 +53,12 @@ class HijriDateRepository
                         settings = settings,
                     )
                 }
-                HijriProvider.AL_ADHAN_API -> {
+                HijriProvider.AL_ADHAN_API, HijriProvider.ACJU_DIRECT -> { // ACJU (Sri Lanka) dihapus; dialihkan ke hisab
                     getHijriDateWithCaching(
                         provider = "AL_ADHAN_API",
                         gregorianDate = todayString,
                         settings = settings,
                         region = settings.selectedRegion,
-                    )
-                }
-                HijriProvider.ACJU_DIRECT -> {
-                    getHijriDateWithCaching(
-                        provider = "ACJU_DIRECT",
-                        gregorianDate = todayString,
-                        settings = settings,
                     )
                 }
                 HijriProvider.MANUAL -> {
@@ -119,7 +111,6 @@ class HijriDateRepository
             }
 
             return when (provider) {
-                "ACJU_DIRECT" -> fetchFromAcjuDirectWithMonthEndLogic(gregorianDate, settings, calculatedDate)
                 "MOSQUE_CLOCK_API" -> fetchFromMosqueClockApi(gregorianDate, settings)
                 "AL_ADHAN_API" -> fetchFromAlAdhanApi(gregorianDate, settings, region!!)
                 else -> calculateCurrentHijriDate(settings)
@@ -401,113 +392,6 @@ class HijriDateRepository
             } catch (e: Exception) {
                 Log.e("HijriDateRepository", "❌ Error checking month-end status: ${e.message}")
                 return true // Be conservative - assume near month-end if we can't determine
-            }
-        }
-
-        /**
-         * Enhanced ACJU fetching with month-end logic
-         * If we're near month-end, always fetch fresh data to check for new calendar uploads
-         */
-        @Suppress("UNREACHABLE_CODE")
-        private suspend fun fetchFromAcjuDirectWithMonthEndLogic(
-            gregorianDate: String,
-            settings: AppSettings,
-            fallbackDate: HijriDate?,
-        ): HijriDate {
-            return try {
-                Log.d("HijriDateRepository", "🔍 Scraping Hijri date from ACJU for: $gregorianDate")
-                val date = LocalDate.parse(gregorianDate)
-                val hijriInfo = hijriDateScraper.getHijriDateForGregorian(date.year, date.monthNumber, date.dayOfMonth)
-
-                if (hijriInfo != null) {
-                    // Parse month string to number (hijriMonth is a string like "Rabee`unith Thaani")
-                    val monthNumber = parseHijriMonthToNumber(hijriInfo.hijriMonth)
-                    val hijriDate = HijriDate(hijriInfo.hijriDay, monthNumber, hijriInfo.hijriYear)
-                    Log.d(
-                        "HijriDateRepository",
-                        "✅ ACJU scraping successful: ${hijriDate.day}/${hijriDate.month}/${hijriDate.year}",
-                    )
-
-                    // Always cache fresh ACJU data with range information
-                    cacheHijriDate(
-                        provider = "ACJU_DIRECT",
-                        gregorianDate = gregorianDate,
-                        hijriDate = hijriDate,
-                        region = null,
-                        isCalculated = false,
-                        hijriMonthStartDate = hijriInfo.monthStartDate,
-                        hijriMonthEndDate = hijriInfo.monthEndDate,
-                        hijriMonthName = hijriInfo.hijriMonth,
-                    )
-
-                    // If we're near month-end, log additional info
-                    if (isNearMonthEnd(gregorianDate)) {
-                        Log.d(
-                            "HijriDateRepository",
-                            "🌙 Fresh ACJU data shows day ${hijriDate.day} - monitoring for month transition",
-                        )
-                    }
-
-                    return hijriDate
-                } else {
-                    Log.w("HijriDateRepository", "⚠️ ACJU scraping returned null")
-
-                    // If we have fallback calculated date, use it
-                    if (fallbackDate != null) {
-                        Log.d(
-                            "HijriDateRepository",
-                            "📊 Using fallback calculated date: ${fallbackDate.day}/${fallbackDate.month}/${fallbackDate.year}",
-                        )
-                        cacheHijriDate("ACJU_DIRECT", gregorianDate, fallbackDate, null, isCalculated = true)
-                        return fallbackDate
-                    } else {
-                        Log.w("HijriDateRepository", "⚠️ No fallback available, using manual calculation")
-                        return calculateCurrentHijriDate(settings)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("HijriDateRepository", "❌ ACJU scraping error: ${e.message}")
-
-                // If we have fallback calculated date, use it
-                if (fallbackDate != null) {
-                    Log.d(
-                        "HijriDateRepository",
-                        "📊 Using fallback calculated date due to error: ${fallbackDate.day}/${fallbackDate.month}/${fallbackDate.year}",
-                    )
-                    cacheHijriDate("ACJU_DIRECT", gregorianDate, fallbackDate, null, isCalculated = true)
-                    return fallbackDate
-                } else {
-                    return calculateCurrentHijriDate(settings)
-                }
-            }
-        }
-
-        private suspend fun fetchFromAcjuDirect(
-            gregorianDate: String,
-            settings: AppSettings,
-        ): HijriDate {
-            return try {
-                Log.d("HijriDateRepository", "🔍 Scraping Hijri date from ACJU for: $gregorianDate")
-                val date = LocalDate.parse(gregorianDate)
-                val hijriInfo = hijriDateScraper.getHijriDateForGregorian(date.year, date.monthNumber, date.dayOfMonth)
-                if (hijriInfo != null) {
-                    // Parse month string to number (hijriMonth is a string like "Rabi' al-awwal")
-                    val monthNumber = parseHijriMonthToNumber(hijriInfo.hijriMonth)
-                    val hijriDate = HijriDate(hijriInfo.hijriDay, monthNumber, hijriInfo.hijriYear)
-                    Log.d(
-                        "HijriDateRepository",
-                        "✅ ACJU scraping successful: ${hijriDate.day}/${hijriDate.month}/${hijriDate.year}",
-                    )
-                    // Cache the scraping result
-                    cacheHijriDate("ACJU_DIRECT", gregorianDate, hijriDate, null, isCalculated = false)
-                    return hijriDate
-                } else {
-                    Log.w("HijriDateRepository", "⚠️ ACJU scraping returned null, falling back to manual calculation")
-                    calculateCurrentHijriDate(settings)
-                }
-            } catch (e: Exception) {
-                Log.e("HijriDateRepository", "❌ ACJU scraping error: ${e.message}")
-                calculateCurrentHijriDate(settings)
             }
         }
 

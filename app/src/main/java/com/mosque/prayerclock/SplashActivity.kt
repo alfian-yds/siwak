@@ -226,7 +226,7 @@ fun SplashScreen(
                 modifier = Modifier.alpha(logoAlpha),
             )
             androidx.compose.material3.Text(
-                text = "Jam & Jadwal Shalat · FT UNY",
+                text = "Jam & Jadwal Shalat",
                 color = Color(0xFFE0A93A),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.alpha(logoAlpha),

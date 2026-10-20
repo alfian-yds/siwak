@@ -112,7 +112,6 @@ import com.mosque.prayerclock.ui.components.MarkdownText
 import com.mosque.prayerclock.ui.theme.AppColorThemes
 import com.mosque.prayerclock.utils.LauncherHelper
 import com.mosque.prayerclock.viewmodel.CacheStats
-import com.mosque.prayerclock.viewmodel.PrefetchState
 import com.mosque.prayerclock.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -211,16 +210,6 @@ fun SettingsScreen(
                         onBackendUrlChange = viewModel::updateMosqueClockBackendUrl,
                         onBackendApiKeyChange = viewModel::updateMosqueClockBackendApiKey,
                     )
-                }
-
-                // Show offline data download for ACJU Direct scraping
-                if (settings.prayerServiceType == PrayerServiceType.ACJU_DIRECT) {
-                    item {
-                        OfflineDataSettings(
-                            zone = settings.selectedZone,
-                            viewModel = viewModel,
-                        )
-                    }
                 }
 
                 if (settings.prayerServiceType == PrayerServiceType.MANUAL) {
@@ -3963,6 +3952,17 @@ private fun AboutSettings(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
+            // SIWAK: atribusi data cuaca (wajib menurut ketentuan OpenWeather) + tautan dokumen legal
+            Text(
+                text = stringResource(R.string.weather_attribution),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+            Text(
+                text = stringResource(R.string.legal_links),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
 
             // Self-update features only available for GitHub/sideload distribution
             // Play Store builds use Google Play for updates (per Google policy)
@@ -4744,215 +4744,3 @@ private fun IqamahSoundSettings(
     }
 }
 
-@Composable
-private fun OfflineDataSettings(
-    zone: Int,
-    viewModel: SettingsViewModel,
-) {
-    val prefetchState by viewModel.prefetchState.collectAsState()
-    val cacheStatus by viewModel.cacheStatus.collectAsState()
-
-    // Check cache status when this composable is first displayed
-    LaunchedEffect(zone) {
-        viewModel.checkCacheStatus(zone)
-    }
-
-    SettingsCard {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp),
-            ) {
-                Text(
-                    text = "💾",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
-                Text(
-                    text = "Offline Data",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-
-            Text(
-                text = "Download prayer times for the remaining months to use offline",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
-
-            // Cache status
-            cacheStatus?.let { status ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                ) {
-                    Icon(
-                        imageVector = if (status.isFullyCached) Icons.Default.CheckCircle else Icons.Default.Info,
-                        contentDescription = null,
-                        tint = if (status.isFullyCached) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        modifier = Modifier
-                            .size(20.dp)
-                            .padding(end = 8.dp),
-                    )
-                    Text(
-                        text = "${status.cachedMonths} of ${status.totalMonths} months cached (${status.cachedDays}/${status.totalDays} days)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                if (status.isFullyCached) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp).padding(end = 8.dp),
-                            )
-                            Text(
-                                text = "✓ All available months cached! App will work fully offline",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
-                } else if (status.cachedMonths > 0) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(24.dp).padding(end = 8.dp),
-                            )
-                            Text(
-                                text = "Some months incomplete. Click download to update.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Download button
-            Button(
-                onClick = {
-                    viewModel.prefetchOfflineData(zone)
-                },
-                enabled = prefetchState !is PrefetchState.Loading,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ),
-            ) {
-                when (prefetchState) {
-                    is PrefetchState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Downloading...")
-                    }
-                    is PrefetchState.Success -> {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Downloaded Successfully")
-                    }
-                    is PrefetchState.Error -> {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Retry Download")
-                    }
-                    PrefetchState.Idle -> {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Download for Offline Use")
-                    }
-                }
-            }
-
-            // Show result details
-            when (val state = prefetchState) {
-                is PrefetchState.Success -> {
-                    if (state.result.successfulMonths > 0) {
-                        Text(
-                            text = "✓ Downloaded ${state.result.cachedDays} days from ${state.result.successfulMonths} new months",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    }
-                    if (state.result.skippedMonths > 0) {
-                        Text(
-                            text = "⏭️ ${state.result.skippedMonths} months already cached (skipped)",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                    if (state.result.failedMonths > 0) {
-                        Text(
-                            text = "${state.result.failedMonths} months failed to download",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                    if (state.result.unavailableMonths > 0) {
-                        Text(
-                            text = "${state.result.unavailableMonths} future months not available yet",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                }
-                is PrefetchState.Error -> {
-                    Text(
-                        text = "Error: ${state.message}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                }
-                else -> { }
-            }
-        }
-    }
-}

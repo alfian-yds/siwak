@@ -16,7 +16,6 @@ import com.mosque.prayerclock.data.repository.HijriDateRepository
 import com.mosque.prayerclock.data.repository.PrayerTimesRepository
 import com.mosque.prayerclock.data.repository.SettingsRepository
 import com.mosque.prayerclock.data.repository.WeatherRepository
-import com.mosque.prayerclock.data.scraping.DirectScrapingService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,13 +46,6 @@ class SettingsViewModel
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = AppSettings(),
                 )
-
-        // Offline data prefetch state
-        private val _prefetchState = MutableStateFlow<PrefetchState>(PrefetchState.Idle)
-        val prefetchState: StateFlow<PrefetchState> = _prefetchState.asStateFlow()
-
-        private val _cacheStatus = MutableStateFlow<DirectScrapingService.CacheStatus?>(null)
-        val cacheStatus: StateFlow<DirectScrapingService.CacheStatus?> = _cacheStatus.asStateFlow()
 
         // SIWAK: status sinkronisasi manual
         private val _isSyncingPrayer = MutableStateFlow(false)
@@ -462,50 +454,6 @@ class SettingsViewModel
         }
 
         /**
-         * Prefetch all remaining months of the year for offline use
-         */
-        fun prefetchOfflineData(zone: Int) {
-            viewModelScope.launch {
-                _prefetchState.value = PrefetchState.Loading
-                Log.d("SettingsViewModel", "🔄 Starting prefetch for zone $zone")
-                
-                try {
-                    val result = prayerTimesRepository.prefetchRemainingYearPrayerTimes(zone)
-                    _prefetchState.value = PrefetchState.Success(result)
-                    Log.d("SettingsViewModel", "✅ Prefetch complete: ${result.successfulMonths}/${result.totalMonths} months")
-                    
-                    // Update cache status after prefetch
-                    checkCacheStatus(zone)
-                } catch (e: Exception) {
-                    _prefetchState.value = PrefetchState.Error(e.message ?: "Unknown error")
-                    Log.e("SettingsViewModel", "❌ Prefetch failed", e)
-                }
-            }
-        }
-
-        /**
-         * Check offline cache status
-         */
-        fun checkCacheStatus(zone: Int) {
-            viewModelScope.launch {
-                try {
-                    val status = prayerTimesRepository.checkOfflineCacheStatus(zone)
-                    _cacheStatus.value = status
-                    Log.d("SettingsViewModel", "📊 Cache status: ${status.cachedMonths}/${status.totalMonths} months cached")
-                } catch (e: Exception) {
-                    Log.e("SettingsViewModel", "❌ Failed to check cache status", e)
-                }
-            }
-        }
-
-        /**
-         * Reset prefetch state
-         */
-        fun resetPrefetchState() {
-            _prefetchState.value = PrefetchState.Idle
-        }
-
-        /**
          * Clear all cached data (both prayer times and hijri dates)
          */
         suspend fun clearAllCachedData() {
@@ -549,13 +497,4 @@ data class CacheStats(
     val hijriDatesCount: Int,
 )
 
-/**
- * State for offline data prefetch operation
- */
-sealed class PrefetchState {
-    object Idle : PrefetchState()
-    object Loading : PrefetchState()
-    data class Success(val result: DirectScrapingService.PrefetchResult) : PrefetchState()
-    data class Error(val message: String) : PrefetchState()
-}
 

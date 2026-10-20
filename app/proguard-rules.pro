@@ -173,15 +173,6 @@
 -dontwarn androidx.window.extensions.**
 -dontwarn androidx.window.sidecar.**
 
-# iTextPDF
--keep class com.itextpdf.** { *; }
--dontwarn com.itextpdf.**
--keepclassmembers class com.itextpdf.** { *; }
-
-# Jsoup
--keep class org.jsoup.** { *; }
--keepclassmembers class org.jsoup.** { *; }
--dontwarn org.jsoup.**
 -dontwarn org.jspecify.annotations.**
 
 # Remove all logging in release builds
