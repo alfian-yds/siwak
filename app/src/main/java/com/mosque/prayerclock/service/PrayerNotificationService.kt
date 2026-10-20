@@ -277,21 +277,26 @@ class PrayerNotificationService : Service() {
         // Get settings to calculate iqamah times dynamically
         val settings = getCachedSettings()
 
-        // Include BOTH azan and iqamah times
+        // SIWAK v1.2: gerbang mode hitung-mundur WAJIB memakai waktu yang sama dengan
+        // checkPrayerTime() — yaitu waktu TERKOREKSI. Dulu gerbang memakai jadwal mentah API,
+        // sehingga bila ada koreksi menit, mode per-detik sudah mati saat waktu terkoreksi tiba
+        // dan suara tidak pernah dibunyikan.
+        val wi = prayerTimes.withIqamahTimes(settings)
+        val pt = wi.prayerTimes
         val allPrayerTimeStrings =
             listOf(
-                // Azan times
-                prayerTimes.fajrAzan,
-                prayerTimes.dhuhrAzan,
-                prayerTimes.asrAzan,
-                prayerTimes.maghribAzan,
-                prayerTimes.ishaAzan,
-                // Iqamah times (calculated dynamically from settings)
-                TimeUtils.addMinutesToTime(prayerTimes.fajrAzan, settings.fajrIqamahGap),
-                TimeUtils.addMinutesToTime(prayerTimes.dhuhrAzan, settings.dhuhrIqamahGap),
-                TimeUtils.addMinutesToTime(prayerTimes.asrAzan, settings.asrIqamahGap),
-                TimeUtils.addMinutesToTime(prayerTimes.maghribAzan, settings.maghribIqamahGap),
-                TimeUtils.addMinutesToTime(prayerTimes.ishaAzan, settings.ishaIqamahGap),
+                // Azan times (terkoreksi)
+                pt.fajrAzan,
+                pt.dhuhrAzan,
+                pt.asrAzan,
+                pt.maghribAzan,
+                pt.ishaAzan,
+                // Iqamah times (dari azan terkoreksi + jeda iqamah)
+                wi.fajrIqamah,
+                wi.dhuhrIqamah,
+                wi.asrIqamah,
+                wi.maghribIqamah,
+                wi.ishaIqamah,
             )
 
         return allPrayerTimeStrings.any { prayerTimeString ->

@@ -220,11 +220,10 @@ class SoundManager(
             return false
         }
 
-        // Check if phone is in silent/vibrate mode
+        // SIWAK v1.2: tidak lagi diblokir oleh mode senyap/getar. Di Android TV tidak ada
+        // vibrator, dan sebagian TV box melaporkan mode senyap/DND -> adzan diam total.
         if (isPhoneInSilentMode()) {
-            Log.d(TAG, "Phone in silent mode - vibrating and showing notification only")
-            vibrateForPrayer()
-            return true // Return true to indicate we handled it (with vibration)
+            Log.w(TAG, "Ringer mode senyap/getar terdeteksi — tetap memutar suara (layar masjid)")
         }
 
         Log.d(TAG, "Playing Azan sound: type=${settings.azanSoundType}")
@@ -273,11 +272,9 @@ class SoundManager(
             return false
         }
 
-        // Check if phone is in silent/vibrate mode
+        // SIWAK v1.2: tidak lagi diblokir oleh mode senyap/getar (lihat playAzanSound)
         if (isPhoneInSilentMode()) {
-            Log.d(TAG, "Phone in silent mode - vibrating and showing notification only")
-            vibrateForPrayer()
-            return true // Return true to indicate we handled it (with vibration)
+            Log.w(TAG, "Ringer mode senyap/getar terdeteksi — tetap memutar suara (layar masjid)")
         }
 
         Log.d(TAG, "Playing Iqamah sound: type=${settings.iqamahSoundType}")
