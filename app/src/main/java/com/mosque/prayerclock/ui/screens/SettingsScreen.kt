@@ -122,6 +122,7 @@ import javax.inject.Inject
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onConnectServer: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -155,6 +156,11 @@ fun SettingsScreen(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                // ─────────── SIWAK V2: hubungkan ke server ───────────
+                item {
+                    ConnectServerCard(onConnectServer)
+                }
+
                 // ─────────── Sistem ───────────
                 item {
                     SystemSettingsAccess()
@@ -4744,3 +4750,35 @@ private fun IqamahSoundSettings(
     }
 }
 
+
+
+/** SIWAK V2: pintu masuk ke layar Hubungkan (App Flow §2.2). */
+@Composable
+private fun ConnectServerCard(onConnectServer: () -> Unit) {
+    SettingsCard {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "🔗",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(end = 12.dp),
+                )
+                Column {
+                    Text(
+                        text = "Hubungkan ke server SIWAK",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = "Atur jadwal, suara, tampilan, dan teks berjalan dari HP lewat admin web. Pengurus juga bisa memantau dan membuka SIWAK dari jauh.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    )
+                }
+            }
+            Button(onClick = onConnectServer, modifier = Modifier.fillMaxWidth()) {
+                Text("Hubungkan ke server")
+            }
+        }
+    }
+}

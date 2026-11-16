@@ -1,0 +1,165 @@
+package com.mosque.prayerclock.server
+
+/**
+ * Bentuk data rute /api/v1 server SIWAK (TRD §6–§8, Backend Schema §4–§5).
+ * Semua field dibuat nullable karena Gson tidak menghormati non-null Kotlin; pemeriksaan
+ * dilakukan di BundleMapper. Field yang tidak dikenal diabaikan (TRD §7.3).
+ */
+
+data class PairingStartRequest(val nonce: String, val appVersion: String, val model: String)
+
+data class PairingStartResponse(val pairingId: String?, val code: String?, val expiresAt: String?)
+
+data class PairingStatusResponse(
+    val status: String?, // pending | expired | claimed
+    val code: String? = null,
+    val expiresAt: String? = null,
+    val deviceId: String? = null,
+    val deviceToken: String? = null,
+)
+
+data class AppStateReport(val foreground: Boolean, val since: String?, val canOpenApp: Boolean)
+
+data class HealthReport(val lastError: String?, val freeStorageMb: Long?)
+
+data class CommandResult(val id: String, val ok: Boolean, val message: String?)
+
+data class HeartbeatRequest(
+    val appVersion: String,
+    val configVersion: Long?,
+    val contentVersion: Long?,
+    val weatherStamp: String?,
+    val deviceTime: String,
+    val health: HealthReport,
+    val app: AppStateReport,
+    val commandResults: List<CommandResult>,
+)
+
+data class RemoteCommand(val id: String?, val type: String?)
+
+data class HeartbeatResponse(
+    val configVersion: Long?,
+    val contentVersion: Long?,
+    val weatherStamp: String?,
+    val serverTime: String?,
+    val minAppVersion: String?,
+    val commands: List<RemoteCommand>?,
+)
+
+data class MosqueDto(
+    val id: String?,
+    val name: String?,
+    val regionLabel: String?,
+    val latitude: Double?,
+    val longitude: Double?,
+    val timezone: String?,
+)
+
+data class DeviceDto(val id: String?, val name: String?, val pinSalt: String?, val pinHash: String?)
+
+data class RunningTextDto(val id: String?, val text: String?, val startsOn: String?, val endsOn: String?)
+
+// ---- Pengaturan masjid (Backend Schema §4) ------------------------------------------
+
+data class PrayerTimesDto(
+    val imsak: String?,
+    val subuh: String?,
+    val terbit: String?,
+    val dzuhur: String?,
+    val ashar: String?,
+    val maghrib: String?,
+    val isya: String?,
+)
+
+data class OffsetsDto(
+    val imsak: Int?,
+    val subuh: Int?,
+    val terbit: Int?,
+    val dzuhur: Int?,
+    val ashar: Int?,
+    val maghrib: Int?,
+    val isya: Int?,
+)
+
+data class HijriManualDto(val day: Int?, val month: Int?, val year: Int?, val setOn: String?)
+
+data class HijriDto(val source: String?, val dayOffset: Int?, val manual: HijriManualDto?)
+
+data class ScheduleDto(
+    val source: String?,
+    val manualTimes: PrayerTimesDto?,
+    val offsetsEnabled: Boolean?,
+    val offsets: OffsetsDto?,
+    val showImsak: Boolean?,
+    val showTerbit: Boolean?,
+    val hijri: HijriDto?,
+)
+
+data class IqamahGapsDto(val subuh: Int?, val dzuhur: Int?, val ashar: Int?, val maghrib: Int?, val isya: Int?)
+
+data class EnabledMinutesDto(val enabled: Boolean?, val minutes: Int?)
+
+data class JumatDto(val screenEnabled: Boolean?, val durationMinutes: Int?)
+
+data class PrayerCycleDto(
+    val iqamahGapMinutes: IqamahGapsDto?,
+    val showIqamahCycle: Boolean?,
+    val fullScreenCountdown: EnabledMinutesDto?,
+    val prayerScreenMinutes: Int?,
+    val jumat: JumatDto?,
+    val jumatNightBayan: EnabledMinutesDto?,
+)
+
+data class SoundItemDto(val enabled: Boolean?, val type: String?, val mediaId: String?)
+
+data class SoundDto(val enabled: Boolean?, val adzan: SoundItemDto?, val iqamah: SoundItemDto?)
+
+data class ClockDto(val type: String?, val showSeconds: Boolean?, val use24h: Boolean?, val sizePercent: Int?)
+
+data class NightModeDto(val enabled: Boolean?, val startHour: Int?, val endHour: Int?, val dimPercent: Int?)
+
+data class DisplayDto(
+    val layout: String?,
+    val colorTheme: String?,
+    val language: String?,
+    val clock: ClockDto?,
+    val nightMode: NightModeDto?,
+    val showWeather: Boolean?,
+)
+
+data class KioskDto(val autoReturn: EnabledMinutesDto?)
+
+data class SettingsDto(
+    val schedule: ScheduleDto?,
+    val prayerCycle: PrayerCycleDto?,
+    val sound: SoundDto?,
+    val display: DisplayDto?,
+    val kiosk: KioskDto?,
+)
+
+data class BundleDto(
+    val bundleSchema: Int?,
+    val configVersion: Long?,
+    val contentVersion: Long?,
+    val mosque: MosqueDto?,
+    val device: DeviceDto?,
+    val settings: SettingsDto?,
+    val runningTexts: List<RunningTextDto>?,
+)
+
+/** Cuaca dari server (Backend Schema §5.4). */
+data class WeatherDto(
+    val cellKey: String?,
+    val fetchedAt: String?,
+    val temperatureC: Double?,
+    val feelsLikeC: Double?,
+    val humidity: Int?,
+    val windKmh: Double?,
+    val iconCode: String?,
+    val description: String?,
+    val observedAt: Long?,
+    val sunrise: Long?,
+    val sunset: Long?,
+    val cloudsPercent: Int?,
+    val visibilityKm: Double?,
+)

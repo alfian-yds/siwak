@@ -188,6 +188,16 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
     val navController = rememberNavController()
     var showExitDialog by remember { mutableStateOf(false) }
     
+    // SIWAK V2: TV terhubung ke server atau mode mandiri
+    val serverViewModel: com.mosque.prayerclock.ui.server.AppServerViewModel = hiltViewModel()
+    val server by serverViewModel.server.collectAsStateWithLifecycle()
+    val unpairedEvents by serverViewModel.unpairedEvents.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { serverViewModel.ensureAgent() }
+    // TV dilepas dari admin web → tutup layar pengaturan server, kembali ke layar utama.
+    LaunchedEffect(unpairedEvents) {
+        if (unpairedEvents > 0) navController.popBackStack("main", inclusive = false)
+    }
+
     // Auto-update state
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
@@ -235,7 +245,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
     BackHandler(enabled = true) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
         when (currentRoute) {
-            "settings" -> navController.popBackStack()
+            "settings", "pairing" -> navController.popBackStack()
             "main" -> showExitDialog = true
             else -> showExitDialog = true
         }
@@ -260,7 +270,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
                         val currentRoute =
                             navController.currentBackStackEntry?.destination?.route
                         when (currentRoute) {
-                            "settings" -> {
+                            "settings", "pairing" -> {
                                 navController.popBackStack()
                                 true
                             }
@@ -281,8 +291,24 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
             }
 
             composable("settings") {
-                SettingsScreen(
-                    onNavigateBack = { navController.popBackStack() },
+                if (server?.isPaired == true) {
+                    // F-TV-17: TV terhubung hanya punya pengaturan terbatas, dikunci PIN.
+                    com.mosque.prayerclock.ui.server.ConnectedSettingsScreen(
+                        onBack = { navController.popBackStack() },
+                        onUnpaired = { navController.popBackStack("main", inclusive = false) },
+                    )
+                } else {
+                    SettingsScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onConnectServer = { navController.navigate("pairing") },
+                    )
+                }
+            }
+
+            composable("pairing") {
+                com.mosque.prayerclock.ui.server.PairingScreen(
+                    onBack = { navController.popBackStack() },
+                    onPaired = { navController.popBackStack("main", inclusive = false) },
                 )
             }
         }

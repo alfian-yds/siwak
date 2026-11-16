@@ -15,8 +15,8 @@ android {
         applicationId = "com.mosque.prayerclock"
         minSdk = 21
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "2.0.0-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -55,6 +55,8 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
+            // Emulator: server lokal di laptop (npm run dev). Lalu lintas tanpa HTTPS hanya ke 10.0.2.2.
+            buildConfigField("String", "SIWAK_SERVER_URL", "\"http://10.0.2.2:8080\"")
             isDebuggable = true
             isMinifyEnabled = false
             isShrinkResources = false
@@ -74,6 +76,7 @@ android {
                 }
 
             // Re-enable minification with proper ProGuard rules
+            buildConfigField("String", "SIWAK_SERVER_URL", "\"https://siwak.alfianys.id\"")
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
@@ -200,6 +203,9 @@ dependencies {
 
     // Date/Time
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+
+    // QR di layar Hubungkan (Apache-2.0). Versi 3.3.x karena 3.4+ butuh minSdk 24.
+    implementation("com.google.zxing:core:3.3.3")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

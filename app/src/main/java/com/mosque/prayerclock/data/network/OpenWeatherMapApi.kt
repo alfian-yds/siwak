@@ -138,7 +138,7 @@ fun OpenWeatherMapResponse.toWeatherInfo(): WeatherInfo {
  * dikalikan faktor tutupan awan. Cocok untuk wilayah tropis (Indonesia), puncak cerah ~11.
  * Semua waktu dalam detik epoch (UTC), jadi tak bergantung zona waktu.
  */
-private fun estimateUvIndex(
+internal fun estimateUvIndex(
     dtSec: Long,
     sunriseSec: Long,
     sunsetSec: Long,

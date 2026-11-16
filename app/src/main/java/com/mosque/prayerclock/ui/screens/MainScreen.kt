@@ -182,6 +182,26 @@ fun MainScreen(
         viewModel.loadPrayerTimes()
     }
 
+    // SIWAK V2: pengaturan jadwal bisa berubah dari server saat layar ini sedang tampil
+    // (koreksi menit, koordinat, jam manual, jeda iqamah, tanggal Hijriah). Hitung ulang semuanya,
+    // termasuk cache Subuh besok, agar layar langsung sesuai tanpa menunggu ganti hari.
+    val scheduleKey =
+        listOf(
+            settings.latitude, settings.longitude, settings.prayerOffsetEnabled,
+            settings.imsakOffset, settings.fajrOffset, settings.sunriseOffset, settings.dhuhrOffset,
+            settings.asrOffset, settings.maghribOffset, settings.ishaOffset,
+            settings.manualImsak, settings.manualFajrAzan, settings.manualSunrise, settings.manualDhuhrAzan,
+            settings.manualAsrAzan, settings.manualMaghribAzan, settings.manualIshaAzan,
+            settings.fajrIqamahGap, settings.dhuhrIqamahGap, settings.asrIqamahGap, settings.maghribIqamahGap, settings.ishaIqamahGap,
+            settings.hijriProvider, settings.hijriDayOffset, settings.manualHijriDay, settings.manualHijriMonth,
+            settings.manualHijriYear, settings.lastUpdatedGregorianDate,
+        ).joinToString("|")
+    var lastScheduleKey by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(scheduleKey) {
+        if (lastScheduleKey != null && lastScheduleKey != scheduleKey) viewModel.forceRefresh()
+        lastScheduleKey = scheduleKey
+    }
+
     // Monitor system time/date/timezone changes to auto-refresh after clock sync
     // This handles the case where device boots without WiFi and later syncs time via NTP
     LaunchedEffect(Unit) {

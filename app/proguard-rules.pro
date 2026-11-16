@@ -200,3 +200,5 @@
 # Markdown Text Library (compose-markdown)
 -keep class dev.jeziellago.compose.markdowntext.** { *; }
 -dontwarn dev.jeziellago.compose.markdowntext.**
+# SIWAK V2: data server dibaca Gson lewat refleksi; nama field harus tetap.
+-keep class com.mosque.prayerclock.server.** { *; }

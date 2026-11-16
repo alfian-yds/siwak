@@ -75,11 +75,17 @@ class PrayerTimesRepository
             val settings = settingsRepository.getSettings().first()
             return when (settings.prayerServiceType) {
                 PrayerServiceType.MANUAL -> "MANUAL"
-                PrayerServiceType.AL_ADHAN_API -> "AL_ADHAN_API:${settings.selectedRegion}"
-                PrayerServiceType.ACJU_DIRECT -> "AL_ADHAN_API:${settings.selectedRegion}" // modul Sri Lanka dihapus; dialihkan ke Kemenag
+                // SIWAK: kunci memuat KOORDINAT. Jadwal hasil hitung bergantung lokasi, jadi jadwal 7 hari
+                // milik lokasi lama tidak boleh terpakai setelah lokasi masjid diubah (dari TV atau server).
+                PrayerServiceType.AL_ADHAN_API, PrayerServiceType.ACJU_DIRECT -> coordinateKey(settings.latitude, settings.longitude)
                 PrayerServiceType.MOSQUE_CLOCK_API -> "MOSQUE_CLOCK_API:${settings.selectedZone}"
             }
         }
+
+        private fun coordinateKey(
+            latitude: Double,
+            longitude: Double,
+        ): String = String.format(java.util.Locale.US, "AL_ADHAN_API:%.4f,%.4f", latitude, longitude)
 
         /**
          * Generate composite database ID: "date_providerKey"
@@ -463,7 +469,9 @@ class PrayerTimesRepository
                     tomorrow.toLocalDateTime(TimeZone.currentSystemDefault()).date
                 val tomorrowDate = tomorrowLocalDate.toString()
 
-                val cachedPrayerTimes = dao.getPrayerTimesByDate(tomorrowDate)
+                // SIWAK: cari berdasarkan tanggal DAN lokasi (bukan tanggal saja).
+                val providerKey = coordinateKey(latitude, longitude)
+                val cachedPrayerTimes = dao.getPrayerTimesByDateAndProvider(tomorrowDate, providerKey)
                 if (cachedPrayerTimes != null) {
                     emit(NetworkResult.Success(cachedPrayerTimes))
                     return@flow
@@ -480,7 +488,12 @@ class PrayerTimesRepository
                     if (response.isSuccessful && response.body()?.code == 200) {
                         val alAdhanData = response.body()?.data
                         if (alAdhanData != null) {
-                            val prayerTimes = convertAlAdhanToPrayerTimes(alAdhanData)
+                            val prayerTimes =
+                                convertAlAdhanToPrayerTimes(alAdhanData).copy(
+                                    id = generateDatabaseId(tomorrowDate, providerKey),
+                                    date = tomorrowDate,
+                                    providerKey = providerKey,
+                                )
                             dao.insertPrayerTimes(prayerTimes)
                             emit(NetworkResult.Success(prayerTimes))
                         } else {

@@ -37,6 +37,8 @@ class WeatherRepository
         private val openWeatherMapService: OpenWeatherMapService, // Secondary weather provider
         // For runtime API key
         private val settingsRepository: com.mosque.prayerclock.data.repository.SettingsRepository,
+        // SIWAK V2: TV terhubung mengambil cuaca dari server, bukan langsung dari OpenWeather.
+        private val serverStore: com.mosque.prayerclock.server.ServerStore,
     ) {
         // Weather refresh job management - survives ViewModel recreation since Repository is Singleton
         private val weatherRefreshJobs = mutableMapOf<Triple<String, String, WeatherProvider>, Job>()
@@ -220,6 +222,18 @@ class WeatherRepository
                 emit(NetworkResult.Loading())
 
                 try {
+                    val server = serverStore.snapshot()
+                    if (server.isPaired) {
+                        val info = com.mosque.prayerclock.server.ServerWeather.toWeatherInfo(server.weatherJson)
+                        if (info != null) {
+                            onWeatherSuccess(info)
+                            emit(NetworkResult.Success(info))
+                        } else {
+                            emit(NetworkResult.Error("Cuaca dari server belum tersedia"))
+                        }
+                        return@flow
+                    }
+
                     Log.d("WeatherRepository", "Fetching weather by coordinates: $latitude, $longitude")
 
                     // Get API key from settings

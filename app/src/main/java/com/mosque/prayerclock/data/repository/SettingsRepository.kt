@@ -606,4 +606,72 @@ class SettingsRepository
         suspend fun updateSkippedUpdateVersion(version: String) {
             dataStore.edit { preferences -> preferences[PreferencesKeys.SKIPPED_UPDATE_VERSION] = version }
         }
+
+        /**
+         * SIWAK V2: menerapkan pengaturan dari server dalam SATU transaksi DataStore (TRD §7.2, atomik).
+         * Hanya field yang disinkron (Backend Schema §4.1) yang ditulis; field lokal tidak disentuh.
+         */
+        suspend fun applyServerSettings(s: AppSettings, recalcPrayerTimes: Boolean) {
+            dataStore.edit { p ->
+                p[PreferencesKeys.MOSQUE_NAME] = s.mosqueName
+                p[PreferencesKeys.CITY] = s.city
+                p[PreferencesKeys.LATITUDE] = s.latitude
+                p[PreferencesKeys.LONGITUDE] = s.longitude
+                p[PreferencesKeys.PRAYER_SERVICE_TYPE] = s.prayerServiceType.name
+                p[PreferencesKeys.MANUAL_IMSAK] = s.manualImsak
+                p[PreferencesKeys.MANUAL_FAJR_AZAN] = s.manualFajrAzan
+                p[PreferencesKeys.MANUAL_SUNRISE] = s.manualSunrise
+                p[PreferencesKeys.MANUAL_DHUHR_AZAN] = s.manualDhuhrAzan
+                p[PreferencesKeys.MANUAL_ASR_AZAN] = s.manualAsrAzan
+                p[PreferencesKeys.MANUAL_MAGHRIB_AZAN] = s.manualMaghribAzan
+                p[PreferencesKeys.MANUAL_ISHA_AZAN] = s.manualIshaAzan
+                p[PreferencesKeys.PRAYER_OFFSET_ENABLED] = s.prayerOffsetEnabled
+                p[PreferencesKeys.IMSAK_OFFSET] = s.imsakOffset
+                p[PreferencesKeys.FAJR_OFFSET] = s.fajrOffset
+                p[PreferencesKeys.SUNRISE_OFFSET] = s.sunriseOffset
+                p[PreferencesKeys.DHUHR_OFFSET] = s.dhuhrOffset
+                p[PreferencesKeys.ASR_OFFSET] = s.asrOffset
+                p[PreferencesKeys.MAGHRIB_OFFSET] = s.maghribOffset
+                p[PreferencesKeys.ISHA_OFFSET] = s.ishaOffset
+                p[PreferencesKeys.SHOW_IMSAK] = s.showImsak
+                p[PreferencesKeys.SHOW_SUNRISE] = s.showSunrise
+                p[PreferencesKeys.HIJRI_PROVIDER] = s.hijriProvider.name
+                p[PreferencesKeys.HIJRI_DAY_OFFSET] = s.hijriDayOffset
+                p[PreferencesKeys.MANUAL_HIJRI_DAY] = s.manualHijriDay
+                p[PreferencesKeys.MANUAL_HIJRI_MONTH] = s.manualHijriMonth
+                p[PreferencesKeys.MANUAL_HIJRI_YEAR] = s.manualHijriYear
+                p[PreferencesKeys.LAST_UPDATED_GREGORIAN_DATE] = s.lastUpdatedGregorianDate
+                p[PreferencesKeys.FAJR_IQAMAH_GAP] = s.fajrIqamahGap
+                p[PreferencesKeys.DHUHR_IQAMAH_GAP] = s.dhuhrIqamahGap
+                p[PreferencesKeys.ASR_IQAMAH_GAP] = s.asrIqamahGap
+                p[PreferencesKeys.MAGHRIB_IQAMAH_GAP] = s.maghribIqamahGap
+                p[PreferencesKeys.ISHA_IQAMAH_GAP] = s.ishaIqamahGap
+                p[PreferencesKeys.SHOW_IQAMAH_CYCLE] = s.showIqamahCycle
+                p[PreferencesKeys.FULL_SCREEN_COUNTDOWN_ENABLED] = s.fullScreenCountdownEnabled
+                p[PreferencesKeys.FULL_SCREEN_COUNTDOWN_MINUTES] = s.fullScreenCountdownMinutes
+                p[PreferencesKeys.DUA_DISPLAY_DURATION_MINUTES] = s.duaDisplayDurationMinutes
+                p[PreferencesKeys.SHOW_JUMMAH_SCREEN] = s.showJummahScreen
+                p[PreferencesKeys.JUMMAH_DURATION_MINUTES] = s.jummahDurationMinutes
+                p[PreferencesKeys.JUMMA_NIGHT_BAYAN_ENABLED] = s.jummaNightBayanEnabled
+                p[PreferencesKeys.JUMMA_NIGHT_BAYAN_MINUTES] = s.jummaNightBayanMinutes
+                p[PreferencesKeys.SOUND_ENABLED] = s.soundEnabled
+                p[PreferencesKeys.AZAN_SOUND_ENABLED] = s.azanSoundEnabled
+                p[PreferencesKeys.AZAN_SOUND_TYPE] = s.azanSoundType.name
+                p[PreferencesKeys.IQAMAH_SOUND_ENABLED] = s.iqamahSoundEnabled
+                p[PreferencesKeys.IQAMAH_SOUND_TYPE] = s.iqamahSoundType.name
+                p[PreferencesKeys.COLOR_THEME] = s.colorTheme
+                p[PreferencesKeys.LANGUAGE] = s.language.code
+                p[PreferencesKeys.CLOCK_TYPE] = s.clockType.name
+                p[PreferencesKeys.SHOW_SECONDS] = s.showSeconds
+                p[PreferencesKeys.SHOW_24_HOUR_FORMAT] = s.show24HourFormat
+                p[PreferencesKeys.CLOCK_SIZE_PERCENT] = s.clockSizePercent
+                p[PreferencesKeys.NIGHT_MODE_ENABLED] = s.nightModeEnabled
+                p[PreferencesKeys.NIGHT_START_HOUR] = s.nightStartHour
+                p[PreferencesKeys.NIGHT_END_HOUR] = s.nightEndHour
+                p[PreferencesKeys.NIGHT_DIM_LEVEL] = s.nightDimLevel
+                p[PreferencesKeys.SHOW_WEATHER] = s.showWeather
+                p[PreferencesKeys.RUNNING_TEXT_MESSAGES] = s.runningTextMessages
+            }
+            if (recalcPrayerTimes) prayerTimesCacheInvalidatorProvider.get().invalidatePrayerTimesCache()
+        }
     }

@@ -153,6 +153,14 @@
             android:foregroundServiceType="dataSync"
             android:stopWithTask="false" />
 
+        <!-- SIWAK V2: sinkron server, pemantauan, dan perintah jarak jauh (TRD §7.4) -->
+        <service
+            android:name=".server.SiwakAgentService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:stopWithTask="false" />
+
         <!-- Prayer notification service for sound alerts -->
         <service
             android:name=".service.PrayerNotificationService"
