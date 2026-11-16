@@ -169,9 +169,13 @@ data class ContentDto(
     val arabicText: String?,
     val translation: String?,
     val sourceRef: String?,
-    val body: com.google.gson.JsonObject?,
+    // JsonElement, bukan JsonObject: Gson versi aplikasi ini gagal membaca `null` ke JsonObject.
+    val body: com.google.gson.JsonElement?,
     val mediaId: String?,
-)
+) {
+    /** Isi panel informasi/gambar, atau null untuk hadits. */
+    val bodyObject: com.google.gson.JsonObject? get() = body?.takeIf { it.isJsonObject }?.asJsonObject
+}
 
 data class MediaRefDto(val id: String?, val kind: String?, val mime: String?, val sha256: String?, val bytes: Long?)
 

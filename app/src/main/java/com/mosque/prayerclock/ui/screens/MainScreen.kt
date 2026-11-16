@@ -506,6 +506,85 @@ fun MainLayout(
             else -> Septuple(false, Clock.System.now(), false, false, null, false, null)
         }
 
+    // ---- SIWAK V2: Galeri, Mutiara Hadits, dan aturan layar (App Flow §3) -----------------
+    val galleryVm: com.mosque.prayerclock.ui.gallery.GalleryViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    val serverContent by galleryVm.content.collectAsStateWithLifecycle()
+    val paired by galleryVm.paired.collectAsStateWithLifecycle()
+    val hijriToday by galleryVm.hijri.collectAsStateWithLifecycle()
+    val localNow = globalCurrentTime.toLocalDateTime(TimeZone.currentSystemDefault())
+    val nowMinutes = localNow.hour * 60 + localNow.minute
+    val successState = uiState as? MainUiState.Success
+    val scene =
+        successState?.let { s ->
+            val m = com.mosque.prayerclock.domain.Periods::minutes
+            val subuh = m(s.prayerTimes.fajrAzan) ?: 270
+            val terbit = m(s.prayerTimes.sunrise) ?: 345
+            val maghrib = m(s.prayerTimes.maghribAzan) ?: 1080
+            val isya = m(s.prayerTimes.ishaAzan) ?: 1150
+            com.mosque.prayerclock.ui.gallery.SceneState(
+                period = com.mosque.prayerclock.domain.Periods.at(nowMinutes, subuh, terbit, maghrib, isya),
+                dayProgress = com.mosque.prayerclock.ui.gallery.sunProgress(nowMinutes, terbit, maghrib),
+                hijriDay = hijriToday?.first ?: 15,
+                silhouette = settings.illustrationSilhouette,
+            )
+        } ?: com.mosque.prayerclock.ui.gallery.SceneState(com.mosque.prayerclock.domain.SkyPeriod.SIANG, 0.5f, 15, settings.illustrationSilhouette)
+    val galleryEnabled = paired && settings.layout == "GALERI" && successState != null
+    // Daftar putar dibentuk ulang tiap ada konten baru dan tiap menit (jadwal hari/jam slide).
+    val playlist =
+        remember(serverContent, nowMinutes, localNow.dayOfWeek) {
+            com.mosque.prayerclock.domain.SlidePlaylist.build(
+                serverContent.slides,
+                serverContent.content,
+                localNow.dayOfWeek.ordinal, // kotlinx: MONDAY = 0 … SUNDAY = 6
+                nowMinutes,
+                serverContent.hadiths,
+            )
+        }
+
+    // Mutiara Hadits: berkala, hanya untuk TV terhubung yang punya hadits.
+    var mutiaraLastEnd by remember { mutableStateOf(System.currentTimeMillis()) }
+    var mutiaraUntil by remember { mutableStateOf(0L) }
+    var mutiaraIndex by remember { mutableStateOf(0) }
+    val nowMs = globalCurrentTime.toEpochMilliseconds()
+    val hadithPool = serverContent.hadiths
+    val mutiaraDue =
+        paired && settings.mutiaraHaditsEnabled && hadithPool.isNotEmpty() &&
+            (mutiaraUntil > nowMs || nowMs - mutiaraLastEnd >= settings.mutiaraEveryMinutes * 60_000L)
+    val nightHours =
+        settings.nightModeEnabled && isWithinNightHours(localNow.hour, settings.nightStartHour, settings.nightEndHour)
+    val secondsUntilPriority =
+        successState?.let { s ->
+            val next = createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer }
+            com.mosque.prayerclock.domain.Periods.minutes(next?.azanTime)?.let { azan ->
+                val lead = if (settings.fullScreenCountdownEnabled) settings.fullScreenCountdownMinutes else 0
+                var diff = (azan - lead) * 60L - (nowMinutes * 60L + localNow.second)
+                if (diff < 0) diff += 24 * 3600
+                diff
+            }
+        }
+    val decision =
+        com.mosque.prayerclock.domain.ScreenPriorityResolver.resolve(
+            com.mosque.prayerclock.domain.ScreenInputs(
+                jumatActive = jummahData != null,
+                prayerScreenActive = shouldShowDua,
+                iqamahCountdownActive = shouldShowFullScreenCountdown && fullScreenCountdownData?.isIqamah == true,
+                adzanCountdownActive = shouldShowFullScreenCountdown && fullScreenCountdownData?.isIqamah != true,
+                mutiaraDue = mutiaraDue,
+                secondsUntilPriorityScreen = secondsUntilPriority,
+                nightHours = nightHours,
+            ),
+        )
+    val showMutiara = decision.screen == com.mosque.prayerclock.domain.TvScreen.MUTIARA_HADITS
+    LaunchedEffect(showMutiara, nowMs / 1000) {
+        if (showMutiara && mutiaraUntil == 0L) {
+            mutiaraUntil = nowMs + settings.mutiaraShowSeconds * 1000L
+            mutiaraIndex++
+        } else if (mutiaraUntil != 0L && (!showMutiara || nowMs >= mutiaraUntil)) {
+            mutiaraUntil = 0L
+            mutiaraLastEnd = nowMs
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         // SIWAK: background kustom (jika diunggah) di belakang seluruh konten
         if (settings.backgroundMainUri.isNotEmpty()) {
@@ -521,6 +600,61 @@ fun MainLayout(
         Column(
             modifier = Modifier.fillMaxSize().padding(paddingSize),
         ) {
+            // SIWAK V2: tata letak Galeri (Design Brief §6.2): panel slide 58%, kolom kanan 42%.
+            if (galleryEnabled && successState != null) {
+                Row(
+                    modifier = Modifier.weight(0.75f),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    com.mosque.prayerclock.ui.gallery.GalleryPanel(
+                        playlist = playlist,
+                        paused = decision.slidesPaused,
+                        scene = scene,
+                        mosqueName = settings.mosqueName,
+                        mediaUri = { serverContent.mediaUri(it) },
+                        hijriToday = hijriToday,
+                        modifier = Modifier.weight(0.58f).fillMaxHeight(),
+                    )
+                    Column(
+                        modifier = Modifier.weight(0.42f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        if (settings.mosqueName.isNotEmpty()) {
+                            MosqueHeader(mosqueName = settings.mosqueName, modifier = Modifier.fillMaxWidth(), logoUri = settings.mosqueLogoUri)
+                        }
+                        com.mosque.prayerclock.ui.gallery.GalleryClock(
+                            hour = localNow.hour,
+                            minute = localNow.minute,
+                            second = localNow.second,
+                            dayIndex = localNow.dayOfWeek.ordinal,
+                            day = localNow.dayOfMonth,
+                            month = localNow.monthNumber,
+                            year = localNow.year,
+                            hijri = hijriToday,
+                            showSeconds = settings.showSeconds,
+                            use24h = settings.show24HourFormat,
+                            color = MaterialTheme.colorScheme.primary,
+                            accent = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.fillMaxWidth().clickable { onOpenSettings() },
+                        )
+                        NextPrayerSection(
+                            prayerTimes = successState.prayerTimes,
+                            nextPrayer = successState.nextPrayer,
+                            nextDayFajr = successState.nextDayFajr,
+                            show24Hour = settings.show24HourFormat,
+                            modifier = Modifier.fillMaxWidth().weight(if (settings.showWeather) 1.6f else 1f),
+                            onPrayerTransition = { viewModel.updateNextPrayer() },
+                            showCountdown = isCountdownVisibleForWeight,
+                            currentTime = currentTimeGlobal,
+                            isCurrentPrayer = isCurrentPrayerGlobal,
+                        )
+                        if (settings.showWeather && weatherState is WeatherUiState.Success) {
+                            WeatherCard(weatherInfo = weatherState.weatherInfo, modifier = Modifier.fillMaxWidth().weight(1f))
+                        }
+                    }
+                }
+            } else
             // Main content row with revamped layout
             Row(
                 modifier = Modifier.weight(0.75f),
@@ -714,14 +848,21 @@ fun MainLayout(
             )
         }
 
-        // SIWAK: Mode Istirahat Malam — layar redup/gelap pada rentang jam malam
-        if (settings.nightModeEnabled &&
-            isWithinNightHours(
-                globalCurrentTime.toLocalDateTime(TimeZone.currentSystemDefault()).hour,
-                settings.nightStartHour,
-                settings.nightEndHour,
+        // SIWAK V2: Mutiara Hadits (prioritas 5), di atas tampilan utama.
+        if (showMutiara && hadithPool.isNotEmpty()) {
+            val next = successState?.let { s -> createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer } }
+            com.mosque.prayerclock.ui.gallery.MutiaraHaditsScreen(
+                hadith = hadithPool[mutiaraIndex % hadithPool.size],
+                scene = scene,
+                clockText = "%02d:%02d".format(localNow.hour, localNow.minute),
+                nextPrayerText = next?.let { "${it.name} ${it.azanTime}" },
+                modifier = Modifier.fillMaxSize(),
             )
-        ) {
+        }
+
+        // SIWAK: Mode Istirahat Malam — redup hanya di atas tampilan utama; layar kembali terang
+        // otomatis saat hitung mundur, layar shalat, atau layar Jumat (App Flow §3.2).
+        if (decision.dimForNight) {
             NightModeOverlay(
                 dimLevel = settings.nightDimLevel,
                 currentTime = globalCurrentTime,

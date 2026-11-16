@@ -116,7 +116,7 @@ class PairingViewModel
             _ui.value = PairingUi.Connecting
             store.savePairing(deviceId, token)
             // Ambil pengaturan pertama sekarang agar layar langsung menampilkan data masjid.
-            runCatching { sync.syncOnce(force = true) }
+            runCatching { sync.syncOnce(force = true) }.onFailure { android.util.Log.e("SiwakSync", "sinkron pertama gagal", it) }
             SiwakAgentService.start(context)
             _ui.value = PairingUi.Done
         }

@@ -88,7 +88,8 @@ class ServerSyncManager
                         syncOnce(force = forceNext)
                     } catch (e: CancellationException) {
                         throw e
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
+                        // Termasuk Error (bukan hanya Exception): loop sinkron tidak boleh mati diam-diam.
                         Log.e(TAG, "sinkron gagal", e)
                         _status.value = _status.value.copy(lastError = e.message, syncing = false)
                     }
@@ -168,6 +169,7 @@ class ServerSyncManager
             return when (val res = api.bundle(serverUrl, token)) {
                 is ApiResult.Ok -> {
                     val bundle = res.data
+                    Log.i(TAG, "bundle diterima: versi ${bundle.configVersion}, ${bundle.slides?.size ?: 0} slide, ${bundle.media?.size ?: 0} media")
                     // Atomik (TRD §7.2): semua media diunduh dulu; bila ada yang gagal, bundle lama tetap dipakai.
                     val files = contentRepository.syncMedia(serverUrl, token, bundle.media.orEmpty())
                         ?: return "Gagal mengunduh media; tampilan lama dipertahankan."
@@ -179,8 +181,8 @@ class ServerSyncManager
                     Log.i(TAG, "bundle diterapkan: versi ${bundle.configVersion}")
                     null
                 }
-                is ApiResult.HttpError -> res.message ?: "Bundle ditolak (${res.status})"
-                is ApiResult.NetworkError -> res.message
+                is ApiResult.HttpError -> (res.message ?: "Bundle ditolak (${res.status})").also { Log.w(TAG, "bundle gagal: $it") }
+                is ApiResult.NetworkError -> res.message.also { Log.w(TAG, "bundle gagal: $it") }
             }
         }
 
