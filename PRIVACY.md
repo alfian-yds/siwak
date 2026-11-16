@@ -1,6 +1,7 @@
 # Kebijakan Privasi SIWAK
 
 **Berlaku sejak:** 20 Oktober 2026
+**Diperbarui:** 16 November 2026 (data pemantauan TV, kamera untuk Scan QR, lokasi HP untuk isian koordinat)
 **Pengelola:** Alfian Yudisurya, pengembang SIWAK
 **Kontak privasi:** alfian123yudi@gmail.com
 
@@ -23,9 +24,12 @@ mengacu pada Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.
 |---|---|---|
 | Koordinat lokasi masjid | Diisi pengurus, bukan dari GPS perangkat | AlAdhan (jadwal shalat); OpenWeather (cuaca, pada versi 1.x langsung dari TV, mulai versi 2 lewat server SIWAK) |
 | Alamat IP perangkat | Tercatat otomatis saat TV menghubungi layanan internet | Layanan yang dihubungi |
-| ID perangkat, nama TV, versi aplikasi, waktu sinkron terakhir | Hanya bila TV dihubungkan ke server SIWAK (versi 2) | Server SIWAK |
+| ID perangkat, nama dan model TV, versi aplikasi, waktu sinkron terakhir, selisih jam TV, ruang penyimpanan tersisa, pesan galat aplikasi | Hanya bila TV dihubungkan ke server SIWAK (versi 2) | Server SIWAK |
+| Status tampilan: apakah SIWAK sedang tampil di layar atau berada di latar belakang (dan sejak kapan), serta apakah izin "Tampil di atas aplikasi lain" sudah diberikan | Hanya bila TV dihubungkan ke server SIWAK (versi 2). Dipakai agar pengurus bisa memantau TV dan membuka atau memulai ulang SIWAK dari jauh | Server SIWAK |
 
-Aplikasi TV tidak mengakses kamera, mikrofon, kontak, maupun lokasi GPS perangkat.
+Aplikasi TV tidak mengakses kamera, mikrofon, kontak, maupun lokasi GPS perangkat. SIWAK **tidak**
+mencatat aplikasi lain apa yang sedang dibuka di TV; yang dilaporkan hanya apakah SIWAK sendiri
+sedang tampil atau tidak.
 Semua pengaturan disimpan di perangkat TV itu sendiri.
 
 ### 2.2 Admin web (siwak.alfianys.id)
@@ -37,6 +41,8 @@ Semua pengaturan disimpan di perangkat TV itu sendiri.
 | Riwayat perubahan (log aktivitas) | Tercatat saat pengurus mengubah pengaturan atau konten | Akuntabilitas dan pemulihan bila ada kesalahan |
 | Alamat IP dan jenis peramban | Log server | Keamanan dan penanganan gangguan |
 | Cookie sesi | Dibuat saat masuk | Menjaga sesi login; tidak dipakai untuk pelacakan |
+| Gambar kamera HP | Hanya saat pengurus menekan **Scan QR** dan memberi izin kamera | Membaca kode 8 angka di layar TV. Gambar diproses di peramban HP dan **tidak dikirim** ke server |
+| Lokasi HP | Hanya saat pengurus menekan **Pakai lokasi saya** dan memberi izin lokasi | Mengisi koordinat masjid di formulir. Yang disimpan hanya koordinat masjid setelah pengurus menekan Simpan |
 
 SIWAK hanya meminta izin dasar dari Google (nama, email, foto profil) untuk keperluan masuk.
 SIWAK tidak membaca email, kontak, berkas, atau data lain di akun Google Anda.
@@ -74,6 +80,7 @@ kebijakan privasi masing-masing.
 | Akun pengurus | Selama akun aktif; dihapus paling lambat 30 hari setelah akun dihapus |
 | Log aktivitas | 1 tahun |
 | Riwayat status perangkat | 90 hari |
+| Riwayat perintah jarak jauh (buka/sinkron/mulai ulang SIWAK) | 30 hari |
 | Cadangan (backup) database | 30 hari |
 
 ## 6. Keamanan

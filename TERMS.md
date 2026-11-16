@@ -1,6 +1,7 @@
 # Syarat Penggunaan SIWAK
 
 **Berlaku sejak:** 20 Oktober 2026
+**Diperbarui:** 16 November 2026 (pemantauan dan perintah jarak jauh ke TV)
 **Kontak:** alfian123yudi@gmail.com
 
 Syarat ini berlaku bagi pengurus yang memakai aplikasi TV SIWAK dan layanan <https://siwak.alfianys.id>.
@@ -30,6 +31,10 @@ penetapan resmi.
 - Akses hanya untuk email yang didaftarkan super admin.
 - Pengurus bertanggung jawab atas keamanan akun Google yang dipakainya.
 - Super admin dapat menonaktifkan akun yang menyalahgunakan layanan.
+- Pengurus hanya boleh menghubungkan TV milik atau kelolaan masjidnya.
+- Pengurus dapat memantau TV masjidnya dan membuka, menyinkronkan, atau memulai ulang SIWAK di TV
+  tersebut dari jauh. Fitur ini hanya mengendalikan aplikasi SIWAK, bukan aplikasi lain di TV, dan
+  harus dipakai secara wajar.
 
 ## 4. Konten dari pengurus
 
