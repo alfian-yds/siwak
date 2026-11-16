@@ -167,7 +167,7 @@ Dikembangkan oleh Alfian Yudisurya.
 |---|---|
 | [LICENSE](LICENSE) | Lisensi kode (MIT) |
 | [NOTICE.md](NOTICE.md) | Pustaka, data, dan aset pihak ketiga beserta lisensinya |
-| [PRIVACY.md](PRIVACY.md) | Kebijakan privasi aplikasi dan layanan siwak.web.id |
+| [PRIVACY.md](PRIVACY.md) | Kebijakan privasi aplikasi dan layanan siwak.alfianys.id |
 | [TERMS.md](TERMS.md) | Syarat penggunaan layanan |
 
 Data cuaca dari [OpenWeather](https://openweathermap.org). Nama dan logo SIWAK tidak termasuk lisensi MIT.

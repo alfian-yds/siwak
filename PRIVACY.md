@@ -5,7 +5,7 @@
 **Kontak privasi:** alfian123yudi@gmail.com
 
 Kebijakan ini menjelaskan data apa yang dikumpulkan oleh aplikasi TV SIWAK dan layanan
-<https://siwak.web.id>, untuk apa, dan bagaimana data itu dilindungi. Kebijakan ini disusun dengan
+<https://siwak.alfianys.id>, untuk apa, dan bagaimana data itu dilindungi. Kebijakan ini disusun dengan
 mengacu pada Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.
 
 ## 1. Ringkasnya
@@ -28,7 +28,7 @@ mengacu pada Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.
 Aplikasi TV tidak mengakses kamera, mikrofon, kontak, maupun lokasi GPS perangkat.
 Semua pengaturan disimpan di perangkat TV itu sendiri.
 
-### 2.2 Admin web (siwak.web.id)
+### 2.2 Admin web (siwak.alfianys.id)
 
 | Data | Sumber | Tujuan |
 |---|---|---|
@@ -97,7 +97,7 @@ Admin web ditujukan bagi pengurus masjid dewasa. Kami tidak dengan sengaja mengu
 
 SIWAK adalah perangkat lunak open source. Bila sebuah organisasi menjalankan server SIWAK sendiri,
 organisasi tersebut menjadi pengelola data di servernya dan bertanggung jawab atas kebijakan
-privasinya sendiri. Kebijakan ini hanya berlaku untuk layanan di siwak.web.id.
+privasinya sendiri. Kebijakan ini hanya berlaku untuk layanan di siwak.alfianys.id.
 
 ## 10. Perubahan kebijakan
 

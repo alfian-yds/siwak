@@ -3,11 +3,11 @@
 **Berlaku sejak:** 20 Oktober 2026
 **Kontak:** alfian123yudi@gmail.com
 
-Syarat ini berlaku bagi pengurus yang memakai aplikasi TV SIWAK dan layanan <https://siwak.web.id>.
+Syarat ini berlaku bagi pengurus yang memakai aplikasi TV SIWAK dan layanan <https://siwak.alfianys.id>.
 Dengan masuk ke admin web atau memasang aplikasi, Anda menyetujui syarat ini.
 
 Syarat ini berbeda dari lisensi kode. Kode sumber SIWAK berlisensi MIT (lihat [LICENSE](LICENSE));
-syarat ini mengatur pemakaian **layanan** yang dijalankan di siwak.web.id.
+syarat ini mengatur pemakaian **layanan** yang dijalankan di siwak.alfianys.id.
 
 ## 1. Layanan
 
@@ -56,7 +56,7 @@ praktis, menyebarkan informasi bohong, atau mencoba mengganggu, membobol, atau m
 
 Pengurus dapat berhenti memakai layanan kapan saja dan meminta penghapusan data sesuai
 [Kebijakan Privasi](PRIVACY.md). Layanan dapat dihentikan atau diubah dengan pemberitahuan di
-siwak.web.id dan repositori GitHub. Aplikasi TV tetap dapat dipakai dalam mode mandiri tanpa server.
+siwak.alfianys.id dan repositori GitHub. Aplikasi TV tetap dapat dipakai dalam mode mandiri tanpa server.
 
 ## 7. Batasan tanggung jawab
 
@@ -70,4 +70,4 @@ musyawarah terlebih dahulu.
 
 ## 9. Perubahan
 
-Perubahan syarat diumumkan di siwak.web.id dan repositori GitHub SIWAK, dengan tanggal berlaku baru.
+Perubahan syarat diumumkan di siwak.alfianys.id dan repositori GitHub SIWAK, dengan tanggal berlaku baru.
