@@ -45,6 +45,7 @@ class ServerSyncManager
         private val store: ServerStore,
         private val api: SiwakApi,
         private val settingsRepository: SettingsRepository,
+        private val contentRepository: ServerContentRepository,
     ) {
         companion object {
             private const val TAG = "SiwakSync"
@@ -163,13 +164,17 @@ class ServerSyncManager
         private suspend fun applyBundle(
             serverUrl: String,
             token: String,
-        ): String? =
-            when (val res = api.bundle(serverUrl, token)) {
+        ): String? {
+            return when (val res = api.bundle(serverUrl, token)) {
                 is ApiResult.Ok -> {
                     val bundle = res.data
+                    // Atomik (TRD §7.2): semua media diunduh dulu; bila ada yang gagal, bundle lama tetap dipakai.
+                    val files = contentRepository.syncMedia(serverUrl, token, bundle.media.orEmpty())
+                        ?: return "Gagal mengunduh media; tampilan lama dipertahankan."
                     val current = settingsRepository.getSettings().first()
-                    val next = BundleMapper.toAppSettings(current, bundle, today(bundle.mosque?.timezone))
+                    val next = BundleMapper.toAppSettings(current, bundle, today(bundle.mosque?.timezone)) { id -> id?.let(files::get) }
                     settingsRepository.applyServerSettings(next, BundleMapper.affectsPrayerTimes(current, next))
+                    contentRepository.save(bundle, files)
                     store.saveBundle(bundle)
                     Log.i(TAG, "bundle diterapkan: versi ${bundle.configVersion}")
                     null
@@ -177,6 +182,7 @@ class ServerSyncManager
                 is ApiResult.HttpError -> res.message ?: "Bundle ditolak (${res.status})"
                 is ApiResult.NetworkError -> res.message
             }
+        }
 
         private suspend fun fetchWeather(
             serverUrl: String,
@@ -283,6 +289,7 @@ class ServerSyncManager
         suspend fun becomeStandalone() {
             Log.w(TAG, "TV dilepas dari server; kembali ke mode mandiri")
             store.clearPairing()
+            contentRepository.clear()
             unpairedEvents.value++
             SiwakAgentService.stop(context)
         }

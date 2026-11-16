@@ -118,13 +118,27 @@ data class ClockDto(val type: String?, val showSeconds: Boolean?, val use24h: Bo
 
 data class NightModeDto(val enabled: Boolean?, val startHour: Int?, val endHour: Int?, val dimPercent: Int?)
 
+data class DisplayMediaDto(
+    val logoId: String?,
+    val backgroundMainId: String?,
+    val backgroundPrayerId: String?,
+    val backgroundIqamahId: String?,
+)
+
+data class IllustrationDto(val silhouette: String?, val useMosquePhoto: Boolean?)
+
+data class MutiaraDto(val enabled: Boolean?, val everyMinutes: Int?, val showSeconds: Int?)
+
 data class DisplayDto(
     val layout: String?,
     val colorTheme: String?,
     val language: String?,
     val clock: ClockDto?,
     val nightMode: NightModeDto?,
+    val media: DisplayMediaDto?,
     val showWeather: Boolean?,
+    val illustration: IllustrationDto?,
+    val mutiaraHadits: MutiaraDto?,
 )
 
 data class KioskDto(val autoReturn: EnabledMinutesDto?)
@@ -137,6 +151,30 @@ data class SettingsDto(
     val kiosk: KioskDto?,
 )
 
+/** Slide (Backend Schema §5.1). daysMask: bit 0 = Senin … bit 6 = Minggu. */
+data class SlideDto(
+    val id: String?,
+    val contentId: String?,
+    val durationSec: Int?,
+    val daysMask: Int?,
+    val timeFrom: String?,
+    val timeTo: String?,
+)
+
+/** Konten: hadits, panel informasi (isi di [body]), atau gambar. */
+data class ContentDto(
+    val id: String?,
+    val type: String?,
+    val category: String?,
+    val arabicText: String?,
+    val translation: String?,
+    val sourceRef: String?,
+    val body: com.google.gson.JsonObject?,
+    val mediaId: String?,
+)
+
+data class MediaRefDto(val id: String?, val kind: String?, val mime: String?, val sha256: String?, val bytes: Long?)
+
 data class BundleDto(
     val bundleSchema: Int?,
     val configVersion: Long?,
@@ -145,6 +183,9 @@ data class BundleDto(
     val device: DeviceDto?,
     val settings: SettingsDto?,
     val runningTexts: List<RunningTextDto>?,
+    val slides: List<SlideDto>? = null,
+    val content: List<ContentDto>? = null,
+    val media: List<MediaRefDto>? = null,
 )
 
 /** Cuaca dari server (Backend Schema §5.4). */

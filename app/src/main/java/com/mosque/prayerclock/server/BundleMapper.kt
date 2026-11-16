@@ -26,20 +26,25 @@ object BundleMapper {
 
     private fun soundType(
         type: String?,
+        customUri: String?,
         fallback: SoundType,
     ): SoundType =
         when (type) {
             "BEEP" -> SoundType.TRADITIONAL_BEEP
             "TICK" -> SoundType.COUNTDOWN_TICKING
-            // Audio kustom butuh unduhan media (Tahap 2); sampai itu tersedia pakai bip.
-            "CUSTOM" -> SoundType.TRADITIONAL_BEEP
+            // Audio kustom hanya dipakai bila berkasnya sudah terunduh; bila belum, bip agar tetap berbunyi.
+            "CUSTOM" -> if (customUri != null) SoundType.CUSTOM else SoundType.TRADITIONAL_BEEP
             else -> fallback
         }
 
+    /**
+     * @param mediaUri id media → URI berkas lokal yang sudah terunduh dan terverifikasi (null bila tidak ada).
+     */
     fun toAppSettings(
         current: AppSettings,
         bundle: BundleDto,
         today: String,
+        mediaUri: (String?) -> String? = { null },
     ): AppSettings {
         val m = bundle.mosque
         val s = bundle.settings
@@ -54,6 +59,10 @@ object BundleMapper {
         val disp = s?.display
         val clock = disp?.clock
         val night = disp?.nightMode
+        val media = disp?.media
+        val adzanUri = snd?.adzan?.takeIf { it.type == "CUSTOM" }?.mediaId.let(mediaUri)
+        val iqamahUri = snd?.iqamah?.takeIf { it.type == "CUSTOM" }?.mediaId.let(mediaUri)
+        val mutiara = disp?.mutiaraHadits
         val lat = m?.latitude?.takeIf { it in -90.0..90.0 }
         val lon = m?.longitude?.takeIf { it in -180.0..180.0 }
 
@@ -117,9 +126,11 @@ object BundleMapper {
             // Suara
             soundEnabled = snd?.enabled ?: current.soundEnabled,
             azanSoundEnabled = snd?.adzan?.enabled ?: current.azanSoundEnabled,
-            azanSoundType = soundType(snd?.adzan?.type, current.azanSoundType),
+            azanSoundType = soundType(snd?.adzan?.type, adzanUri, current.azanSoundType),
+            azanSoundUri = adzanUri ?: "",
             iqamahSoundEnabled = snd?.iqamah?.enabled ?: current.iqamahSoundEnabled,
-            iqamahSoundType = soundType(snd?.iqamah?.type, current.iqamahSoundType),
+            iqamahSoundType = soundType(snd?.iqamah?.type, iqamahUri, current.iqamahSoundType),
+            iqamahSoundUri = iqamahUri ?: "",
             // Tampilan
             colorTheme = disp?.colorTheme?.takeIf { it.matches(Regex("^[a-z_]{3,40}$")) } ?: current.colorTheme,
             language =
@@ -142,6 +153,17 @@ object BundleMapper {
             nightEndHour = night?.endHour.inRange(0, 23, current.nightEndHour),
             nightDimLevel = night?.dimPercent.inRange(0, 100, current.nightDimLevel),
             showWeather = disp?.showWeather ?: current.showWeather,
+            // Media dari server menggantikan pilihan lokal; kosong = memakai bawaan.
+            mosqueLogoUri = if (disp != null) mediaUri(media?.logoId) ?: "" else current.mosqueLogoUri,
+            backgroundMainUri = if (disp != null) mediaUri(media?.backgroundMainId) ?: "" else current.backgroundMainUri,
+            backgroundPrayerUri = if (disp != null) mediaUri(media?.backgroundPrayerId) ?: "" else current.backgroundPrayerUri,
+            backgroundIqamahUri = if (disp != null) mediaUri(media?.backgroundIqamahId) ?: "" else current.backgroundIqamahUri,
+            layout = disp?.layout?.takeIf { it == "BAR_BAWAH" || it == "GALERI" } ?: current.layout,
+            illustrationSilhouette =
+                disp?.illustration?.silhouette?.takeIf { it in setOf("KUBAH", "TUMPANG", "MUSHOLLA") } ?: current.illustrationSilhouette,
+            mutiaraHaditsEnabled = mutiara?.enabled ?: current.mutiaraHaditsEnabled,
+            mutiaraEveryMinutes = mutiara?.everyMinutes.inRange(5, 60, current.mutiaraEveryMinutes),
+            mutiaraShowSeconds = mutiara?.showSeconds.inRange(15, 120, current.mutiaraShowSeconds),
             runningTextMessages = runningTextMessages(bundle.runningTexts, today),
         )
     }

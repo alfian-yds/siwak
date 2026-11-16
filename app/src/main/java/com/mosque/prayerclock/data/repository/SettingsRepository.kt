@@ -120,6 +120,13 @@ class SettingsRepository
             // Auto-update settings
             val AUTO_UPDATE_CHECK_ENABLED = booleanPreferencesKey("auto_update_check_enabled")
             val SKIPPED_UPDATE_VERSION = stringPreferencesKey("skipped_update_version")
+
+            // SIWAK V2
+            val LAYOUT = stringPreferencesKey("layout")
+            val ILLUSTRATION_SILHOUETTE = stringPreferencesKey("illustration_silhouette")
+            val MUTIARA_ENABLED = booleanPreferencesKey("mutiara_enabled")
+            val MUTIARA_EVERY_MINUTES = intPreferencesKey("mutiara_every_minutes")
+            val MUTIARA_SHOW_SECONDS = intPreferencesKey("mutiara_show_seconds")
         }
 
         fun getSettings(): Flow<AppSettings> =
@@ -255,6 +262,11 @@ class SettingsRepository
                     jummaNightBayanMinutes = preferences[PreferencesKeys.JUMMA_NIGHT_BAYAN_MINUTES] ?: 30,
                     autoUpdateCheckEnabled = preferences[PreferencesKeys.AUTO_UPDATE_CHECK_ENABLED] ?: true,
                     skippedUpdateVersion = preferences[PreferencesKeys.SKIPPED_UPDATE_VERSION] ?: "",
+                    layout = preferences[PreferencesKeys.LAYOUT] ?: "BAR_BAWAH",
+                    illustrationSilhouette = preferences[PreferencesKeys.ILLUSTRATION_SILHOUETTE] ?: "KUBAH",
+                    mutiaraHaditsEnabled = preferences[PreferencesKeys.MUTIARA_ENABLED] ?: false,
+                    mutiaraEveryMinutes = preferences[PreferencesKeys.MUTIARA_EVERY_MINUTES] ?: 15,
+                    mutiaraShowSeconds = preferences[PreferencesKeys.MUTIARA_SHOW_SECONDS] ?: 30,
                 )
             }
 
@@ -671,6 +683,17 @@ class SettingsRepository
                 p[PreferencesKeys.NIGHT_DIM_LEVEL] = s.nightDimLevel
                 p[PreferencesKeys.SHOW_WEATHER] = s.showWeather
                 p[PreferencesKeys.RUNNING_TEXT_MESSAGES] = s.runningTextMessages
+                p[PreferencesKeys.MOSQUE_LOGO_URI] = s.mosqueLogoUri
+                p[PreferencesKeys.BACKGROUND_MAIN_URI] = s.backgroundMainUri
+                p[PreferencesKeys.BACKGROUND_PRAYER_URI] = s.backgroundPrayerUri
+                p[PreferencesKeys.BACKGROUND_IQAMAH_URI] = s.backgroundIqamahUri
+                p[PreferencesKeys.AZAN_SOUND_URI] = s.azanSoundUri
+                p[PreferencesKeys.IQAMAH_SOUND_URI] = s.iqamahSoundUri
+                p[PreferencesKeys.LAYOUT] = s.layout
+                p[PreferencesKeys.ILLUSTRATION_SILHOUETTE] = s.illustrationSilhouette
+                p[PreferencesKeys.MUTIARA_ENABLED] = s.mutiaraHaditsEnabled
+                p[PreferencesKeys.MUTIARA_EVERY_MINUTES] = s.mutiaraEveryMinutes
+                p[PreferencesKeys.MUTIARA_SHOW_SECONDS] = s.mutiaraShowSeconds
             }
             if (recalcPrayerTimes) prayerTimesCacheInvalidatorProvider.get().invalidatePrayerTimesCache()
         }

@@ -98,6 +98,12 @@ data class AppSettings(
     // Jumma Night Bayan settings - applies to Thursday night Isha prayer
     val jummaNightBayanEnabled: Boolean = false, // Enable/disable Jumma Night Bayan feature
     val jummaNightBayanMinutes: Int = 30, // Duration in minutes for Jumma Night Bayan (default: 30 minutes)
+    // SIWAK V2 (dari server): tata letak Galeri, ilustrasi, Mutiara Hadits
+    val layout: String = "BAR_BAWAH", // BAR_BAWAH | GALERI
+    val illustrationSilhouette: String = "KUBAH", // KUBAH | TUMPANG | MUSHOLLA
+    val mutiaraHaditsEnabled: Boolean = false,
+    val mutiaraEveryMinutes: Int = 15,
+    val mutiaraShowSeconds: Int = 30,
     // Auto-update settings
     val autoUpdateCheckEnabled: Boolean = true, // Enable/disable automatic update check on app startup
     val skippedUpdateVersion: String = "", // Version that user chose to skip (won't show dialog for this version)

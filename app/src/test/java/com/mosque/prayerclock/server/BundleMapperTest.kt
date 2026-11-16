@@ -147,7 +147,28 @@ class BundleMapperTest {
         val r = BundleMapper.toAppSettings(local, bundle, "2026-11-16")
         assertEquals("kunci-lokal", r.openWeatherMapApiKey)
         assertFalse(r.autoUpdateCheckEnabled)
-        assertEquals("content://logo", r.mosqueLogoUri)
+        // TV terhubung: logo diatur dari admin web; server tidak memilih logo → memakai bawaan.
+        assertEquals("", r.mosqueLogoUri)
+    }
+
+    @Test
+    fun mediaDanTampilanGaleri() {
+        val json =
+            """{"settings":{"sound":{"enabled":true,"adzan":{"enabled":true,"type":"CUSTOM","mediaId":"a1"},"iqamah":{"enabled":true,"type":"CUSTOM","mediaId":"belum"}},
+              "display":{"layout":"GALERI","media":{"logoId":"l1","backgroundMainId":null},"illustration":{"silhouette":"TUMPANG"},"mutiaraHadits":{"enabled":true,"everyMinutes":20,"showSeconds":45}}}}"""
+        val files = mapOf("a1" to "file:///media/aaa", "l1" to "file:///media/lll")
+        val r = BundleMapper.toAppSettings(AppSettings(), gson.fromJson(json, BundleDto::class.java), "2026-11-16") { files[it] }
+        assertEquals(SoundType.CUSTOM, r.azanSoundType)
+        assertEquals("file:///media/aaa", r.azanSoundUri)
+        // Audio iqamah belum terunduh → tetap bip agar tidak diam.
+        assertEquals(SoundType.TRADITIONAL_BEEP, r.iqamahSoundType)
+        assertEquals("file:///media/lll", r.mosqueLogoUri)
+        assertEquals("", r.backgroundMainUri)
+        assertEquals("GALERI", r.layout)
+        assertEquals("TUMPANG", r.illustrationSilhouette)
+        assertTrue(r.mutiaraHaditsEnabled)
+        assertEquals(20, r.mutiaraEveryMinutes)
+        assertEquals(45, r.mutiaraShowSeconds)
     }
 
     @Test

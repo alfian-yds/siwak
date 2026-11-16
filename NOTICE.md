@@ -29,6 +29,7 @@ tetapi diminta memakai nama dan logo sendiri agar tidak membingungkan pengguna.
 | Gson | Apache License 2.0 |
 | Coil | Apache License 2.0 |
 | compose-markdown (jeziellago) | MIT License |
+| ZXing core 3.3.3 (pembuat kode QR di layar Hubungkan) | Apache License 2.0 |
 
 Teks lisensi: Apache 2.0 <https://www.apache.org/licenses/LICENSE-2.0>,
 MIT <https://opensource.org/license/mit>.
@@ -58,7 +59,16 @@ Pixabay Content License mengizinkan pemakaian di dalam aplikasi tanpa atribusi w
 menjual atau membagikan berkas suara tersebut secara terpisah sebagai berkas mandiri. Berkas ini
 hanya disertakan sebagai bagian dari aplikasi SIWAK.
 
-## 6. Konten keagamaan
+## 6. Font
+
+| Berkas | Font | Hak cipta | Lisensi |
+|---|---|---|---|
+| `app/src/main/res/font/amiri_regular.ttf`, `amiri_bold.ttf` | Amiri (subset Arab), untuk teks Arab hadits | Copyright 2010-2022 The Amiri Project Authors (<https://github.com/aliftype/amiri>) | SIL Open Font License 1.1, teks lengkap di [licenses/OFL-1.1.txt](licenses/OFL-1.1.txt) |
+
+Berkas TTF dibuat dari WOFF paket npm `@fontsource/amiri` dengan `tools/woff_to_ttf.py` (hanya membungkus
+ulang tabel font, isinya tidak diubah), sehingga nama font tetap "Amiri" sesuai ketentuan OFL.
+
+## 7. Konten keagamaan
 
 Teks Arab hadits adalah karya yang telah menjadi milik umum. Terjemah dan pustaka hadits SIWAK
 mencatat sumbernya pada setiap entri. Konten yang ditambahkan pengurus masjid menjadi tanggung jawab
