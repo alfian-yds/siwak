@@ -1,8 +1,8 @@
 # Kebijakan Privasi SIWAK
 
-**Berlaku sejak:** 20 Oktober 2026
-**Diperbarui:** 16 November 2026 (data pemantauan TV, kamera untuk Scan QR, lokasi HP untuk isian koordinat)
-**Pengelola:** Alfian Yudisurya, pengembang SIWAK
+**Berlaku sejak:** 20 Oktober 2026\
+**Diperbarui:** 16 November 2026 (data pemantauan TV, kamera untuk Scan QR, lokasi HP untuk isian koordinat)\
+**Pengelola:** Alfian Yudisurya, pengembang SIWAK\
 **Kontak privasi:** alfian123yudi@gmail.com
 
 Kebijakan ini menjelaskan data apa yang dikumpulkan oleh aplikasi TV SIWAK dan layanan

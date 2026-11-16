@@ -1,7 +1,7 @@
 # Syarat Penggunaan SIWAK
 
-**Berlaku sejak:** 20 Oktober 2026
-**Diperbarui:** 16 November 2026 (pemantauan dan perintah jarak jauh ke TV)
+**Berlaku sejak:** 20 Oktober 2026\
+**Diperbarui:** 16 November 2026 (pemantauan dan perintah jarak jauh ke TV)\
 **Kontak:** alfian123yudi@gmail.com
 
 Syarat ini berlaku bagi pengurus yang memakai aplikasi TV SIWAK dan layanan <https://siwak.alfianys.id>.
