@@ -179,6 +179,9 @@ data class ContentDto(
 
 data class MediaRefDto(val id: String?, val kind: String?, val mime: String?, val sha256: String?, val bytes: Long?)
 
+/** Pengumuman segera (F-TV-11). Waktu dalam ISO-8601 UTC. */
+data class AnnouncementDto(val id: String?, val text: String?, val startsAt: String?, val expiresAt: String?)
+
 data class BundleDto(
     val bundleSchema: Int?,
     val configVersion: Long?,
@@ -189,6 +192,7 @@ data class BundleDto(
     val runningTexts: List<RunningTextDto>?,
     val slides: List<SlideDto>? = null,
     val content: List<ContentDto>? = null,
+    val announcements: List<AnnouncementDto>? = null,
     val media: List<MediaRefDto>? = null,
 )
 

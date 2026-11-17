@@ -59,7 +59,9 @@ class BundleMapperTest {
             { "id": "t3", "text": "Sudah lewat", "startsOn": null, "endsOn": "2026-11-15" },
             { "id": "t4", "text": "Hari ini saja", "startsOn": "2026-11-16", "endsOn": "2026-11-16" }
           ],
-          "slides": [], "content": [], "announcements": [], "media": [],
+          "slides": [], "content": [],
+          "announcements": [ { "id": "a1", "text": "Parkir di halaman belakang", "startsAt": "2026-11-16T05:00:00.000Z", "expiresAt": "2026-11-16T06:00:00.000Z" } ],
+          "media": [],
           "fieldBaruDariServer": { "diabaikan": true }
         }
         """.trimIndent()
@@ -200,5 +202,15 @@ class BundleMapperTest {
     fun perubahanJadwalTerdeteksi() {
         assertTrue(BundleMapper.affectsPrayerTimes(AppSettings(), result))
         assertFalse(BundleMapper.affectsPrayerTimes(result, result.copy(colorTheme = "amber_sunset")))
+    }
+
+    @Test
+    fun pengumumanTerbacaDariBundle() {
+        val a = bundle.announcements!!.single()
+        assertEquals("a1", a.id)
+        assertEquals("Parkir di halaman belakang", a.text)
+        assertEquals("2026-11-16T06:00:00.000Z", a.expiresAt)
+        // Konten tersimpan versi lama (tanpa kolom announcements) tetap terbaca dengan daftar kosong.
+        assertEquals(emptyList<AnnouncementDto>(), gson.fromJson("""{"slides":[],"content":[]}""", ServerContent::class.java).announcements)
     }
 }

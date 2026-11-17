@@ -22,6 +22,8 @@ import javax.inject.Singleton
 data class ServerContent(
     val slides: List<SlideDto> = emptyList(),
     val content: List<ContentDto> = emptyList(),
+    /** Pengumuman dari bundle terakhir; yang lewat masa tayang disembunyikan memakai jam TV. */
+    val announcements: List<AnnouncementDto> = emptyList(),
     /** id media → berkas lokal yang sudah diverifikasi sha256-nya. */
     val mediaFiles: Map<String, String> = emptyMap(),
 ) {
@@ -123,7 +125,7 @@ class ServerContentRepository
             bundle: BundleDto,
             mediaFiles: Map<String, String>,
         ) = withContext(Dispatchers.IO) {
-            val next = ServerContent(bundle.slides.orEmpty(), bundle.content.orEmpty(), mediaFiles)
+            val next = ServerContent(bundle.slides.orEmpty(), bundle.content.orEmpty(), bundle.announcements.orEmpty(), mediaFiles)
             val tmp = File(context.filesDir, "server-content.json.tmp")
             tmp.writeText(gson.toJson(next))
             if (!tmp.renameTo(file)) {

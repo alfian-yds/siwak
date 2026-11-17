@@ -161,3 +161,35 @@ object SlidePlaylist {
 
     fun isInfo(c: ContentDto) = c.type in infoTypes
 }
+
+/** Banner pengumuman segera (App Flow §3.2, F-TV-11). */
+object AnnouncementRules {
+    /** Lebih dari satu pengumuman aktif ditampilkan bergantian tiap 10 detik. */
+    const val ROTATE_MS = 10_000L
+
+    /** Banner tampil di atas prioritas 4–6, tidak saat shalat, hitung mundur iqamah, dan khutbah Jumat. */
+    fun visibleOn(screen: TvScreen): Boolean =
+        screen == TvScreen.ADZAN_COUNTDOWN || screen == TvScreen.MUTIARA_HADITS || screen == TvScreen.UTAMA
+
+    /** Pengumuman yang sedang dalam masa tayang menurut jam TV (tetap berlaku saat offline). */
+    fun active(
+        list: List<com.mosque.prayerclock.server.AnnouncementDto>,
+        nowMs: Long,
+    ): List<com.mosque.prayerclock.server.AnnouncementDto> =
+        list.filter { a ->
+            val text = a.text?.trim().orEmpty()
+            val start = parseMs(a.startsAt) ?: Long.MIN_VALUE
+            val end = parseMs(a.expiresAt) ?: return@filter false
+            text.isNotEmpty() && nowMs >= start && nowMs < end
+        }
+
+    /** Pengumuman yang tampil sekarang, bergiliran tiap [ROTATE_MS]. */
+    fun current(
+        active: List<com.mosque.prayerclock.server.AnnouncementDto>,
+        nowMs: Long,
+    ): com.mosque.prayerclock.server.AnnouncementDto? =
+        if (active.isEmpty()) null else active[((nowMs / ROTATE_MS) % active.size).toInt()]
+
+    private fun parseMs(iso: String?): Long? =
+        iso?.let { runCatching { kotlinx.datetime.Instant.parse(it).toEpochMilliseconds() }.getOrNull() }
+}

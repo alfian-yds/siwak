@@ -94,4 +94,41 @@ class ScreenRulesTest {
         assertEquals(listOf("h"), SlidePlaylist.build(emptyList(), emptyList(), 0, 0, listOf(c("h", "hadith"))).map { it.content.id })
         assertTrue(SlidePlaylist.build(emptyList(), emptyList(), 0, 0, emptyList()).isEmpty())
     }
+
+    // ---- Banner pengumuman (App Flow §3.2) ----
+
+    private fun ann(id: String, start: String?, end: String?, text: String? = "Pengumuman $id") =
+        com.mosque.prayerclock.server.AnnouncementDto(id, text, start, end)
+
+    private fun ms(iso: String) = kotlinx.datetime.Instant.parse(iso).toEpochMilliseconds()
+
+    @Test fun bannerHanyaDiAtasPrioritasEmpatSampaiEnam() {
+        val shown = TvScreen.values().filter { AnnouncementRules.visibleOn(it) }
+        assertEquals(listOf(TvScreen.ADZAN_COUNTDOWN, TvScreen.MUTIARA_HADITS, TvScreen.UTAMA), shown)
+    }
+
+    @Test fun pengumumanAktifMenurutJamTv() {
+        val list =
+            listOf(
+                ann("a", "2026-11-17T13:00:00Z", "2026-11-17T14:00:00Z"),
+                ann("b", "2026-11-17T15:00:00Z", "2026-11-17T16:00:00Z"), // belum mulai
+                ann("c", null, "2026-11-17T13:30:00Z"),
+                ann("d", "2026-11-17T13:00:00Z", "rusak"),
+                ann("e", "2026-11-17T13:00:00Z", "2026-11-17T14:00:00Z", text = "   "),
+            )
+        assertEquals(listOf("a", "c"), AnnouncementRules.active(list, ms("2026-11-17T13:15:00Z")).map { it.id })
+        // Lewat masa tayang: hilang walau TV offline dan bundle belum berganti.
+        assertEquals(listOf("a"), AnnouncementRules.active(list, ms("2026-11-17T13:30:00Z")).map { it.id })
+        assertTrue(AnnouncementRules.active(list, ms("2026-11-17T14:00:00Z")).isEmpty())
+    }
+
+    @Test fun beberapaPengumumanBergantianTiapSepuluhDetik() {
+        val list = listOf(ann("a", null, "2030-01-01T00:00:00Z"), ann("b", null, "2030-01-01T00:00:00Z"))
+        val t0 = 1_000_000_000_000L - (1_000_000_000_000L % AnnouncementRules.ROTATE_MS)
+        val first = AnnouncementRules.current(list, t0)!!.id
+        assertEquals(first, AnnouncementRules.current(list, t0 + 9_999)!!.id)
+        assertTrue(first != AnnouncementRules.current(list, t0 + 10_000)!!.id)
+        assertEquals(first, AnnouncementRules.current(list, t0 + 20_000)!!.id)
+        assertEquals(null, AnnouncementRules.current(emptyList(), t0))
+    }
 }

@@ -868,6 +868,20 @@ fun MainLayout(
                 currentTime = globalCurrentTime,
             )
         }
+
+        // SIWAK V2: banner pengumuman segera, lapisan paling atas (tidak ikut redup malam) untuk
+        // prioritas 4–6; disembunyikan saat shalat, hitung mundur iqamah, dan Jumat (App Flow §3.2).
+        val activeAnnouncements =
+            if (paired) com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, nowMs) else emptyList()
+        com.mosque.prayerclock.ui.announcement.AnnouncementBanner(
+            announcement =
+                if (com.mosque.prayerclock.domain.AnnouncementRules.visibleOn(decision.screen)) {
+                    com.mosque.prayerclock.domain.AnnouncementRules.current(activeAnnouncements, nowMs)
+                } else {
+                    null
+                },
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 }
 
