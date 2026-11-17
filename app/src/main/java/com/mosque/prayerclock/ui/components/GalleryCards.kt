@@ -1,5 +1,13 @@
 package com.mosque.prayerclock.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -34,13 +42,13 @@ fun GalleryBox(
         modifier = modifier.padding(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
     ) {
         Card(
-            modifier = Modifier.fillMaxSize().padding(5.dp),
+            modifier = Modifier.fillMaxSize().padding(2.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            shape = RoundedCornerShape(15.dp),
+            shape = RoundedCornerShape(16.dp),
         ) { content() }
     }
 }
@@ -57,20 +65,23 @@ fun GalleryNextPrayerCard(
     modifier: Modifier = Modifier,
 ) {
     GalleryBox(modifier) {
-        BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
+        BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp), contentAlignment = Alignment.Center) {
             val d = LocalDensity.current
             val h = with(d) { maxHeight.toPx() }
             val w = with(d) { maxWidth.toPx() }
-            val timeSize = with(d) { min(h * 0.33f, w / (time.length * 0.62f)).toSp() }
-            val labelSize = with(d) { min(h * 0.12f, w / 15f).toSp() }
-            val nameSize = with(d) { min(h * 0.15f, w / (title.length * 0.6f + 1)).toSp() }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Text("Berikutnya", fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
-                Text(title, fontSize = nameSize, lineHeight = nameSize * 1.1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, textAlign = TextAlign.Center)
-                Text(time, fontSize = timeSize, lineHeight = timeSize * 1.05f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
-                if (remaining != null) {
-                    Text(remaining, fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f), maxLines = 1)
+            // Mendatar: keterangan di kiri, jam besar di kanan.
+            val timeSize = with(d) { min(h * 0.62f, w * 0.5f / (time.length * 0.6f)).toSp() }
+            val nameSize = with(d) { min(h * 0.22f, w * 0.45f / (title.length * 0.58f + 1)).toSp() }
+            val labelSize = with(d) { min(h * 0.15f, w / 22f).toSp() }
+            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                    Text("Berikutnya", fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                    Text(title, fontSize = nameSize, lineHeight = nameSize * 1.1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                    if (remaining != null) {
+                        Text(remaining, fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f), maxLines = 1)
+                    }
                 }
+                Text(time, fontSize = timeSize, lineHeight = timeSize * 1.05f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
             }
         }
     }
@@ -111,5 +122,47 @@ fun GalleryWeatherCard(
                 )
             }
         }
+    }
+}
+
+/** Cuaca satu baris kecil di bawah panel Galeri: ikon, suhu, keterangan, terasa, kelembapan, angin, UV. */
+@Composable
+fun GalleryWeatherStrip(
+    info: WeatherInfo,
+    modifier: Modifier = Modifier,
+) {
+    val wx = weatherIconFor(info.icon)
+    val muted = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+    val iconTint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    androidx.compose.foundation.layout.Box(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+            .padding(horizontal = 14.dp, vertical = 4.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(wx.vector, contentDescription = null, tint = wx.tint, modifier = Modifier.size(20.dp))
+            Text("${info.temperature.roundToInt()}°C", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
+            Text(info.description.replaceFirstChar { it.uppercase() }, fontSize = 13.sp, color = muted, maxLines = 1, modifier = Modifier.weight(1f))
+            StripItem(androidx.compose.material.icons.Icons.Filled.Thermostat, "${info.feelsLike.roundToInt()}°", iconTint, muted)
+            StripItem(androidx.compose.material.icons.Icons.Filled.WaterDrop, "${info.humidity}%", iconTint, muted)
+            info.windSpeed?.let { StripItem(androidx.compose.material.icons.Icons.Filled.Air, "${it.roundToInt()} km/j", iconTint, muted) }
+            info.uvIndex?.let { StripItem(androidx.compose.material.icons.Icons.Filled.WbSunny, "UV ${it.roundToInt()}", iconTint, muted) }
+        }
+    }
+}
+
+@Composable
+private fun StripItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    tint: androidx.compose.ui.graphics.Color,
+    color: androidx.compose.ui.graphics.Color,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(14.dp))
+        Text(text, fontSize = 13.sp, color = color, maxLines = 1)
     }
 }

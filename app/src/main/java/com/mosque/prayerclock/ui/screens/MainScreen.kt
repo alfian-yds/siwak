@@ -619,15 +619,24 @@ fun MainLayout(
                     modifier = Modifier.weight(0.75f),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    com.mosque.prayerclock.ui.gallery.GalleryPanel(
-                        playlist = playlist,
-                        paused = decision.slidesPaused,
-                        scene = scene,
-                        mosqueName = settings.mosqueName,
-                        mediaUri = { serverContent.mediaUri(it) },
-                        hijriToday = hijriToday,
+                    Column(
                         modifier = Modifier.weight(0.58f).fillMaxHeight(),
-                    )
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        com.mosque.prayerclock.ui.gallery.GalleryPanel(
+                            playlist = playlist,
+                            paused = decision.slidesPaused,
+                            scene = scene,
+                            mosqueName = settings.mosqueName,
+                            mediaUri = { serverContent.mediaUri(it) },
+                            hijriToday = hijriToday,
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                        )
+                        // Cuaca satu baris kecil di bawah panel konten.
+                        if (settings.showWeather && weatherState is WeatherUiState.Success) {
+                            com.mosque.prayerclock.ui.components.GalleryWeatherStrip(info = weatherState.weatherInfo, modifier = Modifier.fillMaxWidth().height(34.dp))
+                        }
+                    }
                     Column(
                         modifier = Modifier.weight(0.42f).fillMaxHeight(),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -642,9 +651,10 @@ fun MainLayout(
                             onClockClick = onOpenSettings,
                             currentTime = globalCurrentTime,
                             hijriDateRepository = viewModel.hijriDateRepository,
-                            modifier = Modifier.fillMaxWidth().weight(1.45f),
+                            modifier = Modifier.fillMaxWidth().weight(1.5f),
+                            thinBorder = true,
                         )
-                        // Waktu shalat berikutnya dan cuaca berdampingan, masing-masing dalam kotak.
+                        // Waktu shalat berikutnya, selebar kolom.
                         val nextInfo = createPrayerInfoList(successState.prayerTimes, globalCurrentTime).find { it.type == successState.nextPrayer }
                         val remainingText =
                             nextInfo?.let { info ->
@@ -653,23 +663,12 @@ fun MainLayout(
                                     if (left >= 60) "${left / 60} jam ${left % 60} menit lagi" else "$left menit lagi"
                                 }
                             }
-                        Row(
+                        com.mosque.prayerclock.ui.components.GalleryNextPrayerCard(
+                            title = nextInfo?.let { "Adzan ${it.name}" } ?: "Waktu shalat",
+                            time = nextInfo?.azanTime ?: "--:--",
+                            remaining = remainingText,
                             modifier = Modifier.fillMaxWidth().weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            com.mosque.prayerclock.ui.components.GalleryNextPrayerCard(
-                                title = nextInfo?.let { "Adzan ${it.name}" } ?: "Waktu shalat",
-                                time = nextInfo?.azanTime ?: "--:--",
-                                remaining = remainingText,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                            )
-                            if (settings.showWeather && weatherState is WeatherUiState.Success) {
-                                com.mosque.prayerclock.ui.components.GalleryWeatherCard(
-                                    info = weatherState.weatherInfo,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                )
-                            }
-                        }
+                        )
                     }
                 }
             } else
@@ -1050,28 +1049,29 @@ fun ClockSection(
     hijriDateRepository: HijriDateRepository? = null,
     modifier: Modifier = Modifier,
     currentTime: Instant? = null,
+    thinBorder: Boolean = false,
 ) {
     Card(
         modifier =
             modifier
-                .padding(4.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .padding(if (thinBorder) 2.dp else 4.dp)
+                .clip(RoundedCornerShape(if (thinBorder) 18.dp else 24.dp))
                 .clickable { onClockClick() },
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(if (thinBorder) 18.dp else 24.dp),
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth().padding(6.dp),
+            modifier = Modifier.fillMaxWidth().padding(if (thinBorder) 2.dp else 6.dp),
             colors =
                 CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                 ),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(if (thinBorder) 16.dp else 18.dp),
         ) {
             val boxPadding = 6.dp
 
