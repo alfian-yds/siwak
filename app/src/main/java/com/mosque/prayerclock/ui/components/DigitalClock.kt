@@ -73,6 +73,7 @@ fun DigitalClock(
     hijriDateRepository: com.mosque.prayerclock.data.repository.HijriDateRepository? = null,
     currentTime: Instant? = null,
     clockSizeScale: Float = 1.0f, // SIWAK: faktor pembesar jam (1.0 normal)
+    stackDates: Boolean = false, // rc.3: tanggal dua baris (tata letak Galeri)
     hijriDayOffset: Int = 0, // SIWAK: geser tanggal Hijriah ±hari
 ) {
     // Use provided time or fallback to local time source
@@ -176,8 +177,8 @@ fun DigitalClock(
         val measurer = rememberTextMeasurer()
         val timeTemplate = formattedTime.replace(Regex("[0-9]"), "0")
         // Kotak pendek-lebar (Galeri) memberi porsi lebih besar untuk baris tanggal.
-        val compact = availableHeightPx < availableWidthPx * 0.38f
-        val dateRowPx = availableHeightPx * (if (compact) 0.30f else 0.19f)
+        val compact = stackDates
+        val dateRowPx = availableHeightPx * (if (compact) 0.36f else 0.19f)
         val refSize = 100.sp
         val refStyle = MaterialTheme.typography.displayLarge.copy(fontSize = refSize, fontWeight = FontWeight.Bold)
         val measured = remember(timeTemplate, refStyle) { measurer.measure(timeTemplate, refStyle, softWrap = false, maxLines = 1) }
@@ -201,8 +202,9 @@ fun DigitalClock(
             }
         val dateLineFontSize =
             with(density) {
-                val byHeight = (availableHeightPx * (if (compact) 0.14f else 0.075f)).toSp().value
-                val byWidth = refSize.value * ((availableWidthPx / 2f - 8.dp.toPx() - 24.dp.toPx()) / widest)
+                val byHeight = (availableHeightPx * (if (compact) 0.115f else 0.075f)).toSp().value
+                val slot = if (compact) availableWidthPx else availableWidthPx / 2f
+                val byWidth = refSize.value * ((slot - 8.dp.toPx() - 24.dp.toPx()) / widest)
                 min(byHeight, byWidth).sp
             }
 
@@ -243,12 +245,8 @@ fun DigitalClock(
                 softWrap = false,
             )
 
-            // Side-by-side date cards layout
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            // Tanggal: berdampingan di kotak tinggi (Bar bawah), dua baris di kotak pendek-lebar (Galeri).
+            DateRows(compact) { itemMod ->
                 // Hijri Date Card (Left)
                 hijriDate?.let { hDate ->
                     val hijriMonth = hijriMonthNames.getOrNull(hDate.month - 1) ?: hijriMonthNames[0]
@@ -260,7 +258,7 @@ fun DigitalClock(
                                 fadeOut(animationSpec = tween(40, easing = LinearEasing))
                         },
                         label = "hijri_date_transition",
-                        modifier = Modifier.weight(1f),
+                        modifier = itemMod,
                     ) { (animatedMonth, animatedDate) ->
                         Card(
                             colors =
@@ -309,7 +307,7 @@ fun DigitalClock(
                             fadeOut(animationSpec = tween(40, easing = LinearEasing))
                     },
                     label = "gregorian_date_transition",
-                    modifier = Modifier.weight(1f),
+                    modifier = itemMod,
                 ) { (dayOfMonth, monthYearStr) ->
                     Card(
                         colors =
@@ -349,6 +347,20 @@ fun DigitalClock(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DateRows(
+    compact: Boolean,
+    content: @Composable (Modifier) -> Unit,
+) {
+    if (compact) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) { content(Modifier.fillMaxWidth()) }
+    } else {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+            content(Modifier.weight(1f))
         }
     }
 }

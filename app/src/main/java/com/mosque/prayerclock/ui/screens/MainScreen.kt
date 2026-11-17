@@ -1122,6 +1122,7 @@ fun ClockSection(
                                 currentTime = currentTime,
                                 clockSizeScale = settings.clockSizePercent / 100f,
                                 hijriDayOffset = settings.hijriDayOffset,
+                                stackDates = thinBorder,
                             )
                         }
                         ClockType.ANALOG -> {
@@ -1140,6 +1141,7 @@ fun ClockSection(
                                 currentTime = currentTime,
                                 clockSizeScale = settings.clockSizePercent / 100f,
                                 hijriDayOffset = settings.hijriDayOffset,
+                                stackDates = thinBorder,
                             )
                         }
                     }
