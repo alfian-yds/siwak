@@ -89,7 +89,7 @@ kebijakan privasi masing-masing.
 ## 6. Keamanan
 
 Seluruh lalu lintas memakai HTTPS. Akses admin dibatasi pada email yang didaftarkan. Setiap TV
-memakai kunci perangkat sendiri yang dapat dicabut. PIN pengaturan TV disimpan terenkripsi.
+memakai kunci perangkat sendiri yang dapat dicabut.
 Kunci layanan pihak ketiga hanya disimpan di server, tidak di dalam aplikasi.
 
 ## 7. Hak Anda
