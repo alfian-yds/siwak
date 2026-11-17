@@ -16,6 +16,7 @@ import com.mosque.prayerclock.SplashActivity
 import com.mosque.prayerclock.data.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -67,6 +69,12 @@ class ServerSyncManager
         /** Dipanggil saat TV dilepas dari server (oleh server atau dari menu TV). */
         val unpairedEvents = MutableStateFlow(0)
 
+        /** Waktu perintah "Tampilkan Mutiara Hadits" terakhir dari admin web (0 = belum pernah). */
+        val mutiaraRequests = MutableStateFlow(0L)
+
+        /** Membangunkan loop sinkron sebelum jeda 30 detik habis (mis. untuk melapor segera). */
+        private val wake = Channel<Unit>(Channel.CONFLATED)
+
         private val mutex = Mutex()
         private val gson = Gson()
         private var failures = 0
@@ -96,7 +104,7 @@ class ServerSyncManager
                 }
                 refreshRunningTextsForToday(state)
                 checkAutoReturn(state)
-                delay(TICK_MS)
+                withTimeoutOrNull(TICK_MS) { wake.receive() }
             }
         }
 
@@ -104,6 +112,13 @@ class ServerSyncManager
         fun requestSync() {
             forceNext = true
             lastHeartbeatAt = 0L
+            wake.trySend(Unit)
+        }
+
+        /** Kirim heartbeat lagi secepatnya, mis. untuk melaporkan versi pengaturan yang baru diterapkan. */
+        private fun reportSoon() {
+            lastHeartbeatAt = 0L
+            wake.trySend(Unit)
         }
 
         /** Satu putaran: heartbeat → (bundle) → (cuaca) → perintah. */
@@ -142,7 +157,11 @@ class ServerSyncManager
                         val bundleChanged =
                             force || hb.configVersion != state.configVersion || hb.contentVersion != state.contentVersion
                         var error: String? = null
-                        if (bundleChanged) error = applyBundle(state.serverUrl, token)
+                        if (bundleChanged) {
+                            error = applyBundle(state.serverUrl, token)
+                            // Laporkan versi yang baru diterapkan segera, agar admin web tahu perubahan sudah berjalan.
+                            if (error == null) reportSoon()
+                        }
                         if (force || hb.weatherStamp != state.weatherStamp) fetchWeather(state.serverUrl, token, hb.weatherStamp)
                         _status.value = Status(lastOkAt = System.currentTimeMillis(), lastError = error, syncing = false)
                         hb.commands.orEmpty().forEach { handleCommand(it) }
@@ -212,6 +231,19 @@ class ServerSyncManager
                     requestSync()
                     store.addPendingResult(CommandResult(id, true, null))
                 }
+                "show_mutiara" -> {
+                    val settings = settingsRepository.getSettings().first()
+                    val hasHadith = contentRepository.content.value.hadiths.isNotEmpty()
+                    val message =
+                        when {
+                            !settings.mutiaraHaditsEnabled -> "Mutiara Hadits sedang dimatikan di pengaturan Tampilan."
+                            !hasHadith -> "Belum ada hadits yang bisa tayang di TV ini."
+                            else -> null
+                        }
+                    if (message == null) mutiaraRequests.value = System.currentTimeMillis()
+                    // Tidak tampil selama hitung mundur, layar shalat, Jumat, atau mode malam (App Flow §3.1).
+                    store.addPendingResult(CommandResult(id, message == null, message ?: if (!AppForegroundTracker.isForeground) "Dijadwalkan; tampil saat SIWAK terbuka" else null))
+                }
                 "restart_app" -> {
                     if (!AppForegroundTracker.canOpenFromBackground(context)) {
                         store.addPendingResult(
@@ -226,7 +258,7 @@ class ServerSyncManager
                 else -> store.addPendingResult(CommandResult(id, false, "Perintah tidak dikenal oleh versi aplikasi ini"))
             }
             // Laporkan hasil secepatnya, bukan menunggu 60 detik.
-            lastHeartbeatAt = 0L
+            reportSoon()
         }
 
         /** Membawa SIWAK ke depan. Mengembalikan null bila berhasil, atau pesan galat. */

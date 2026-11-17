@@ -16,6 +16,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -72,8 +74,8 @@ class MainActivity : ComponentActivity() {
         // Configure window for always-on display
         configureDisplaySettings()
 
-        // Request overlay permission for auto-start functionality
-        requestOverlayPermission()
+        // SIWAK 2.0: izin "Tampil di atas aplikasi lain" tidak lagi diminta langsung saat dibuka;
+        // TV terhubung mendapat penjelasan dulu (OverlayPermissionDialog di MosqueClockApp).
 
         // Start prayer notification service for sound alerts
         startPrayerNotificationService()
@@ -97,36 +99,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-        }
-    }
-
-    private fun requestOverlayPermission() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!Settings.canDrawOverlays(this)) {
-                    android.util.Log.d("MainActivity", "Requesting overlay permission...")
-                    val intent =
-                        Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:$packageName"),
-                        )
-
-                    // Check if the intent can be handled before starting it
-                    if (intent.resolveActivity(packageManager) != null) {
-                        startActivity(intent)
-                        android.util.Log.d("MainActivity", "Overlay permission dialog opened")
-                    } else {
-                        android.util.Log.w(
-                            "MainActivity",
-                            "Overlay permission settings not available on this device (Android TV)",
-                        )
-                    }
-                } else {
-                    android.util.Log.d("MainActivity", "Overlay permission already granted")
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "Error requesting overlay permission", e)
         }
     }
 
@@ -193,6 +165,39 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
     val server by serverViewModel.server.collectAsStateWithLifecycle()
     val unpairedEvents by serverViewModel.unpairedEvents.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { serverViewModel.ensureAgent() }
+    val appContext = androidx.compose.ui.platform.LocalContext.current
+
+    // Layar sambutan hanya pada pemasangan baru (bukan pembaruan dari versi lama) dan hanya sekali.
+    val onboardingPrefs = remember { appContext.getSharedPreferences("siwak_onboarding", android.content.Context.MODE_PRIVATE) }
+    val showWelcome =
+        remember {
+            val info = runCatching { appContext.packageManager.getPackageInfo(appContext.packageName, 0) }.getOrNull()
+            val fresh = info != null && info.firstInstallTime == info.lastUpdateTime
+            fresh && !onboardingPrefs.getBoolean("welcome_done", false)
+        }
+    val finishWelcome = { onboardingPrefs.edit().putBoolean("welcome_done", true).apply() }
+
+    // Konfirmasi setelah terhubung, lalu penjelasan izin buka-dari-jauh bila belum diberikan.
+    var pairedToast by remember { mutableStateOf(false) }
+    var showOverlayDialog by remember { mutableStateOf(false) }
+    var overlayAsked by remember { mutableStateOf(false) }
+    LaunchedEffect(pairedToast) {
+        if (pairedToast) {
+            delay(8000)
+            pairedToast = false
+        }
+    }
+    LaunchedEffect(server?.isPaired, pairedToast) {
+        if (server?.isPaired == true && !pairedToast && !overlayAsked &&
+            !com.mosque.prayerclock.server.AppForegroundTracker.canOpenFromBackground(appContext)
+        ) {
+            delay(5000)
+            if (navController.currentBackStackEntry?.destination?.route == "main") {
+                overlayAsked = true
+                showOverlayDialog = true
+            }
+        }
+    }
     // TV dilepas dari admin web → tutup layar pengaturan server, kembali ke layar utama.
     LaunchedEffect(unpairedEvents) {
         if (unpairedEvents > 0) navController.popBackStack("main", inclusive = false)
@@ -246,6 +251,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
         when (currentRoute) {
             "settings", "pairing" -> navController.popBackStack()
+            "welcome" -> {}
             "main" -> showExitDialog = true
             else -> showExitDialog = true
         }
@@ -285,7 +291,23 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
                 }
             },
     ) {
-        NavHost(navController = navController, startDestination = "main") {
+        NavHost(navController = navController, startDestination = if (showWelcome) "welcome" else "main") {
+            composable("welcome") {
+                com.mosque.prayerclock.ui.server.WelcomeScreen(
+                    serverHost = BuildConfig.SIWAK_SERVER_URL.removePrefix("https://").removePrefix("http://"),
+                    onConnect = {
+                        finishWelcome()
+                        navController.navigate("main") { popUpTo("welcome") { inclusive = true } }
+                        navController.navigate("pairing")
+                    },
+                    onStandalone = {
+                        finishWelcome()
+                        if (navController.currentBackStackEntry?.destination?.route == "welcome") {
+                            navController.navigate("main") { popUpTo("welcome") { inclusive = true } }
+                        }
+                    },
+                )
+            }
             composable("main") {
                 MainScreen(onOpenSettings = { navController.navigate("settings") })
             }
@@ -308,9 +330,22 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
             composable("pairing") {
                 com.mosque.prayerclock.ui.server.PairingScreen(
                     onBack = { navController.popBackStack() },
-                    onPaired = { navController.popBackStack("main", inclusive = false) },
+                    onPaired = {
+                        navController.popBackStack("main", inclusive = false)
+                        pairedToast = true
+                    },
                 )
             }
+        }
+
+        com.mosque.prayerclock.ui.server.PairedToast(
+            visible = pairedToast,
+            mosqueName = server?.mosqueName,
+            deviceName = server?.deviceName,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp),
+        )
+        if (showOverlayDialog) {
+            com.mosque.prayerclock.ui.server.OverlayPermissionDialog(onDismiss = { showOverlayDialog = false })
         }
 
         // Exit confirmation dialog

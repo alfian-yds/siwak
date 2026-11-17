@@ -547,6 +547,15 @@ fun MainLayout(
     var mutiaraIndex by remember { mutableStateOf(0) }
     val nowMs = globalCurrentTime.toEpochMilliseconds()
     val hadithPool = serverContent.hadiths
+    // Perintah "Tampilkan Mutiara Hadits sekarang" dari admin web: anggap jadwal berkala sudah jatuh tempo.
+    val mutiaraRequest by galleryVm.mutiaraRequests.collectAsStateWithLifecycle()
+    LaunchedEffect(mutiaraRequest) {
+        if (mutiaraRequest > 0L && mutiaraUntil == 0L) {
+            mutiaraLastEnd = System.currentTimeMillis() - settings.mutiaraEveryMinutes * 60_000L
+        }
+    }
+    val syncStatus by galleryVm.syncStatus.collectAsStateWithLifecycle()
+    val appStartedAt = remember { System.currentTimeMillis() }
     val mutiaraDue =
         paired && settings.mutiaraHaditsEnabled && hadithPool.isNotEmpty() &&
             (mutiaraUntil > nowMs || nowMs - mutiaraLastEnd >= settings.mutiaraEveryMinutes * 60_000L)
@@ -867,6 +876,17 @@ fun MainLayout(
                 dimLevel = settings.nightDimLevel,
                 currentTime = globalCurrentTime,
             )
+        }
+
+        // SIWAK V2: penanda kecil bila server tidak terjangkau > 5 menit; tampilan tetap memakai data terakhir.
+        if (paired) {
+            val lastContact = if (syncStatus.lastOkAt > 0) syncStatus.lastOkAt else appStartedAt
+            if (nowMs - lastContact > 5 * 60_000L) {
+                com.mosque.prayerclock.ui.server.ServerOfflineChip(
+                    sinceMs = syncStatus.lastOkAt.takeIf { it > 0 },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(end = 28.dp, bottom = 84.dp),
+                )
+            }
         }
 
         // SIWAK V2: banner pengumuman segera, lapisan paling atas (tidak ikut redup malam) untuk

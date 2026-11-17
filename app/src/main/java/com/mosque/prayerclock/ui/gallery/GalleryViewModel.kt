@@ -26,11 +26,18 @@ class GalleryViewModel
     constructor(
         contentRepository: ServerContentRepository,
         serverStore: ServerStore,
+        syncManager: com.mosque.prayerclock.server.ServerSyncManager,
         private val hijriDateRepository: HijriDateRepository,
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
         val content: StateFlow<ServerContent> = contentRepository.content
         val paired: StateFlow<Boolean> = serverStore.state.map { it.isPaired }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+        /** Permintaan "Tampilkan Mutiara Hadits sekarang" dari admin web (waktu permintaan). */
+        val mutiaraRequests: StateFlow<Long> = syncManager.mutiaraRequests
+
+        /** Status sinkron untuk penanda koneksi di layar utama. */
+        val syncStatus: StateFlow<com.mosque.prayerclock.server.ServerSyncManager.Status> = syncManager.status
 
         /** Tanggal Hijriah hari ini (tanggal, bulan, tahun) setelah penyesuaian ± hari. */
         private val _hijri = MutableStateFlow<Triple<Int, Int, Int>?>(null)
