@@ -80,7 +80,7 @@ data class AppSettings(
     // SIWAK: running text banyak pesan dipisah "||" (diganti instan)
     val runningTextMessages: String = "",
     val weatherApiKey: String = "", // WeatherAPI.com API key
-    val openWeatherMapApiKey: String = "3c2ad345d6952077f51037b1c0f8de88", // SIWAK: OpenWeatherMap default
+    val openWeatherMapApiKey: String = "", // SIWAK 2.0: cuaca dari server; mode mandiri memakai kunci milik sendiri
     val mosqueClockBackendUrl: String = "", // MosqueClock backend URL
     val mosqueClockBackendApiKey: String = "", // MosqueClock backend API key
     // Duration for Jummah (Friday) prayer in minutes (default: 60 minutes = 1 hour)

@@ -96,22 +96,51 @@ class UpdateChecker
         private fun compareVersions(
             v1: String,
             v2: String,
-        ): Int {
-            val parts1 = v1.split(".").map { it.toIntOrNull() ?: 0 }
-            val parts2 = v2.split(".").map { it.toIntOrNull() ?: 0 }
-
-            val maxLength = maxOf(parts1.size, parts2.size)
-
-            for (i in 0 until maxLength) {
-                val part1 = parts1.getOrNull(i) ?: 0
-                val part2 = parts2.getOrNull(i) ?: 0
-
-                when {
-                    part1 > part2 -> return 1
-                    part1 < part2 -> return -1
-                }
-            }
-
-            return 0
-        }
+        ): Int = compareAppVersions(v1, v2)
     }
+
+/**
+ * Membandingkan versi aplikasi ala SemVer: 1 bila [v1] lebih baru, -1 bila lebih lama, 0 bila sama.
+ * Bagian angka dibandingkan dulu ("1.3" < "2.0.0"); bila sama, versi tanpa akhiran lebih baru
+ * daripada pra-rilis ("2.0.0-rc.1" < "2.0.0"), dan pra-rilis dibandingkan per bagian ("rc.1" < "rc.2").
+ * Akhiran build debug ("-DEBUG") diperlakukan sebagai pra-rilis.
+ */
+fun compareAppVersions(
+    v1: String,
+    v2: String,
+): Int {
+    fun split(v: String): Pair<List<Int>, String?> {
+        val clean = v.trim().removePrefix("v")
+        val dash = clean.indexOf('-')
+        val core = if (dash >= 0) clean.substring(0, dash) else clean
+        val pre = if (dash >= 0) clean.substring(dash + 1).ifBlank { null } else null
+        return core.split(".").map { it.toIntOrNull() ?: 0 } to pre
+    }
+    val (n1, p1) = split(v1)
+    val (n2, p2) = split(v2)
+    for (i in 0 until maxOf(n1.size, n2.size)) {
+        val a = n1.getOrNull(i) ?: 0
+        val b = n2.getOrNull(i) ?: 0
+        if (a != b) return if (a > b) 1 else -1
+    }
+    if (p1 == p2) return 0
+    if (p1 == null) return 1
+    if (p2 == null) return -1
+    val a = p1.split(".", "-")
+    val b = p2.split(".", "-")
+    for (i in 0 until maxOf(a.size, b.size)) {
+        val x = a.getOrNull(i) ?: return -1
+        val y = b.getOrNull(i) ?: return 1
+        val xi = x.toIntOrNull()
+        val yi = y.toIntOrNull()
+        val c =
+            when {
+                xi != null && yi != null -> xi.compareTo(yi)
+                xi != null -> -1
+                yi != null -> 1
+                else -> x.compareTo(y, ignoreCase = true)
+            }
+        if (c != 0) return if (c > 0) 1 else -1
+    }
+    return 0
+}

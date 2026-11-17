@@ -238,7 +238,7 @@ class SettingsRepository
                     backgroundIqamahUri = preferences[PreferencesKeys.BACKGROUND_IQAMAH_URI] ?: "",
                     runningTextMessages = preferences[PreferencesKeys.RUNNING_TEXT_MESSAGES] ?: "",
                     weatherApiKey = preferences[PreferencesKeys.WEATHER_API_KEY] ?: "",
-                    openWeatherMapApiKey = preferences[PreferencesKeys.OPENWEATHERMAP_API_KEY] ?: "3c2ad345d6952077f51037b1c0f8de88",
+                    openWeatherMapApiKey = preferences[PreferencesKeys.OPENWEATHERMAP_API_KEY] ?: "",
                     mosqueClockBackendUrl = preferences[PreferencesKeys.MOSQUE_CLOCK_BACKEND_URL] ?: "",
                     mosqueClockBackendApiKey = preferences[PreferencesKeys.MOSQUE_CLOCK_BACKEND_API_KEY] ?: "",
                     jummahDurationMinutes = preferences[PreferencesKeys.JUMMAH_DURATION_MINUTES] ?: 60,

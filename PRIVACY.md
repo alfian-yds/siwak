@@ -1,7 +1,7 @@
 # Kebijakan Privasi SIWAK
 
 **Berlaku sejak:** 20 Oktober 2026\
-**Diperbarui:** 16 November 2026 (data pemantauan TV, kamera untuk Scan QR, lokasi HP untuk isian koordinat)\
+**Diperbarui:** 17 November 2026 (pengumuman segera, log aktivitas beserta alamat IP, cuaca mode mandiri, masa simpan data)\
 **Pengelola:** Alfian Yudisurya, pengembang SIWAK\
 **Kontak privasi:** alfian123yudi@gmail.com
 
@@ -22,7 +22,7 @@ mengacu pada Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.
 
 | Data | Keterangan | Dikirim ke |
 |---|---|---|
-| Koordinat lokasi masjid | Diisi pengurus, bukan dari GPS perangkat | AlAdhan (jadwal shalat); OpenWeather (cuaca, pada versi 1.x langsung dari TV, mulai versi 2 lewat server SIWAK) |
+| Koordinat lokasi masjid | Diisi pengurus, bukan dari GPS perangkat | AlAdhan (jadwal shalat); OpenWeather (cuaca: bila TV terhubung, lewat server SIWAK; pada mode mandiri versi 2 hanya bila pengurus mengisi kunci OpenWeather miliknya sendiri, langsung dari TV; pada versi 1.x langsung dari TV) |
 | Alamat IP perangkat | Tercatat otomatis saat TV menghubungi layanan internet | Layanan yang dihubungi |
 | ID perangkat, nama dan model TV, versi aplikasi, waktu sinkron terakhir, selisih jam TV, ruang penyimpanan tersisa, pesan galat aplikasi | Hanya bila TV dihubungkan ke server SIWAK (versi 2) | Server SIWAK |
 | Status tampilan: apakah SIWAK sedang tampil di layar atau berada di latar belakang (dan sejak kapan), serta apakah izin "Tampil di atas aplikasi lain" sudah diberikan | Hanya bila TV dihubungkan ke server SIWAK (versi 2). Dipakai agar pengurus bisa memantau TV dan membuka atau memulai ulang SIWAK dari jauh | Server SIWAK |
@@ -38,7 +38,7 @@ Semua pengaturan disimpan di perangkat TV itu sendiri.
 |---|---|---|
 | Nama, alamat email, foto profil | Akun Google saat masuk | Mengenali pengurus dan menampilkan siapa yang sedang masuk |
 | Peran dan masjid yang dikelola | Diisi super admin | Mengatur hak akses |
-| Riwayat perubahan (log aktivitas) | Tercatat saat pengurus mengubah pengaturan atau konten | Akuntabilitas dan pemulihan bila ada kesalahan |
+| Riwayat perubahan (log aktivitas): siapa, kapan, apa yang diubah (nilai lama dan baru), dan alamat IP | Tercatat saat pengurus masuk, keluar, atau mengubah pengaturan, konten, dan TV | Akuntabilitas dan pemulihan bila ada kesalahan. Admin masjid melihat log masjidnya tanpa alamat IP; alamat IP hanya terlihat oleh super admin |
 | Alamat IP dan jenis peramban | Log server | Keamanan dan penanganan gangguan |
 | Cookie sesi | Dibuat saat masuk | Menjaga sesi login; tidak dipakai untuk pelacakan |
 | Gambar kamera HP | Hanya saat pengurus menekan **Scan QR** dan memberi izin kamera | Membaca kode 8 angka di layar TV. Gambar diproses di peramban HP dan **tidak dikirim** ke server |
@@ -49,7 +49,8 @@ SIWAK tidak membaca email, kontak, berkas, atau data lain di akun Google Anda.
 
 ### 2.3 Konten yang diunggah pengurus
 
-Pengurus dapat mengunggah logo, foto, audio, dan konten seperti nama petugas Jumat atau laporan kas.
+Pengurus dapat mengunggah logo, foto, audio, dan konten seperti nama petugas Jumat, laporan kas, teks
+berjalan, dan pengumuman segera.
 Bila konten tersebut memuat data pribadi orang lain (misalnya nama khatib), pengurus masjid
 bertanggung jawab memastikan orang yang bersangkutan setuju namanya ditampilkan.
 
@@ -65,7 +66,7 @@ dengan akun Google untuk pertama kali.
 |---|---|---|
 | Google | Layanan masuk (login) | Proses login; Google tunduk pada kebijakan privasinya sendiri |
 | AlAdhan | Perhitungan jadwal shalat | Koordinat masjid, alamat IP TV |
-| OpenWeather | Data cuaca | Koordinat masjid (dari server SIWAK atau, pada versi 1.x, dari TV) |
+| OpenWeather | Data cuaca | Koordinat masjid (dari server SIWAK; dari TV hanya pada versi 1.x atau mode mandiri dengan kunci milik pengurus) |
 | GitHub | Pemeriksaan pembaruan aplikasi | Alamat IP TV |
 | Penyedia server (VPS) | Tempat server SIWAK berjalan | Seluruh data layanan, tersimpan di Indonesia (Jawa Barat) |
 
@@ -81,6 +82,8 @@ kebijakan privasi masing-masing.
 | Log aktivitas | 1 tahun |
 | Riwayat status perangkat | 90 hari |
 | Riwayat perintah jarak jauh (buka/sinkron/mulai ulang SIWAK) | 30 hari |
+| Pengumuman segera | 90 hari setelah masa tayangnya berakhir |
+| Gambar dan audio unggahan yang tidak lagi dipakai | Dihapus otomatis 30 hari setelah diunggah bila tidak dipakai di pengaturan atau konten mana pun |
 | Cadangan (backup) database | 30 hari |
 
 ## 6. Keamanan
