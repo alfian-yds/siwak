@@ -403,7 +403,7 @@ fun ContentFullscreen(
         if (nextPrayerText != null) {
             Text(
                 nextPrayerText,
-                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 96.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 72.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
                 color = Accent,
                 fontSize = screenPct(0.03f),
                 fontWeight = FontWeight.SemiBold,
@@ -440,7 +440,7 @@ fun MutiaraHaditsScreen(
         if (nextPrayerText != null) {
             Text(
                 nextPrayerText,
-                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 96.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 72.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
                 color = Accent,
                 fontSize = screenPct(0.03f),
                 fontWeight = FontWeight.SemiBold,

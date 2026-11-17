@@ -651,7 +651,7 @@ fun MainLayout(
                             onClockClick = onOpenSettings,
                             currentTime = globalCurrentTime,
                             hijriDateRepository = viewModel.hijriDateRepository,
-                            modifier = Modifier.fillMaxWidth().weight(1.5f),
+                            modifier = Modifier.fillMaxWidth().weight(1f),
                             thinBorder = true,
                         )
                         // Waktu shalat berikutnya, selebar kolom.
@@ -667,7 +667,7 @@ fun MainLayout(
                             title = nextInfo?.let { "Adzan ${it.name}" } ?: "Waktu shalat",
                             time = nextInfo?.azanTime ?: "--:--",
                             remaining = remainingText,
-                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }

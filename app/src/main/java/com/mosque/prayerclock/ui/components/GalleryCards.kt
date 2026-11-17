@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +37,7 @@ import kotlin.math.roundToInt
 @Composable
 fun GalleryBox(
     modifier: Modifier = Modifier,
+    fill: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Card(
@@ -45,7 +47,7 @@ fun GalleryBox(
         shape = RoundedCornerShape(18.dp),
     ) {
         Card(
-            modifier = Modifier.fillMaxSize().padding(2.dp),
+            modifier = (if (fill) Modifier.fillMaxSize() else Modifier.fillMaxWidth()).padding(2.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             shape = RoundedCornerShape(16.dp),
@@ -64,25 +66,20 @@ fun GalleryNextPrayerCard(
     remaining: String?,
     modifier: Modifier = Modifier,
 ) {
-    GalleryBox(modifier) {
-        BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp), contentAlignment = Alignment.Center) {
-            val d = LocalDensity.current
-            val h = with(d) { maxHeight.toPx() }
-            val w = with(d) { maxWidth.toPx() }
-            // Mendatar: keterangan di kiri, jam besar di kanan.
-            val timeSize = with(d) { min(h * 0.62f, w * 0.5f / (time.length * 0.6f)).toSp() }
-            val nameSize = with(d) { min(h * 0.22f, w * 0.45f / (title.length * 0.58f + 1)).toSp() }
-            val labelSize = with(d) { min(h * 0.15f, w / 22f).toSp() }
-            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                    Text("Berikutnya", fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
-                    Text(title, fontSize = nameSize, lineHeight = nameSize * 1.1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
-                    if (remaining != null) {
-                        Text(remaining, fontSize = labelSize, lineHeight = labelSize * 1.1f, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f), maxLines = 1)
-                    }
+    // Ukuran teks tetap (sama dengan versi kotak tinggi); tinggi kotak mengikuti isi tanpa ruang kosong.
+    GalleryBox(modifier, fill = false) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                Text("Berikutnya", fontSize = 13.sp, lineHeight = 15.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                Text(title, fontSize = 18.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                if (remaining != null) {
+                    Text(remaining, fontSize = 13.sp, lineHeight = 15.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f), maxLines = 1)
                 }
-                Text(time, fontSize = timeSize, lineHeight = timeSize * 1.05f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
             }
+            Text(time, fontSize = 46.sp, lineHeight = 50.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
         }
     }
 }
