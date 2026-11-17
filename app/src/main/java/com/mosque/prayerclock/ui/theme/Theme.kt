@@ -4,6 +4,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun MosqueClockTheme(
@@ -32,7 +37,18 @@ fun MosqueClockTheme(
         MaterialTheme(
             colorScheme = dynamicColorScheme,
             typography = Typography,
-            content = content,
-        )
+        ) {
+            // Sorotan fokus remote yang tegas: bawaan Material hanya 12%, nyaris tak terlihat di TV.
+            CompositionLocalProvider(LocalRippleTheme provides TvFocusRippleTheme, content = content)
+        }
     }
+}
+
+/** Lapisan fokus/tekan yang jelas untuk navigasi D-pad. */
+private object TvFocusRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor(): Color = LocalContentColor.current
+
+    @Composable
+    override fun rippleAlpha(): RippleAlpha = RippleAlpha(draggedAlpha = 0.24f, focusedAlpha = 0.2f, hoveredAlpha = 0.2f, pressedAlpha = 0.34f)
 }

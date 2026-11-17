@@ -1,5 +1,7 @@
 package com.mosque.prayerclock.ui.components
 
+import com.mosque.prayerclock.ui.tv.tvFocusHighlight
+
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
@@ -265,7 +267,7 @@ private fun AppItem(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .tvFocusHighlight().clickable(onClick = onClick)
                 .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

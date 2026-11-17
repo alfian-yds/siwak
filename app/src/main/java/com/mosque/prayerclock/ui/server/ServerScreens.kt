@@ -22,14 +22,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import com.mosque.prayerclock.ui.tv.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.mosque.prayerclock.ui.tv.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.mosque.prayerclock.ui.tv.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -317,9 +317,12 @@ fun ConnectedSettingsScreen(
     val canOpen = AppForegroundTracker.canOpenFromBackground(context)
     val fmt = remember { DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) }
     val s = server
+    val localVm: com.mosque.prayerclock.viewmodel.SettingsViewModel = hiltViewModel()
+    val local by localVm.settings.collectAsStateWithLifecycle()
 
     ScreenFrame("Pengaturan TV", onBack) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            item { GroupHeader("Koneksi") }
             item {
                 InfoCard {
                     Text("Terhubung ke server", style = MaterialTheme.typography.titleLarge)
@@ -339,6 +342,7 @@ fun ConnectedSettingsScreen(
                     Button(onClick = viewModel::syncNow, enabled = !status.syncing) { Text(if (status.syncing) "Menyinkron…" else "Sinkron sekarang") }
                 }
             }
+            item { GroupHeader("Suara") }
             item {
                 InfoCard {
                     Text("Tes suara", style = MaterialTheme.typography.titleLarge)
@@ -348,6 +352,7 @@ fun ConnectedSettingsScreen(
                     }
                 }
             }
+            item { GroupHeader("Sistem") }
             item {
                 InfoCard {
                     Text("Izin aplikasi", style = MaterialTheme.typography.titleLarge)
@@ -359,22 +364,26 @@ fun ConnectedSettingsScreen(
                     PermissionsList()
                 }
             }
+            item { com.mosque.prayerclock.ui.screens.SystemSettingsAccess() }
+            item {
+                // Versi, pengembang, kredit, tautan legal, dan pembaruan aplikasi: sama dengan mode mandiri.
+                com.mosque.prayerclock.ui.screens.AboutSettings(
+                    autoUpdateCheckEnabled = local.autoUpdateCheckEnabled,
+                    onAutoUpdateCheckEnabledChange = localVm::updateAutoUpdateCheckEnabled,
+                )
+            }
+            if (s?.minAppVersion != null && isOlderVersion(BuildConfig.VERSION_NAME, s.minAppVersion)) {
+                item {
+                    InfoCard {
+                        Text("Server membutuhkan versi aplikasi yang lebih baru. Perbarui lewat tombol di atas.", color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
             item {
                 InfoCard {
                     Text("Lepas dari server", style = MaterialTheme.typography.titleLarge)
                     Text("TV kembali ke mode mandiri dengan pengaturan terakhir. Untuk menghubungkan lagi dibutuhkan kode baru.")
                     OutlinedButton(onClick = { confirmUnpair = true }) { Text("Lepas dari server", color = MaterialTheme.colorScheme.error) }
-                }
-            }
-            item {
-                InfoCard {
-                    Text("Tentang", style = MaterialTheme.typography.titleLarge)
-                    Text("SIWAK versi ${BuildConfig.VERSION_NAME}")
-                    Text("Kebijakan privasi & syarat: ${s?.serverUrl ?: "siwak.alfianys.id"}/privasi")
-                    Text("Data cuaca dari OpenWeather")
-                    if (s?.minAppVersion != null && isOlderVersion(BuildConfig.VERSION_NAME, s.minAppVersion)) {
-                        Text("Tersedia pembaruan aplikasi. Perbarui agar semua fitur server berjalan.", color = MaterialTheme.colorScheme.primary)
-                    }
                 }
             }
         }
@@ -394,4 +403,14 @@ fun ConnectedSettingsScreen(
             dismissButton = { TextButton(onClick = { confirmUnpair = false }) { Text("Batal") } },
         )
     }
+}
+
+@Composable
+private fun GroupHeader(title: String) {
+    Text(
+        text = title.uppercase(),
+        style = MaterialTheme.typography.titleSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+    )
 }

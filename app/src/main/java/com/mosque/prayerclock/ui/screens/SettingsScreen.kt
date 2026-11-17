@@ -1,5 +1,7 @@
 package com.mosque.prayerclock.ui.screens
 
+import com.mosque.prayerclock.ui.tv.tvFocusHighlight
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -45,7 +47,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
+import com.mosque.prayerclock.ui.tv.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,13 +57,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.mosque.prayerclock.ui.tv.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
+import com.mosque.prayerclock.ui.tv.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -156,45 +158,18 @@ fun SettingsScreen(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                // ─────────── SIWAK V2: hubungkan ke server ───────────
+                item { SettingsGroupHeader("Koneksi") }
                 item {
                     ConnectServerCard(onConnectServer)
                 }
-
-                // ─────────── Sistem ───────────
-                item {
-                    SystemSettingsAccess()
-                }
-
-                // ─────────── Identitas Masjid & Bahasa ───────────
+                item { SettingsGroupHeader("Identitas masjid") }
                 item {
                     MosqueNameSetting(
                         mosqueName = settings.mosqueName,
                         onMosqueNameChange = viewModel::updateMosqueName,
                     )
                 }
-
-                item {
-                    MediaSettings(
-                        logoUri = settings.mosqueLogoUri,
-                        backgroundUri = settings.backgroundMainUri,
-                        backgroundPrayerUri = settings.backgroundPrayerUri,
-                        backgroundIqamahUri = settings.backgroundIqamahUri,
-                        onLogoChange = viewModel::updateMosqueLogoUri,
-                        onBackgroundChange = viewModel::updateBackgroundMainUri,
-                        onBackgroundPrayerChange = viewModel::updateBackgroundPrayerUri,
-                        onBackgroundIqamahChange = viewModel::updateBackgroundIqamahUri,
-                    )
-                }
-
-                item {
-                    LanguageSetting(
-                        selectedLanguage = settings.language,
-                        onLanguageChange = viewModel::updateLanguage,
-                    )
-                }
-
-                // ─────────── Jadwal Shalat ───────────
+                item { SettingsGroupHeader("Jadwal") }
                 item {
                     PrayerServiceSettings(
                         selectedServiceType = settings.prayerServiceType,
@@ -217,7 +192,6 @@ fun SettingsScreen(
                         onBackendApiKeyChange = viewModel::updateMosqueClockBackendApiKey,
                     )
                 }
-
                 if (settings.prayerServiceType == PrayerServiceType.MANUAL) {
                     item {
                         ManualPrayerTimesSettings(
@@ -226,16 +200,6 @@ fun SettingsScreen(
                         )
                     }
                 }
-
-                // Place Iqamah Gaps and Prayer Time setup right after Prayer Service
-                item {
-                    IqamahGapSettings(
-                        settings = settings,
-                        onUpdateIqamahGap = viewModel::updateIqamahGap,
-                    )
-                }
-
-                // SIWAK: koreksi menit per-waktu (offset)
                 item {
                     PrayerOffsetSettings(
                         settings = settings,
@@ -243,8 +207,6 @@ fun SettingsScreen(
                         onEnabledChange = viewModel::updatePrayerOffsetEnabled,
                     )
                 }
-
-                // Tanggal Hijriah (bagian jadwal)
                 item {
                     HijriDateSettings(
                         hijriProvider = settings.hijriProvider,
@@ -257,7 +219,20 @@ fun SettingsScreen(
                         onHijriDayOffsetChange = viewModel::updateHijriDayOffset,
                     )
                 }
-
+                item {
+                    IqamahGapSettings(
+                        settings = settings,
+                        onUpdateIqamahGap = viewModel::updateIqamahGap,
+                    )
+                }
+                item {
+                    FullScreenCountdownSettings(
+                        fullScreenCountdownEnabled = settings.fullScreenCountdownEnabled,
+                        fullScreenCountdownMinutes = settings.fullScreenCountdownMinutes,
+                        onFullScreenCountdownEnabledChange = viewModel::updateFullScreenCountdownEnabled,
+                        onFullScreenCountdownMinutesChange = viewModel::updateFullScreenCountdownMinutes,
+                    )
+                }
                 item {
                     JummaNightBayanSettings(
                         jummaNightBayanEnabled = settings.jummaNightBayanEnabled,
@@ -266,7 +241,6 @@ fun SettingsScreen(
                         onJummaNightBayanMinutesChange = viewModel::updateJummaNightBayanMinutes,
                     )
                 }
-
                 item {
                     PrayerDisplaySettings(
                         jummahDurationMinutes = settings.jummahDurationMinutes,
@@ -277,29 +251,7 @@ fun SettingsScreen(
                         onShowJummahScreenChange = viewModel::updateShowJummahScreen,
                     )
                 }
-
-                // ─────────── Tampilan Layar ───────────
-                item {
-                    // rc.3: jam analog dihapus; jam selalu digital.
-                }
-
-                item {
-                    ClockFormatSettings(
-                        showSeconds = settings.showSeconds,
-                        show24Hour = settings.show24HourFormat,
-                        onShowSecondsChange = viewModel::updateShowSeconds,
-                        onShow24HourChange = viewModel::updateShow24HourFormat,
-                    )
-                }
-
-                item {
-                    ColorThemeSettings(
-                        selectedThemeId = settings.colorTheme,
-                        onThemeChange = viewModel::updateColorTheme,
-                    )
-                }
-
-                // Enhanced Azan Sound Settings
+                item { SettingsGroupHeader("Suara") }
                 item {
                     AzanSoundSettings(
                         azanSoundEnabled = settings.azanSoundEnabled,
@@ -310,8 +262,6 @@ fun SettingsScreen(
                         onAzanSoundUriChange = viewModel::updateAzanSoundUri,
                     )
                 }
-
-                // Enhanced Iqamah Sound Settings
                 item {
                     IqamahSoundSettings(
                         iqamahSoundEnabled = settings.iqamahSoundEnabled,
@@ -322,8 +272,51 @@ fun SettingsScreen(
                         onIqamahSoundUriChange = viewModel::updateIqamahSoundUri,
                     )
                 }
-
-                // ─────────── Cuaca ───────────
+                item { SettingsGroupHeader("Tampilan") }
+                item {
+                    MediaSettings(
+                        logoUri = settings.mosqueLogoUri,
+                        backgroundUri = settings.backgroundMainUri,
+                        backgroundPrayerUri = settings.backgroundPrayerUri,
+                        backgroundIqamahUri = settings.backgroundIqamahUri,
+                        onLogoChange = viewModel::updateMosqueLogoUri,
+                        onBackgroundChange = viewModel::updateBackgroundMainUri,
+                        onBackgroundPrayerChange = viewModel::updateBackgroundPrayerUri,
+                        onBackgroundIqamahChange = viewModel::updateBackgroundIqamahUri,
+                    )
+                }
+                item {
+                    ColorThemeSettings(
+                        selectedThemeId = settings.colorTheme,
+                        onThemeChange = viewModel::updateColorTheme,
+                    )
+                }
+                item {
+                    LanguageSetting(
+                        selectedLanguage = settings.language,
+                        onLanguageChange = viewModel::updateLanguage,
+                    )
+                }
+                item {
+                    ClockFormatSettings(
+                        showSeconds = settings.showSeconds,
+                        show24Hour = settings.show24HourFormat,
+                        onShowSecondsChange = viewModel::updateShowSeconds,
+                        onShow24HourChange = viewModel::updateShow24HourFormat,
+                    )
+                }
+                item {
+                    NightModeSettings(
+                        enabled = settings.nightModeEnabled,
+                        startHour = settings.nightStartHour,
+                        endHour = settings.nightEndHour,
+                        dimLevel = settings.nightDimLevel,
+                        onEnabledChange = viewModel::updateNightModeEnabled,
+                        onStartHourChange = viewModel::updateNightStartHour,
+                        onEndHourChange = viewModel::updateNightEndHour,
+                        onDimLevelChange = viewModel::updateNightDimLevel,
+                    )
+                }
                 item {
                     WeatherSettings(
                         showWeather = settings.showWeather,
@@ -341,17 +334,6 @@ fun SettingsScreen(
                         onSyncWeather = viewModel::syncWeatherNow,
                     )
                 }
-
-                item {
-                    FullScreenCountdownSettings(
-                        fullScreenCountdownEnabled = settings.fullScreenCountdownEnabled,
-                        fullScreenCountdownMinutes = settings.fullScreenCountdownMinutes,
-                        onFullScreenCountdownEnabledChange = viewModel::updateFullScreenCountdownEnabled,
-                        onFullScreenCountdownMinutesChange = viewModel::updateFullScreenCountdownMinutes,
-                    )
-                }
-
-                // SIWAK: sakelar tampil/sembunyi Terbit & Imsak
                 item {
                     DisplayVisibilitySettings(
                         showSunrise = settings.showSunrise,
@@ -364,39 +346,25 @@ fun SettingsScreen(
                         onShowIqamahCycleChange = viewModel::updateShowIqamahCycle,
                     )
                 }
-
-                // SIWAK: running text pengumuman (banyak pesan)
+                item { SettingsGroupHeader("Konten") }
                 item {
                     RunningTextSettings(
                         text = settings.runningTextMessages,
                         onTextChange = viewModel::updateRunningTextMessages,
                     )
                 }
-
-                // SIWAK: Mode Istirahat Malam
+                item { SettingsGroupHeader("Sistem") }
                 item {
-                    NightModeSettings(
-                        enabled = settings.nightModeEnabled,
-                        startHour = settings.nightStartHour,
-                        endHour = settings.nightEndHour,
-                        dimLevel = settings.nightDimLevel,
-                        onEnabledChange = viewModel::updateNightModeEnabled,
-                        onStartHourChange = viewModel::updateNightStartHour,
-                        onEndHourChange = viewModel::updateNightEndHour,
-                        onDimLevelChange = viewModel::updateNightDimLevel,
-                    )
+                    PermissionsStatus()
                 }
-
+                item {
+                    SystemSettingsAccess()
+                }
                 item {
                     DataManagementSettings(
                         viewModel = viewModel,
                     )
                 }
-
-                item {
-                    PermissionsStatus()
-                }
-
                 item {
                     AboutSettings(
                         autoUpdateCheckEnabled = settings.autoUpdateCheckEnabled,
@@ -406,6 +374,17 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+/** Judul kelompok, urutannya sama dengan menu admin web (Jadwal, Suara, Tampilan, Konten). */
+@Composable
+private fun SettingsGroupHeader(title: String) {
+    Text(
+        text = title.uppercase(),
+        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 12.dp, top = 12.dp),
+    )
 }
 
 @Composable
@@ -1969,7 +1948,7 @@ private fun ImprovedTextField(
             modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 56.dp)
-                .clickable { showDialog = true },
+                .tvFocusHighlight().clickable { showDialog = true },
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -2502,7 +2481,7 @@ private fun SelectableSettingsRow(
         modifier =
             modifier
                 .fillMaxWidth()
-                .selectable(
+                .tvFocusHighlight().selectable(
                     selected = selected,
                     onClick = onClick,
                 ).background(
@@ -2946,7 +2925,7 @@ private fun ColorThemeSettings(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clickable { isExpanded = !isExpanded }
+                        .tvFocusHighlight().clickable { isExpanded = !isExpanded }
                         .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -3022,7 +3001,7 @@ private fun ThemeOption(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable { onSelect() },
+                .tvFocusHighlight().clickable { onSelect() },
         colors =
             CardDefaults.cardColors(
                 containerColor =
@@ -3179,7 +3158,7 @@ private fun PermissionsStatus() {
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clickable { isExpanded = !isExpanded },
+                        .tvFocusHighlight().clickable { isExpanded = !isExpanded },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -3232,7 +3211,7 @@ private fun PermissionsStatus() {
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .clickable {
+                                    .tvFocusHighlight().clickable {
                                         // Only allow clicking if permission is not granted
                                         if (!permission.isGranted) {
                                             when (permission.permissionType) {
@@ -3342,7 +3321,7 @@ private fun PermissionsStatus() {
 }
 
 @Composable
-private fun SystemSettingsAccess() {
+internal fun SystemSettingsAccess() {
     val context = LocalContext.current
     var showAppPicker by remember { mutableStateOf(false) }
 
@@ -3830,7 +3809,7 @@ private fun DataManagementSettings(
 }
 
 @Composable
-private fun AboutSettings(
+internal fun AboutSettings(
     autoUpdateCheckEnabled: Boolean = true,
     onAutoUpdateCheckEnabledChange: (Boolean) -> Unit = {},
 ) {
@@ -4405,7 +4384,7 @@ private fun AzanSoundSettings(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .clickable { onAzanSoundTypeChange(type) }
+                                    .tvFocusHighlight().clickable { onAzanSoundTypeChange(type) }
                                     .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -4638,7 +4617,7 @@ private fun IqamahSoundSettings(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .clickable { onIqamahSoundTypeChange(type) }
+                                    .tvFocusHighlight().clickable { onIqamahSoundTypeChange(type) }
                                     .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
