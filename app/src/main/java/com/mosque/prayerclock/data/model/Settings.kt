@@ -101,6 +101,11 @@ data class AppSettings(
     // SIWAK V2 (dari server): tata letak Galeri, ilustrasi, Mutiara Hadits
     val layout: String = "BAR_BAWAH", // BAR_BAWAH | GALERI
     val illustrationSilhouette: String = "KUBAH", // KUBAH | TUMPANG | MUSHOLLA
+    /** Layar konten dari server (rc.3). Mati = tampilan seperti v1.x. */
+    val contentEnabled: Boolean = false,
+    /** Lama tiap konten otomatis (hadits) di panel samping, detik. */
+    val contentSlideSeconds: Int = 20,
+    /** Layar penuh berkala (nama lama "Mutiara Hadits" dipertahankan). */
     val mutiaraHaditsEnabled: Boolean = false,
     val mutiaraEveryMinutes: Int = 15,
     val mutiaraShowSeconds: Int = 30,

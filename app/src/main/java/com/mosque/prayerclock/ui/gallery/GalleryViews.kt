@@ -377,6 +377,41 @@ private fun InfoRow(
 
 // ---- Mutiara Hadits (Design Brief §6.3) --------------------------------------------------
 
+/** Slide atau panel informasi layar penuh untuk layar penuh berkala (rc.3), dengan jam dan waktu shalat berikutnya. */
+@Composable
+fun ContentFullscreen(
+    item: PlaylistItem,
+    scene: SceneState,
+    mediaUri: (String?) -> String?,
+    hijriToday: Triple<Int, Int, Int>?,
+    clockText: String,
+    nextPrayerText: String?,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier.background(Color.Black)) {
+        when (item.content.type) {
+            "image" -> ImageSlide(item.content, mediaUri, scene)
+            else -> InfoSlide(item.content, scene, hijriToday)
+        }
+        Text(
+            clockText,
+            Modifier.align(Alignment.TopEnd).padding(36.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 6.dp),
+            color = Color.White,
+            fontSize = screenPct(0.05f),
+            fontWeight = FontWeight.Bold,
+        )
+        if (nextPrayerText != null) {
+            Text(
+                nextPrayerText,
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 96.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                color = Accent,
+                fontSize = screenPct(0.03f),
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
 @Composable
 fun MutiaraHaditsScreen(
     hadith: ContentDto,
@@ -405,7 +440,7 @@ fun MutiaraHaditsScreen(
         if (nextPrayerText != null) {
             Text(
                 nextPrayerText,
-                Modifier.align(Alignment.BottomEnd).padding(36.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 96.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
                 color = Accent,
                 fontSize = screenPct(0.03f),
                 fontWeight = FontWeight.SemiBold,

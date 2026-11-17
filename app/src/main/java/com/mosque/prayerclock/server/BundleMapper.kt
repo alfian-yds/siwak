@@ -161,9 +161,12 @@ object BundleMapper {
             layout = disp?.layout?.takeIf { it == "BAR_BAWAH" || it == "GALERI" } ?: current.layout,
             illustrationSilhouette =
                 disp?.illustration?.silhouette?.takeIf { it in setOf("KUBAH", "TUMPANG", "MUSHOLLA") } ?: current.illustrationSilhouette,
+            // Server lama belum mengirim `content`: anggap aktif bila Galeri atau layar penuh dipakai.
+            contentEnabled = disp?.content?.enabled ?: (disp?.layout == "GALERI" || mutiara?.enabled == true),
+            contentSlideSeconds = disp?.content?.slideSeconds.inRange(10, 60, current.contentSlideSeconds),
             mutiaraHaditsEnabled = mutiara?.enabled ?: current.mutiaraHaditsEnabled,
-            mutiaraEveryMinutes = mutiara?.everyMinutes.inRange(5, 60, current.mutiaraEveryMinutes),
-            mutiaraShowSeconds = mutiara?.showSeconds.inRange(15, 120, current.mutiaraShowSeconds),
+            mutiaraEveryMinutes = mutiara?.everyMinutes.inRange(1, 60, current.mutiaraEveryMinutes),
+            mutiaraShowSeconds = mutiara?.showSeconds.inRange(10, 120, current.mutiaraShowSeconds),
             runningTextMessages = runningTextMessages(bundle.runningTexts, today),
         )
     }

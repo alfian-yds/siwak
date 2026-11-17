@@ -131,4 +131,11 @@ class ScreenRulesTest {
         assertEquals(first, AnnouncementRules.current(list, t0 + 20_000)!!.id)
         assertEquals(null, AnnouncementRules.current(emptyList(), t0))
     }
+
+    @Test fun satuSlideTetapBergantiDenganHadits() {
+        // Bug rc.2: dengan satu slide, hadits tidak pernah disisipkan sehingga panel macet di gambar.
+        val list = SlidePlaylist.build(listOf(SlideDto("s", "img", 20, null, null, null)), listOf(c("img", "image")), 0, 600, listOf(c("h1", "hadith"), c("h2", "hadith")), autoSeconds = 15)
+        assertEquals(listOf("img", "h1"), list.map { it.content.id })
+        assertEquals(15, list[1].durationSec)
+    }
 }

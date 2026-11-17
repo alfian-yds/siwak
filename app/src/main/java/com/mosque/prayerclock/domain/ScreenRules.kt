@@ -131,6 +131,7 @@ object SlidePlaylist {
         dayIndex: Int,
         minutes: Int,
         autoHadiths: List<ContentDto>,
+        autoSeconds: Int = DEFAULT_SECONDS,
     ): List<PlaylistItem> {
         val byId = content.associateBy { it.id }
         val scheduled =
@@ -145,7 +146,7 @@ object SlidePlaylist {
             scheduled.addAll(jumat + rest)
         }
         val slideIds = scheduled.map { it.content.id }.toSet()
-        val autos = autoHadiths.filter { it.id !in slideIds }.map { PlaylistItem(it, DEFAULT_SECONDS, auto = true) }
+        val autos = autoHadiths.filter { it.id !in slideIds }.map { PlaylistItem(it, autoSeconds.coerceIn(10, 60), auto = true) }
         if (scheduled.isEmpty()) return autos
         if (autos.isEmpty()) return scheduled
 
@@ -154,7 +155,9 @@ object SlidePlaylist {
         var a = 0
         scheduled.forEachIndexed { i, item ->
             out += item
-            if ((i + 1) % 2 == 0) out += autos[a++ % autos.size]
+            // Hadits disisipkan tiap 2 slide; bila slide hanya satu, tiap slide (agar panel tetap berganti).
+            val every = if (scheduled.size >= 2) 2 else 1
+            if ((i + 1) % every == 0) out += autos[a++ % autos.size]
         }
         return out
     }

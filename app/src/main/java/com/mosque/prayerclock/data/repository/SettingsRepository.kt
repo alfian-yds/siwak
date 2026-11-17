@@ -124,6 +124,8 @@ class SettingsRepository
             // SIWAK V2
             val LAYOUT = stringPreferencesKey("layout")
             val ILLUSTRATION_SILHOUETTE = stringPreferencesKey("illustration_silhouette")
+            val CONTENT_ENABLED = booleanPreferencesKey("content_enabled")
+            val CONTENT_SLIDE_SECONDS = intPreferencesKey("content_slide_seconds")
             val MUTIARA_ENABLED = booleanPreferencesKey("mutiara_enabled")
             val MUTIARA_EVERY_MINUTES = intPreferencesKey("mutiara_every_minutes")
             val MUTIARA_SHOW_SECONDS = intPreferencesKey("mutiara_show_seconds")
@@ -264,6 +266,8 @@ class SettingsRepository
                     skippedUpdateVersion = preferences[PreferencesKeys.SKIPPED_UPDATE_VERSION] ?: "",
                     layout = preferences[PreferencesKeys.LAYOUT] ?: "BAR_BAWAH",
                     illustrationSilhouette = preferences[PreferencesKeys.ILLUSTRATION_SILHOUETTE] ?: "KUBAH",
+                    contentEnabled = preferences[PreferencesKeys.CONTENT_ENABLED] ?: false,
+                    contentSlideSeconds = preferences[PreferencesKeys.CONTENT_SLIDE_SECONDS] ?: 20,
                     mutiaraHaditsEnabled = preferences[PreferencesKeys.MUTIARA_ENABLED] ?: false,
                     mutiaraEveryMinutes = preferences[PreferencesKeys.MUTIARA_EVERY_MINUTES] ?: 15,
                     mutiaraShowSeconds = preferences[PreferencesKeys.MUTIARA_SHOW_SECONDS] ?: 30,
@@ -691,6 +695,8 @@ class SettingsRepository
                 p[PreferencesKeys.IQAMAH_SOUND_URI] = s.iqamahSoundUri
                 p[PreferencesKeys.LAYOUT] = s.layout
                 p[PreferencesKeys.ILLUSTRATION_SILHOUETTE] = s.illustrationSilhouette
+                p[PreferencesKeys.CONTENT_ENABLED] = s.contentEnabled
+                p[PreferencesKeys.CONTENT_SLIDE_SECONDS] = s.contentSlideSeconds
                 p[PreferencesKeys.MUTIARA_ENABLED] = s.mutiaraHaditsEnabled
                 p[PreferencesKeys.MUTIARA_EVERY_MINUTES] = s.mutiaraEveryMinutes
                 p[PreferencesKeys.MUTIARA_SHOW_SECONDS] = s.mutiaraShowSeconds

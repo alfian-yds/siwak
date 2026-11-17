@@ -129,6 +129,9 @@ data class IllustrationDto(val silhouette: String?, val useMosquePhoto: Boolean?
 
 data class MutiaraDto(val enabled: Boolean?, val everyMinutes: Int?, val showSeconds: Int?)
 
+/** Layar konten (rc.3): mati = tampilan seperti v1.x. */
+data class ContentSettingsDto(val enabled: Boolean?, val slideSeconds: Int?)
+
 data class DisplayDto(
     val layout: String?,
     val colorTheme: String?,
@@ -139,6 +142,7 @@ data class DisplayDto(
     val showWeather: Boolean?,
     val illustration: IllustrationDto?,
     val mutiaraHadits: MutiaraDto?,
+    val content: ContentSettingsDto? = null,
 )
 
 data class KioskDto(val autoReturn: EnabledMinutesDto?)

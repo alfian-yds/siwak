@@ -189,7 +189,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
     }
     LaunchedEffect(server?.isPaired, pairedToast) {
         if (server?.isPaired == true && !pairedToast && !overlayAsked &&
-            !com.mosque.prayerclock.server.AppForegroundTracker.canOpenFromBackground(appContext)
+            com.mosque.prayerclock.ui.server.missingRequiredPermissions(appContext)
         ) {
             delay(5000)
             if (navController.currentBackStackEntry?.destination?.route == "main") {
@@ -250,7 +250,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
     BackHandler(enabled = true) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
         when (currentRoute) {
-            "settings", "pairing" -> navController.popBackStack()
+            "settings", "pairing", "permissions" -> navController.popBackStack()
             "welcome" -> {}
             "main" -> showExitDialog = true
             else -> showExitDialog = true
@@ -276,7 +276,7 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
                         val currentRoute =
                             navController.currentBackStackEntry?.destination?.route
                         when (currentRoute) {
-                            "settings", "pairing" -> {
+                            "settings", "pairing", "permissions" -> {
                                 navController.popBackStack()
                                 true
                             }
@@ -333,8 +333,17 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
                     onPaired = {
                         navController.popBackStack("main", inclusive = false)
                         pairedToast = true
+                        // Pengurus sedang memegang remote: langsung minta izin yang dibutuhkan.
+                        if (com.mosque.prayerclock.ui.server.missingRequiredPermissions(appContext)) {
+                            overlayAsked = true
+                            navController.navigate("permissions")
+                        }
                     },
                 )
+            }
+
+            composable("permissions") {
+                com.mosque.prayerclock.ui.server.PermissionsScreen(onDone = { navController.popBackStack() })
             }
         }
 
@@ -345,7 +354,10 @@ fun MosqueClockApp(onExitApp: () -> Unit = {}) {
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp),
         )
         if (showOverlayDialog) {
-            com.mosque.prayerclock.ui.server.OverlayPermissionDialog(onDismiss = { showOverlayDialog = false })
+            com.mosque.prayerclock.ui.server.PermissionReminderDialog(
+                onOpen = { navController.navigate("permissions") },
+                onDismiss = { showOverlayDialog = false },
+            )
         }
 
         // Exit confirmation dialog

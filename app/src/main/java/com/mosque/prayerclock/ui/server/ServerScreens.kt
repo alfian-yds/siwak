@@ -309,11 +309,7 @@ fun ConnectedSettingsScreen(
     onUnpaired: () -> Unit,
     viewModel: ConnectedSettingsViewModel = hiltViewModel(),
 ) {
-    val unlocked by viewModel.unlocked.collectAsStateWithLifecycle()
-    if (!unlocked) {
-        PinGate(onBack = onBack, viewModel = viewModel)
-        return
-    }
+    // rc.3: tanpa PIN. Pengaturan TV terhubung memang terbatas; perubahan utama dilakukan dari admin web.
     val server by viewModel.server.collectAsStateWithLifecycle()
     val status by viewModel.status.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -354,24 +350,13 @@ fun ConnectedSettingsScreen(
             }
             item {
                 InfoCard {
-                    Text("Buka dari jauh", style = MaterialTheme.typography.titleLarge)
+                    Text("Izin aplikasi", style = MaterialTheme.typography.titleLarge)
                     Text(
-                        if (canOpen) {
-                            "Diizinkan. Pengurus bisa membuka SIWAK dari admin web bila tertutup aplikasi lain."
-                        } else {
-                            "Belum diizinkan. Agar pengurus bisa membuka SIWAK dari admin web, izinkan SIWAK tampil di atas aplikasi lain."
-                        },
+                        "Izin berikut dibutuhkan agar perintah dari HP (buka, sinkron, mulai ulang) selalu sampai dan bisa dijalankan.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    if (!canOpen) {
-                        Button(onClick = {
-                            runCatching {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                                )
-                            }
-                        }) { Text("Buka izin Tampil di atas aplikasi lain") }
-                    }
+                    PermissionsList()
                 }
             }
             item {

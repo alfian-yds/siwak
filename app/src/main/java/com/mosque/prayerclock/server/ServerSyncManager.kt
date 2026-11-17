@@ -233,11 +233,13 @@ class ServerSyncManager
                 }
                 "show_mutiara" -> {
                     val settings = settingsRepository.getSettings().first()
-                    val hasHadith = contentRepository.content.value.hadiths.isNotEmpty()
+                    val c = contentRepository.content.value
+                    val hasContent = c.hadiths.isNotEmpty() || c.slides.isNotEmpty()
                     val message =
                         when {
-                            !settings.mutiaraHaditsEnabled -> "Mutiara Hadits sedang dimatikan di pengaturan Tampilan."
-                            !hasHadith -> "Belum ada hadits yang bisa tayang di TV ini."
+                            !settings.contentEnabled -> "Layar konten sedang dimatikan di pengaturan Tampilan."
+                            !settings.mutiaraHaditsEnabled -> "Layar penuh berkala sedang dimatikan di pengaturan Tampilan."
+                            !hasContent -> "Belum ada konten yang bisa tayang di TV ini."
                             else -> null
                         }
                     if (message == null) mutiaraRequests.value = System.currentTimeMillis()

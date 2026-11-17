@@ -159,12 +159,14 @@ private fun ChoiceCard(
 }
 
 /**
- * Penjelasan sebelum membuka layar izin Android "Tampil di atas aplikasi lain". Tanpa izin ini SIWAK
- * tidak bisa dibuka lagi dari jauh. Menutup sendiri setelah 45 detik agar tidak menghalangi jam.
+ * Pengingat saat izin penting belum lengkap (TV terhubung). Menutup sendiri setelah 45 detik agar
+ * tidak menghalangi jam bila tidak ada yang memegang remote.
  */
 @Composable
-fun OverlayPermissionDialog(onDismiss: () -> Unit) {
-    val context = LocalContext.current
+fun PermissionReminderDialog(
+    onOpen: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         runCatching { focus.requestFocus() }
@@ -173,11 +175,11 @@ fun OverlayPermissionDialog(onDismiss: () -> Unit) {
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Izinkan SIWAK dibuka dari jauh", fontSize = 20.sp) },
+        title = { Text("Izin SIWAK belum lengkap", fontSize = 20.sp) },
         text = {
             Text(
-                "Agar pengurus bisa membuka atau memulai ulang SIWAK dari HP saat tertutup aplikasi lain, " +
-                    "TV perlu izin \"Tampil di atas aplikasi lain\". Di layar berikutnya pilih SIWAK lalu aktifkan.",
+                "Tanpa izin ini, perintah dari HP (buka, sinkron, mulai ulang SIWAK) bisa tidak sampai ke TV. " +
+                    "Atur sekali saja, sekitar satu menit.",
                 fontSize = 15.sp,
             )
         },
@@ -185,16 +187,11 @@ fun OverlayPermissionDialog(onDismiss: () -> Unit) {
             Button(
                 onClick = {
                     onDismiss()
-                    runCatching {
-                        context.startActivity(
-                            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        )
-                    }
+                    onOpen()
                 },
                 modifier = Modifier.focusRequester(focus),
                 colors = ButtonDefaults.buttonColors(containerColor = ZamrudTerang),
-            ) { Text("Buka pengaturan izin", fontSize = 15.sp) }
+            ) { Text("Atur izin", fontSize = 15.sp) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Nanti", fontSize = 15.sp) } },
         containerColor = Kartu,

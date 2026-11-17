@@ -210,14 +210,14 @@ fun WeatherCard(
 }
 
 // SIWAK: ikon cuaca lokal (vector) + warna, dipetakan dari kode cuaca.
-private data class WxIcon(val vector: ImageVector, val tint: Color)
+internal data class WxIcon(val vector: ImageVector, val tint: Color)
 
 /**
  * Petakan kode cuaca ke ikon lokal agar SEMUA jenis cuaca tampil & jalan offline.
  * Menerima kode OpenWeatherMap (mis. "10d") maupun URL yang memuat kode tsb
  * (mis. ".../img/wn/10d@2x.png"). Fallback ke ikon awan bila tak dikenali.
  */
-private fun weatherIconFor(rawIcon: String): WxIcon {
+internal fun weatherIconFor(rawIcon: String): WxIcon {
     // Ekstrak kode OWM 2-digit + d/n dari URL/string (mis. "10d"); bila tak ada, pakai apa adanya
     val code = Regex("([0-9]{2}[dn])").find(rawIcon)?.value ?: rawIcon
     val base = code.take(2)

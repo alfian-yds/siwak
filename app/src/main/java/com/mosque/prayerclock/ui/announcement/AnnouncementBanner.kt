@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,10 +32,15 @@ import com.mosque.prayerclock.ui.gallery.screenPct
 /** Warna `pengumuman` (Design Brief §3): #A83A2C, opasitas 92%. */
 private val BannerBg = Color(0xEBA83A2C)
 
+/** Pengumuman di bawah tidak transparan agar teks berjalan di bawahnya tidak terlihat. */
+private val BannerSolid = Color(0xFFA83A2C)
+
 /**
- * Banner pengumuman segera (Design Brief §6.4): lebar penuh di dalam area aman, menempel di atas,
- * label "PENGUMUMAN" di kiri, teks maks. 2 baris. Masuk geser turun 300 ms, keluar pudar 300 ms.
+ * Banner pengumuman segera (Design Brief §6.4): lebar penuh di dalam area aman, menempel di bawah
+ * (menutupi teks berjalan),
+ * label "PENGUMUMAN" di kiri, teks maks. 2 baris. Masuk geser naik 300 ms, keluar pudar 300 ms.
  */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun AnnouncementBanner(
     announcement: AnnouncementDto?,
@@ -46,38 +52,36 @@ fun AnnouncementBanner(
     AnimatedVisibility(
         visible = announcement != null,
         modifier = modifier,
-        enter = slideInVertically(tween(300)) { -it },
+        enter = slideInVertically(tween(300)) { it },
         exit = fadeOut(tween(300)),
     ) {
+        // rc.3: setinggi dan seposisi bar teks berjalan (menutupinya), satu baris yang bergulir bila panjang.
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 20.dp) // area aman TV
-                .clip(RoundedCornerShape(14.dp))
-                .background(BannerBg)
-                .padding(horizontal = 24.dp, vertical = 14.dp),
+                .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(BannerSolid)
+                .padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
                 "PENGUMUMAN",
                 color = Color.White.copy(alpha = 0.85f),
-                fontSize = screenPct(0.026f),
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp,
                 maxLines = 1,
             )
-            Crossfade(targetState = last, animationSpec = tween(300), label = "pengumuman") { a ->
-                val text = a?.text.orEmpty()
-                val size = bannerTextSize(text.length)
+            Crossfade(targetState = last, animationSpec = tween(300), label = "pengumuman", modifier = Modifier.weight(1f)) { a ->
                 Text(
-                    text,
+                    a?.text.orEmpty(),
                     color = Color.White,
-                    fontSize = screenPct(size),
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    lineHeight = screenPct(size * 1.24f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                 )
             }
         }

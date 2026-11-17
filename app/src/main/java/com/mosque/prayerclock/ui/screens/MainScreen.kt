@@ -528,7 +528,9 @@ fun MainLayout(
                 silhouette = settings.illustrationSilhouette,
             )
         } ?: com.mosque.prayerclock.ui.gallery.SceneState(com.mosque.prayerclock.domain.SkyPeriod.SIANG, 0.5f, 15, settings.illustrationSilhouette)
-    val galleryEnabled = paired && settings.layout == "GALERI" && successState != null
+    // Layar konten (rc.3): mati = tampilan seperti v1.x; panel samping = tata letak Galeri.
+    val contentOn = paired && settings.contentEnabled
+    val galleryEnabled = contentOn && settings.layout == "GALERI" && successState != null
     // Daftar putar dibentuk ulang tiap ada konten baru dan tiap menit (jadwal hari/jam slide).
     val playlist =
         remember(serverContent, nowMinutes, localNow.dayOfWeek) {
@@ -538,6 +540,7 @@ fun MainLayout(
                 localNow.dayOfWeek.ordinal, // kotlinx: MONDAY = 0 … SUNDAY = 6
                 nowMinutes,
                 serverContent.hadiths,
+                settings.contentSlideSeconds,
             )
         }
 
@@ -546,7 +549,8 @@ fun MainLayout(
     var mutiaraUntil by remember { mutableStateOf(0L) }
     var mutiaraIndex by remember { mutableStateOf(0) }
     val nowMs = globalCurrentTime.toEpochMilliseconds()
-    val hadithPool = serverContent.hadiths
+    // Layar penuh berkala memutar daftar yang sama dengan panel samping (slide, info, hadits), bergantian.
+    val contentPool = if (contentOn) playlist else emptyList()
     // Perintah "Tampilkan Mutiara Hadits sekarang" dari admin web: anggap jadwal berkala sudah jatuh tempo.
     val mutiaraRequest by galleryVm.mutiaraRequests.collectAsStateWithLifecycle()
     LaunchedEffect(mutiaraRequest) {
@@ -557,7 +561,7 @@ fun MainLayout(
     val syncStatus by galleryVm.syncStatus.collectAsStateWithLifecycle()
     val appStartedAt = remember { System.currentTimeMillis() }
     val mutiaraDue =
-        paired && settings.mutiaraHaditsEnabled && hadithPool.isNotEmpty() &&
+        contentOn && settings.mutiaraHaditsEnabled && contentPool.isNotEmpty() &&
             (mutiaraUntil > nowMs || nowMs - mutiaraLastEnd >= settings.mutiaraEveryMinutes * 60_000L)
     val nightHours =
         settings.nightModeEnabled && isWithinNightHours(localNow.hour, settings.nightStartHour, settings.nightEndHour)
@@ -632,34 +636,39 @@ fun MainLayout(
                         if (settings.mosqueName.isNotEmpty()) {
                             MosqueHeader(mosqueName = settings.mosqueName, modifier = Modifier.fillMaxWidth(), logoUri = settings.mosqueLogoUri)
                         }
-                        com.mosque.prayerclock.ui.gallery.GalleryClock(
-                            hour = localNow.hour,
-                            minute = localNow.minute,
-                            second = localNow.second,
-                            dayIndex = localNow.dayOfWeek.ordinal,
-                            day = localNow.dayOfMonth,
-                            month = localNow.monthNumber,
-                            year = localNow.year,
-                            hijri = hijriToday,
-                            showSeconds = settings.showSeconds,
-                            use24h = settings.show24HourFormat,
-                            color = MaterialTheme.colorScheme.primary,
-                            accent = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.fillMaxWidth().clickable { onOpenSettings() },
+                        // Jam dalam kotak yang sama dengan tata letak Bar bawah (rc.3), dibuat tinggi agar angka besar.
+                        ClockSection(
+                            settings = settings,
+                            onClockClick = onOpenSettings,
+                            currentTime = globalCurrentTime,
+                            hijriDateRepository = viewModel.hijriDateRepository,
+                            modifier = Modifier.fillMaxWidth().weight(1.45f),
                         )
-                        NextPrayerSection(
-                            prayerTimes = successState.prayerTimes,
-                            nextPrayer = successState.nextPrayer,
-                            nextDayFajr = successState.nextDayFajr,
-                            show24Hour = settings.show24HourFormat,
-                            modifier = Modifier.fillMaxWidth().weight(if (settings.showWeather) 1.6f else 1f),
-                            onPrayerTransition = { viewModel.updateNextPrayer() },
-                            showCountdown = isCountdownVisibleForWeight,
-                            currentTime = currentTimeGlobal,
-                            isCurrentPrayer = isCurrentPrayerGlobal,
-                        )
-                        if (settings.showWeather && weatherState is WeatherUiState.Success) {
-                            WeatherCard(weatherInfo = weatherState.weatherInfo, modifier = Modifier.fillMaxWidth().weight(1f))
+                        // Waktu shalat berikutnya dan cuaca berdampingan, masing-masing dalam kotak.
+                        val nextInfo = createPrayerInfoList(successState.prayerTimes, globalCurrentTime).find { it.type == successState.nextPrayer }
+                        val remainingText =
+                            nextInfo?.let { info ->
+                                com.mosque.prayerclock.domain.Periods.minutes(info.azanTime)?.let { azan ->
+                                    val left = ((azan - nowMinutes) % 1440 + 1440) % 1440
+                                    if (left >= 60) "${left / 60} jam ${left % 60} menit lagi" else "$left menit lagi"
+                                }
+                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            com.mosque.prayerclock.ui.components.GalleryNextPrayerCard(
+                                title = nextInfo?.let { "Adzan ${it.name}" } ?: "Waktu shalat",
+                                time = nextInfo?.azanTime ?: "--:--",
+                                remaining = remainingText,
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                            )
+                            if (settings.showWeather && weatherState is WeatherUiState.Success) {
+                                com.mosque.prayerclock.ui.components.GalleryWeatherCard(
+                                    info = weatherState.weatherInfo,
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                )
+                            }
                         }
                     }
                 }
@@ -857,16 +866,39 @@ fun MainLayout(
             )
         }
 
-        // SIWAK V2: Mutiara Hadits (prioritas 5), di atas tampilan utama.
-        if (showMutiara && hadithPool.isNotEmpty()) {
-            val next = successState?.let { s -> createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer } }
-            com.mosque.prayerclock.ui.gallery.MutiaraHaditsScreen(
-                hadith = hadithPool[mutiaraIndex % hadithPool.size],
-                scene = scene,
-                clockText = "%02d:%02d".format(localNow.hour, localNow.minute),
-                nextPrayerText = next?.let { "${it.name} ${it.azanTime}" },
-                modifier = Modifier.fillMaxSize(),
-            )
+        // SIWAK V2: layar penuh berkala (prioritas 5): satu konten per kemunculan, bergantian,
+        // masuk dan keluar dengan pudar agar tidak muncul tiba-tiba.
+        val fullscreenItem = contentPool.getOrNull(mutiaraIndex.mod(contentPool.size.coerceAtLeast(1)))
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showMutiara && fullscreenItem != null,
+            enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(700)),
+            exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(700)),
+        ) {
+            val item = remember(mutiaraIndex) { fullscreenItem }
+            if (item != null) {
+                val next = successState?.let { s -> createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer } }
+                val clockText = "%02d:%02d".format(localNow.hour, localNow.minute)
+                val nextText = next?.let { "${it.name} ${it.azanTime}" }
+                if (item.content.type == "hadith") {
+                    com.mosque.prayerclock.ui.gallery.MutiaraHaditsScreen(
+                        hadith = item.content,
+                        scene = scene,
+                        clockText = clockText,
+                        nextPrayerText = nextText,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    com.mosque.prayerclock.ui.gallery.ContentFullscreen(
+                        item = item,
+                        scene = scene,
+                        mediaUri = { serverContent.mediaUri(it) },
+                        hijriToday = hijriToday,
+                        clockText = clockText,
+                        nextPrayerText = nextText,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
         }
 
         // SIWAK: Mode Istirahat Malam — redup hanya di atas tampilan utama; layar kembali terang
@@ -900,7 +932,8 @@ fun MainLayout(
                 } else {
                     null
                 },
-            modifier = Modifier.align(Alignment.TopCenter),
+            // rc.3: banner menempel di bawah, menutupi teks berjalan agar tampilan tetap rapi.
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -1047,8 +1080,9 @@ fun ClockSection(
                 contentAlignment = Alignment.Center,
             ) {
                 // Handle cycling logic for BOTH option with smooth transitions
+                // rc.3: jam analog tidak lagi dipakai; selalu digital.
                 val actualClockType =
-                    when (settings.clockType) {
+                    when (ClockType.DIGITAL) {
                         ClockType.BOTH -> {
                             // Cycle between Digital and Analog every 2 minutes
                             var currentType by remember { mutableStateOf(ClockType.DIGITAL) }

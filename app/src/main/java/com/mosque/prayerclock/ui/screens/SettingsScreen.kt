@@ -280,10 +280,7 @@ fun SettingsScreen(
 
                 // ─────────── Tampilan Layar ───────────
                 item {
-                    ClockTypeSetting(
-                        selectedClockType = settings.clockType,
-                        onClockTypeChange = viewModel::updateClockType,
-                    )
+                    // rc.3: jam analog dihapus; jam selalu digital.
                 }
 
                 item {
@@ -2707,27 +2704,7 @@ private fun DisplayVisibilitySettings(
                 }
                 Switch(checked = showIqamahCycle, onCheckedChange = onShowIqamahCycleChange)
             }
-            // SIWAK: ukuran jam
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.clock_size_label),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-            val sizeOptions =
-                listOf(
-                    100 to stringResource(R.string.clock_size_normal),
-                    115 to stringResource(R.string.clock_size_large),
-                    130 to stringResource(R.string.clock_size_xlarge),
-                )
-            sizeOptions.forEach { (value, label) ->
-                SelectableSettingsRow(
-                    selected = clockSizePercent == value,
-                    onClick = { onClockSizeChange(value) },
-                    text = label,
-                )
-            }
+            // rc.3: ukuran jam otomatis memenuhi kotaknya; pilihan ukuran dihapus.
         }
     }
 }

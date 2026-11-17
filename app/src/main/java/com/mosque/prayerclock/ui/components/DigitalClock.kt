@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.rememberTextMeasurer
 import com.mosque.prayerclock.R
 import com.mosque.prayerclock.ui.localizedStringArrayResource
 import com.mosque.prayerclock.ui.localizedStringResource
@@ -170,32 +171,40 @@ fun DigitalClock(
         val availableWidthPx = with(density) { maxWidth.toPx() }
         val availableHeightPx = with(density) { maxHeight.toPx() }
 
-        // Calculate dynamic font size based on available space
-        // Similar to analog clock which uses size.minDimension * 0.5f for radius
+        // rc.3: jam selalu sebesar mungkin, diukur dari lebar teks sebenarnya (bukan perkiraan),
+        // sehingga memenuhi lebar kotak tanpa terpotong dan baris tanggal di bawahnya tetap utuh.
+        val measurer = rememberTextMeasurer()
+        val timeTemplate = formattedTime.replace(Regex("[0-9]"), "0")
+        // Kotak pendek-lebar (Galeri) memberi porsi lebih besar untuk baris tanggal.
+        val compact = availableHeightPx < availableWidthPx * 0.38f
+        val dateRowPx = availableHeightPx * (if (compact) 0.30f else 0.19f)
+        val refSize = 100.sp
+        val refStyle = MaterialTheme.typography.displayLarge.copy(fontSize = refSize, fontWeight = FontWeight.Bold)
+        val measured = remember(timeTemplate, refStyle) { measurer.measure(timeTemplate, refStyle, softWrap = false, maxLines = 1) }
         val calculatedFontSize =
-            with(density) {
-                // SIWAK: ukuran yang PAS mengisi lebar kotak untuk string waktu (HH:MM:SS / dgn AM-PM).
-                val estimatedTimeChars = if (show24Hour) 8.6f else 11.5f
-                val fitWidth = (availableWidthPx / estimatedTimeChars * 2.15f)
-                // Batasi tinggi agar tak menimpa kartu tanggal di bawahnya (dinaikkan agar jam mengisi kotak).
-                val fitHeight = (availableHeightPx * 0.70f)
-                // Ukuran maksimum yang muat di kotak (lebar & tinggi) = "sangat besar" mengisi penuh.
-                val maxFit = min(fitWidth, fitHeight)
-
-                // clockSizeScale: 100%(normal) .. 130%(sangat besar).
-                // Dipetakan agar 130% = isi penuh kotak (maxFit), lainnya proporsional lebih kecil,
-                // dan TAK PERNAH melebihi maxFit (jam tak terpotong, tak "gede banget gila").
-                val normalized = (clockSizeScale / 1.30f).coerceIn(0.55f, 1.0f)
-                (maxFit * normalized).toSp()
+            run {
+                val scaleW = (availableWidthPx * 0.94f) / measured.size.width.coerceAtLeast(1)
+                val scaleH = ((availableHeightPx - dateRowPx) * 0.92f) / measured.size.height.coerceAtLeast(1)
+                (refSize.value * min(scaleW, scaleH)).sp
             }
 
-        // SIWAK: ukuran font kartu tanggal DIPISAH dari skala jam (fraksi tinggi absolut),
-        // supaya saat jam diperbesar, kartu tanggal TIDAK ikut membesar & meluber.
-        val dateDayFontSize = with(density) { (availableHeightPx * 0.13f).toSp() }
-        val dateMonthFontSize = with(density) { (availableHeightPx * 0.055f).toSp() }
-        val dateYearFontSize = with(density) { (availableHeightPx * 0.042f).toSp() }
-        // SIWAK: tanggal 1 baris (hemat ruang vertikal)
-        val dateLineFontSize = with(density) { (availableHeightPx * 0.075f).toSp() }
+        // Tanggal satu baris: sebesar 7,5% tinggi kotak, diperkecil bila tidak muat di separuh lebar.
+        val dateStyle = MaterialTheme.typography.headlineLarge.copy(fontSize = refSize, fontWeight = FontWeight.Bold)
+        val hijriSample = hijriDate?.let { "${it.day} ${hijriMonthNames.getOrNull(it.month - 1) ?: ""} ${it.year} H" } ?: ""
+        val gregSample = "${localDateTime.dayOfMonth} $monthYear"
+        val widest =
+            remember(hijriSample, gregSample, dateStyle) {
+                maxOf(
+                    measurer.measure(hijriSample, dateStyle, softWrap = false, maxLines = 1).size.width,
+                    measurer.measure(gregSample, dateStyle, softWrap = false, maxLines = 1).size.width,
+                ).coerceAtLeast(1)
+            }
+        val dateLineFontSize =
+            with(density) {
+                val byHeight = (availableHeightPx * (if (compact) 0.14f else 0.075f)).toSp().value
+                val byWidth = refSize.value * ((availableWidthPx / 2f - 8.dp.toPx() - 24.dp.toPx()) / widest)
+                min(byHeight, byWidth).sp
+            }
 
         // Calculate dynamic padding for date cards based on available space
         val calculatedCardPadding =
