@@ -126,8 +126,8 @@
     <string name="clock_both_auto">Keduanya (Bergantian)</string>
     <string name="hijri_date_source">Tanggal Hijriah</string>
     <string name="provider_label">Penyedia</string>
-    <string name="sync_now">Sinkronkan</string>
-    <string name="syncing">Menyinkronkan…</string>
+    <string name="sync_now">Perbarui sekarang</string>
+    <string name="syncing">Memperbarui…</string>
     <string name="never_synced">Belum pernah</string>
     <string name="hijri_offset_label">Penyesuaian Tanggal (±hari)</string>
     <string name="hijri_offset_desc">Geser tanggal Hijriah agar cocok dengan penetapan setempat</string>
@@ -255,7 +255,7 @@
     <!-- Layar "Masuk Waktu Shalat" (pengganti Dua Saff) -->
     <string name="dua_joining_saff_title">Telah Masuk Waktu Shalat</string>
     <string name="dua_joining_saff_meaning">Marilah menunaikan shalat berjamaah</string>
-    <string name="silent_your_phone">🔇 Mohon matikan / senyapkan (silent) HP Anda</string>
+    <string name="silent_your_phone">Mohon matikan / senyapkan (silent) HP Anda</string>
 
     <!-- Shalat Jumat -->
     <string name="jummah_in_progress_title">Khutbah Berlangsung</string>

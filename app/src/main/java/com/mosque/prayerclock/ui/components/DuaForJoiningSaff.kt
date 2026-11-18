@@ -1,11 +1,14 @@
 package com.mosque.prayerclock.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -90,10 +93,11 @@ fun DuaForJoiningSaff(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(
-                    text = "🕌",
-                    fontSize = (h.value * 0.10f).coerceIn(48f, 120f).sp,
-                    textAlign = TextAlign.Center,
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Rounded.Mosque,
+                    contentDescription = null,
+                    tint = com.mosque.prayerclock.ui.theme.ColorPrimaryAccent,
+                    modifier = Modifier.size((h.value * 0.10f).coerceIn(48f, 120f).dp),
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -126,7 +130,14 @@ fun DuaForJoiningSaff(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Imbauan silent HP
+                // Imbauan silent HP, dengan ikon flat (bukan emoji)
+                androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Rounded.PhonelinkErase,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size((h.value * 0.07f).coerceIn(28f, 72f).dp).padding(end = 12.dp),
+                )
                 Text(
                     text = localizedStringResource(R.string.silent_your_phone),
                     style =
@@ -137,6 +148,7 @@ fun DuaForJoiningSaff(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                 )
+                }
 
                 Spacer(modifier = Modifier.height(10.dp))
 

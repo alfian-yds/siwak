@@ -868,6 +868,15 @@ fun MainLayout(
         // SIWAK V2: layar penuh berkala (prioritas 5): satu konten per kemunculan, bergantian,
         // masuk dan keluar dengan pudar agar tidak muncul tiba-tiba.
         val fullscreenItem = contentPool.getOrNull(mutiaraIndex.mod(contentPool.size.coerceAtLeast(1)))
+        // Info waktu shalat di layar penuh tetap di pojok kanan bawah; naik hanya bila banner pengumuman tampil.
+        val announcementShowing =
+            paired &&
+                com.mosque.prayerclock.domain.AnnouncementRules.visibleOn(decision.screen) &&
+                com.mosque.prayerclock.domain.AnnouncementRules.current(
+                    com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, nowMs),
+                    nowMs,
+                ) != null
+        val fullscreenBottomInset = if (announcementShowing) 72.dp else 36.dp
         androidx.compose.animation.AnimatedVisibility(
             visible = showMutiara && fullscreenItem != null,
             enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(700)),
@@ -884,6 +893,7 @@ fun MainLayout(
                         scene = scene,
                         clockText = clockText,
                         nextPrayerText = nextText,
+                        bottomInset = fullscreenBottomInset,
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {
@@ -894,6 +904,7 @@ fun MainLayout(
                         hijriToday = hijriToday,
                         clockText = clockText,
                         nextPrayerText = nextText,
+                        bottomInset = fullscreenBottomInset,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }

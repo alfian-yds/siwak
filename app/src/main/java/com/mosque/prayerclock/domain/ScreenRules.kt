@@ -103,7 +103,7 @@ data class PlaylistItem(val content: ContentDto, val durationSec: Int, val auto:
  */
 object SlidePlaylist {
     const val DEFAULT_SECONDS = 20
-    private val infoTypes = setOf("info_kas", "info_jumat", "info_agenda", "info_hari_besar", "image")
+    private val infoTypes = setOf("info_kas", "info_jumat", "info_agenda", "info_hari_besar", "image", "info_teks")
 
     fun matches(
         s: SlideDto,

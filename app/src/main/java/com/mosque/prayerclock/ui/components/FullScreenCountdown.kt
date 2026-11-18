@@ -1,5 +1,8 @@
 package com.mosque.prayerclock.ui.components
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -163,8 +166,15 @@ fun FullScreenCountdown(
                 if (isIqamah) {
                     Spacer(modifier = Modifier.height(duaSpacing))
 
+                    // Ikon flat tangan berdoa (menggantikan emoji)
+                    androidx.compose.material3.Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Rounded.VolunteerActivism,
+                        contentDescription = null,
+                        tint = ColorPrimaryAccent.copy(alpha = AlphaValues.STRONG),
+                        modifier = Modifier.size(with(density) { (calculatedDuaFontSize.toPx() * 1.6f).toDp() }),
+                    )
                     Text(
-                        text = "🤲 ${localizedStringResource(R.string.best_time_dua)}",
+                        text = localizedStringResource(R.string.best_time_dua),
                         style =
                             MaterialTheme.typography.bodyLarge.copy(
                                 fontSize = calculatedDuaFontSize,

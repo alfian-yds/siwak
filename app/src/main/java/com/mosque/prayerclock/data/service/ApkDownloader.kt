@@ -199,13 +199,13 @@ class ApkDownloader
                     // Register download complete receiver (backup handler)
                     registerDownloadCompleteReceiver(context, fileName, onComplete)
 
-                    Toast.makeText(context, "Downloading update v$version", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Mengunduh pembaruan v$version…", Toast.LENGTH_SHORT).show()
                 } else {
                     _downloadProgress.value =
                         DownloadProgress(
                             status = DownloadStatus.FAILED,
                         )
-                    Toast.makeText(context, "Failed to start download", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Unduhan gagal dimulai", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Log.e("ApkDownloader", "Error downloading APK", e)
@@ -213,7 +213,7 @@ class ApkDownloader
                     DownloadProgress(
                         status = DownloadStatus.FAILED,
                     )
-                Toast.makeText(context, "Download failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Unduhan gagal: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -386,7 +386,7 @@ class ApkDownloader
                     if (!file.exists()) {
                         Log.e("ApkDownloader", "APK file not found: ${file.absolutePath}")
                         launch(Dispatchers.Main) {
-                            Toast.makeText(context, "Download failed: File not found", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Unduhan gagal: file tidak ditemukan", Toast.LENGTH_SHORT).show()
                         }
                         return@launch
                     }
@@ -395,7 +395,7 @@ class ApkDownloader
                     if (!file.canRead()) {
                         Log.e("ApkDownloader", "APK file is not readable: ${file.absolutePath}")
                         launch(Dispatchers.Main) {
-                            Toast.makeText(context, "Cannot read APK file", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "File pembaruan tidak bisa dibaca", Toast.LENGTH_SHORT).show()
                         }
                         return@launch
                     }
@@ -403,7 +403,7 @@ class ApkDownloader
                     if (file.length() == 0L) {
                         Log.e("ApkDownloader", "APK file is empty: ${file.absolutePath}")
                         launch(Dispatchers.Main) {
-                            Toast.makeText(context, "Downloaded file is empty", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "File pembaruan kosong, coba lagi", Toast.LENGTH_SHORT).show()
                         }
                         return@launch
                     }
@@ -464,14 +464,14 @@ class ApkDownloader
                     if (installIntent.resolveActivity(context.packageManager) == null) {
                         Log.e("ApkDownloader", "No activity found to handle install intent")
                         launch(Dispatchers.Main) {
-                            Toast.makeText(context, "No installer app found on this device", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "Pemasang aplikasi tidak ditemukan di TV ini", Toast.LENGTH_LONG).show()
                         }
                         return@launch
                     }
 
                     context.startActivity(installIntent)
                     launch(Dispatchers.Main) {
-                        Toast.makeText(context, "Opening installer...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Membuka pemasang aplikasi…", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     Log.e("ApkDownloader", "Error installing APK", e)
@@ -479,7 +479,7 @@ class ApkDownloader
                     Log.e("ApkDownloader", "Exception message: ${e.message}")
                     e.printStackTrace()
                     launch(Dispatchers.Main) {
-                        Toast.makeText(context, "Installation failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Pemasangan gagal: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             }

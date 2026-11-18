@@ -61,13 +61,24 @@ val Amiri = FontFamily(Font(R.font.amiri_regular, FontWeight.Normal), Font(R.fon
 @Composable
 fun screenPct(p: Float): TextUnit {
     val h = LocalConfiguration.current.screenHeightDp
-    return with(LocalDensity.current) { (h * p).dp.toSp() }
+    return with(LocalDensity.current) { (h * p * LocalTextScale.current).dp.toSp() }
 }
+
+/**
+ * Pembesar tulisan konten. Panel di samping jam memakai 1; slide layar penuh memakai [FULLSCREEN_TEXT_SCALE]
+ * agar hadits dan info terbaca dari belakang ruangan.
+ */
+val LocalTextScale = androidx.compose.runtime.staticCompositionLocalOf { 1f }
+const val FULLSCREEN_TEXT_SCALE = 1.8f
 
 /** Lapisan latar untuk semua slide dan Mutiara Hadits. */
 data class SceneState(val period: SkyPeriod, val dayProgress: Float, val hijriDay: Int, val silhouette: String)
 
-private val Accent = Color(0xFFE0BA60) // kuningan-terang
+/** Warna aksen mengikuti tema warna yang dipilih (sama dengan jam di layar utama). */
+private val Accent: Color
+    @Composable
+    @androidx.compose.runtime.ReadOnlyComposable
+    get() = com.mosque.prayerclock.ui.theme.ColorPrimaryAccent
 private val GlassBg = Color(0xCC06130D)
 private val CATEGORY_LABEL =
     mapOf(
@@ -195,7 +206,8 @@ fun HadithText(
             color = Color.White,
             fontSize = screenPct(0.033f),
             lineHeight = screenPct(0.045f),
-            maxLines = 4,
+            // Layar penuh tanpa teks Arab: terjemah boleh 6 baris; dengan teks Arab tetap 4 agar kartu tidak menabrak jam.
+            maxLines = if (LocalTextScale.current > 1f && c.arabicText.isNullOrBlank()) 6 else 4,
             overflow = TextOverflow.Ellipsis,
             textAlign = align,
         )
@@ -290,7 +302,7 @@ private fun InfoSlide(
         Column(
             Modifier
                 .align(Alignment.Center)
-                .widthIn(max = 640.dp)
+                .widthIn(max = (640 * LocalTextScale.current).dp)
                 .fillMaxWidth(0.84f)
                 .clip(RoundedCornerShape(18.dp))
                 .background(GlassBg)
@@ -322,6 +334,18 @@ private fun InfoSlide(
                         val right = listOfNotNull(o.str("title"), o.str("speaker")?.takeIf { it.isNotBlank() }).joinToString(" · ")
                         InfoRow("${o.str("day")} ${o.str("time")}", right)
                     }
+                }
+                "info_teks" -> {
+                    // rc.5: informasi bebas (judul + isi teks).
+                    InfoTitle("Informasi", b.str("title").orEmpty())
+                    Text(
+                        b.str("text").orEmpty(),
+                        color = Color.White,
+                        fontSize = screenPct(0.03f),
+                        lineHeight = screenPct(0.044f),
+                        maxLines = if (LocalTextScale.current > 1f) 7 else 6,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
                 "info_hari_besar" -> {
                     val (name, month, day) = HARI_BESAR[b.str("event")] ?: Triple("Hari besar Islam", 1, 1)
@@ -361,7 +385,7 @@ private fun InfoRow(
     highlight: Boolean = false,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(name, color = Color.White.copy(alpha = 0.85f), fontSize = screenPct(0.03f), modifier = Modifier.width(220.dp), maxLines = 1)
+        Text(name, color = Color.White.copy(alpha = 0.85f), fontSize = screenPct(0.03f), modifier = Modifier.width((220 * LocalTextScale.current).dp), maxLines = 1)
         Text(
             value,
             Modifier.weight(1f),
@@ -386,24 +410,28 @@ fun ContentFullscreen(
     hijriToday: Triple<Int, Int, Int>?,
     clockText: String,
     nextPrayerText: String?,
+    /** Jarak info waktu shalat dari bawah: lebih tinggi hanya bila banner pengumuman sedang tampil. */
+    bottomInset: androidx.compose.ui.unit.Dp = 36.dp,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.background(Color.Black)) {
-        when (item.content.type) {
-            "image" -> ImageSlide(item.content, mediaUri, scene)
-            else -> InfoSlide(item.content, scene, hijriToday)
+        androidx.compose.runtime.CompositionLocalProvider(LocalTextScale provides FULLSCREEN_TEXT_SCALE) {
+            when (item.content.type) {
+                "image" -> ImageSlide(item.content, mediaUri, scene)
+                else -> InfoSlide(item.content, scene, hijriToday)
+            }
         }
         Text(
             clockText,
             Modifier.align(Alignment.TopEnd).padding(36.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 6.dp),
-            color = Color.White,
+            color = Accent,
             fontSize = screenPct(0.05f),
             fontWeight = FontWeight.Bold,
         )
         if (nextPrayerText != null) {
             Text(
                 nextPrayerText,
-                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 72.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = bottomInset).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
                 color = Accent,
                 fontSize = screenPct(0.03f),
                 fontWeight = FontWeight.SemiBold,
@@ -418,29 +446,33 @@ fun MutiaraHaditsScreen(
     scene: SceneState,
     clockText: String,
     nextPrayerText: String?,
+    /** Jarak info waktu shalat dari bawah: lebih tinggi hanya bila banner pengumuman sedang tampil. */
+    bottomInset: androidx.compose.ui.unit.Dp = 36.dp,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.background(Color.Black)) {
         SceneBackground(scene)
         Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.30f)))
-        Text(clockText, Modifier.align(Alignment.TopEnd).padding(36.dp), color = Color.White, fontSize = screenPct(0.05f), fontWeight = FontWeight.Bold)
+        Text(clockText, Modifier.align(Alignment.TopEnd).padding(36.dp), color = Accent, fontSize = screenPct(0.05f), fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .align(Alignment.Center)
-                .fillMaxWidth(0.78f)
+                .fillMaxWidth(0.86f)
                 .clip(RoundedCornerShape(22.dp))
                 .background(Color(0x8C06130D))
                 .padding(horizontal = 40.dp, vertical = 30.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            CategoryChip("Mutiara Hadits · ${CATEGORY_LABEL[hadith.category] ?: "Hadits"}")
-            HadithText(hadith, TextAlign.Center)
+            androidx.compose.runtime.CompositionLocalProvider(LocalTextScale provides FULLSCREEN_TEXT_SCALE) {
+                CategoryChip("Mutiara Hadits · ${CATEGORY_LABEL[hadith.category] ?: "Hadits"}")
+                HadithText(hadith, TextAlign.Center)
+            }
         }
         if (nextPrayerText != null) {
             Text(
                 nextPrayerText,
-                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = 72.dp).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
+                Modifier.align(Alignment.BottomEnd).padding(end = 36.dp, bottom = bottomInset).clip(RoundedCornerShape(50)).background(GlassBg).padding(horizontal = 18.dp, vertical = 8.dp),
                 color = Accent,
                 fontSize = screenPct(0.03f),
                 fontWeight = FontWeight.SemiBold,

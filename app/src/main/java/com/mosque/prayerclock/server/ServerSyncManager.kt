@@ -63,6 +63,9 @@ class ServerSyncManager
         /** Keadaan untuk layar Pengaturan terbatas: kontak terakhir & galat terakhir. */
         data class Status(val lastOkAt: Long = 0, val lastError: String? = null, val syncing: Boolean = false)
 
+        /** Galat yang dilaporkan ke admin web (gagal menerapkan, ditolak server); galat jaringan tidak termasuk. */
+        @Volatile private var reportableError: String? = null
+
         private val _status = MutableStateFlow(Status())
         val status: StateFlow<Status> = _status.asStateFlow()
 
@@ -81,7 +84,9 @@ class ServerSyncManager
         private var unauthorizedCount = 0
         private var lastHeartbeatAt = 0L
         private var lastAutoReturnAt = 0L
-        private var forceNext = false
+        // Sinkron pertama setelah aplikasi dibuka selalu mengambil data lengkap, agar TV yang baru diperbarui
+        // (mis. rc.4 → rc.5) langsung menerima konten yang dulu tidak dikirim ke versi lamanya.
+        private var forceNext = true
 
         /** Loop utama; berhenti sendiri bila TV tidak lagi terhubung. */
         suspend fun run() {
@@ -137,7 +142,9 @@ class ServerSyncManager
                         contentVersion = state.contentVersion,
                         weatherStamp = state.weatherStamp,
                         deviceTime = iso(System.currentTimeMillis()),
-                        health = HealthReport(_status.value.lastError?.take(300), context.filesDir.usableSpace / (1024 * 1024)),
+                        // Galat koneksi tidak dilaporkan: heartbeat ini sendiri bukti koneksi sudah pulih, dan admin web
+                        // tidak perlu melihat "gagal menerapkan" untuk gangguan internet sesaat.
+                        health = HealthReport(reportableError?.take(300), context.filesDir.usableSpace / (1024 * 1024)),
                         app =
                             AppStateReport(
                                 foreground = AppForegroundTracker.isForeground,
@@ -163,10 +170,12 @@ class ServerSyncManager
                             if (error == null) reportSoon()
                         }
                         if (force || hb.weatherStamp != state.weatherStamp) fetchWeather(state.serverUrl, token, hb.weatherStamp)
+                        reportableError = error
                         _status.value = Status(lastOkAt = System.currentTimeMillis(), lastError = error, syncing = false)
                         hb.commands.orEmpty().forEach { handleCommand(it) }
                     }
                     is ApiResult.HttpError -> {
+                        reportableError = res.message ?: "HTTP ${res.status}"
                         _status.value = _status.value.copy(lastError = res.message ?: "HTTP ${res.status}", syncing = false)
                         // Server menyatakan TV ini tidak terdaftar lagi → kembali ke mode mandiri (F-TV-14).
                         // Dua kali berturut-turut agar gangguan sesaat tidak melepas TV.

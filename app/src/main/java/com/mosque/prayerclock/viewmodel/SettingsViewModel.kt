@@ -427,15 +427,13 @@ class SettingsViewModel
         }
 
         /** Tes suara adzan/iqamah dengan pengaturan yang sedang tersimpan (sama dengan mode terhubung). */
+        /** Disimpan selama halaman terbuka agar pemutar tidak dibersihkan sistem di tengah bunyi. */
+        private val testSoundManager by lazy { com.mosque.prayerclock.service.SoundManager(appContext) }
+
         fun testSound(adzan: Boolean) {
             viewModelScope.launch {
                 val current = settingsRepository.getSettings().first()
-                val sm = com.mosque.prayerclock.service.SoundManager(appContext)
-                if (adzan) {
-                    sm.playAzanSound(current, com.mosque.prayerclock.data.model.PrayerType.DHUHR)
-                } else {
-                    sm.playIqamahSound(current, com.mosque.prayerclock.data.model.PrayerType.DHUHR)
-                }
+                testSoundManager.playTest(current, adzan)
             }
         }
 

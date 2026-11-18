@@ -10,6 +10,12 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
+import com.mosque.prayerclock.ui.tv.tvFocusHighlight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,13 +83,23 @@ fun siwakPermissions(context: Context): List<SiwakPermission> {
                 granted = Settings.canDrawOverlays(context),
                 action = "overlay",
             )
+        // Sebagian Android TV tidak punya layar setelan baterai (hanya stub kosong): izin ini tidak bisa
+        // diberikan di sana, jadi jangan dianggap wajib agar pengingat tidak muncul terus.
+        val batteryAdjustable =
+            hasRealSettingsScreen(context, Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}"))) ||
+                hasRealSettingsScreen(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        val batteryOk = pm?.isIgnoringBatteryOptimizations(context.packageName) ?: true
         list +=
             SiwakPermission(
                 "Bebas dari penghemat baterai",
-                "Agar SIWAK tetap berjalan di latar dan tidak dimatikan sistem saat TV lama menyala.",
-                required = true,
-                granted = pm?.isIgnoringBatteryOptimizations(context.packageName) ?: true,
-                action = "battery",
+                if (batteryAdjustable || batteryOk) {
+                    "Agar SIWAK tetap berjalan di latar dan tidak dimatikan sistem saat TV lama menyala."
+                } else {
+                    "TV ini tidak menyediakan pengaturan baterai; SIWAK tetap berjalan seperti biasa."
+                },
+                required = batteryAdjustable,
+                granted = batteryOk,
+                action = if (batteryAdjustable) "battery" else "none",
             )
     }
     list +=
@@ -184,10 +200,21 @@ private fun openFor(
                 }
             else -> emptyList()
         } + Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
-    // Sebagian TV box tidak punya layar setelan tertentu; coba satu per satu, terakhir layar info aplikasi.
+    // Sebagian TV box tidak punya layar setelan tertentu (atau hanya stub kosong); coba satu per satu,
+    // terakhir layar info aplikasi.
     for (i in intents) {
+        if (!hasRealSettingsScreen(context, i) && i.action != Settings.ACTION_APPLICATION_DETAILS_SETTINGS) continue
         if (runCatching { context.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess) return
     }
+}
+
+/** Ada layar setelan yang benar-benar bisa dipakai (bukan EmptyStubActivity milik Android TV). */
+private fun hasRealSettingsScreen(
+    context: Context,
+    intent: Intent,
+): Boolean {
+    val info = runCatching { context.packageManager.resolveActivity(intent, 0) }.getOrNull() ?: return false
+    return !info.activityInfo.name.contains("EmptyStub", ignoreCase = true)
 }
 
 /**
@@ -218,10 +245,28 @@ fun PermissionsList(
     var focusAssigned = false
     Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         list.forEach { p ->
+            val actionable = !p.granted && p.action != "none"
+            val request = {
+                val perm = p.runtime
+                if (perm != null) {
+                    // Bila Android tidak lagi menampilkan dialog (pernah ditolak), buka layar info aplikasi.
+                    runCatching { runtimeLauncher.launch(perm) }.onFailure { openFor(context, "app") }
+                } else {
+                    openFor(context, p.action)
+                }
+            }
+            // Setiap baris satu titik fokus (remote turun baris demi baris). Baris yang belum diizinkan
+            // bisa ditekan OK untuk langsung meminta izinnya; tombol di kanan hanya penanda.
+            val focusMod = if (actionable && !focusAssigned && firstFocus != null) Modifier.focusRequester(firstFocus).also { focusAssigned = true } else Modifier
+            var focused by remember { mutableStateOf(false) }
             Row(
                 Modifier
                     .fillMaxWidth()
+                    .then(focusMod)
+                    .onFocusChanged { focused = it.isFocused }
+                    .then(if (focused) Modifier.border(3.dp, com.mosque.prayerclock.ui.tv.TvFocusColor, RoundedCornerShape(14.dp)) else Modifier)
                     .clip(RoundedCornerShape(14.dp))
+                    .then(if (actionable) Modifier.clickable { request() } else Modifier.focusable())
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 18.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -240,19 +285,20 @@ fun PermissionsList(
                 } else if (p.action == "none") {
                     Text("Tidak tersedia", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), fontSize = 14.sp)
                 } else {
-                    val focusMod = if (!focusAssigned && firstFocus != null) Modifier.focusRequester(firstFocus).also { focusAssigned = true } else Modifier
-                    Button(
-                        onClick = {
-                            val perm = p.runtime
-                            if (perm != null) {
-                                // Bila Android tidak lagi menampilkan dialog (pernah ditolak), buka layar info aplikasi.
-                                runCatching { runtimeLauncher.launch(perm) }.onFailure { openFor(context, "app") }
-                            } else {
-                                openFor(context, p.action)
-                            }
-                        },
-                        modifier = focusMod,
-                    ) { Text(if (p.action == "launcher") "Pilih" else "Izinkan", fontSize = 14.sp) }
+                    // Penanda tombol (bukan titik fokus terpisah); menyala saat barisnya disorot.
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (focused) com.mosque.prayerclock.ui.tv.TvFocusColor else MaterialTheme.colorScheme.primary)
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            if (p.action == "launcher") "Pilih" else "Izinkan",
+                            color = if (focused) Color.Black else MaterialTheme.colorScheme.onPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
         }
@@ -308,6 +354,7 @@ fun PermissionsCard(modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxWidth()
+            .tvFocusHighlight(RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(20.dp),

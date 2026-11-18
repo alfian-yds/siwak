@@ -1,11 +1,14 @@
 package com.mosque.prayerclock.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,10 +84,11 @@ fun JummahInProgress(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(
-                    text = "🕌",
-                    fontSize = (h.value * 0.09f).coerceIn(44f, 110f).sp,
-                    textAlign = TextAlign.Center,
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Rounded.Mosque,
+                    contentDescription = null,
+                    tint = com.mosque.prayerclock.ui.theme.ColorPrimaryAccent,
+                    modifier = Modifier.size((h.value * 0.09f).coerceIn(44f, 110f).dp),
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))

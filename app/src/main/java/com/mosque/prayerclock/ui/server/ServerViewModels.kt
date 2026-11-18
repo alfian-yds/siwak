@@ -209,11 +209,13 @@ class ConnectedSettingsViewModel
             viewModelScope.launch { runCatching { sync.syncOnce(force = true) } }
         }
 
+        /** Disimpan selama halaman terbuka agar pemutar tidak dibersihkan sistem di tengah bunyi. */
+        private val testSoundManager by lazy { SoundManager(context) }
+
         fun testSound(adzan: Boolean) {
             viewModelScope.launch {
                 val settings = settingsRepository.getSettings().first()
-                val sm = SoundManager(context)
-                if (adzan) sm.playAzanSound(settings, PrayerType.DHUHR) else sm.playIqamahSound(settings, PrayerType.DHUHR)
+                testSoundManager.playTest(settings, adzan)
             }
         }
 

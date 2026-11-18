@@ -42,36 +42,32 @@ class SoundManager(
      * dari suara ticking (mp3). isAzan=true memberi pola lebih panjang.
      */
     private fun playBeepPattern(isAzan: Boolean) {
-        try {
-            stopBeepTone()
-            val tg = ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME)
-            toneGenerator = tg
-            val totalBeeps = if (isAzan) 6 else 4
-            val toneMs = 300
-            val gapMs = 380
-            var count = 0
-            val runner =
-                object : Runnable {
-                    override fun run() {
-                        val current = toneGenerator
-                        if (current !== tg) return // dibatalkan / diganti
-                        if (count >= totalBeeps) {
-                            stopBeepTone()
-                            return
-                        }
-                        try {
-                            tg.startTone(ToneGenerator.TONE_PROP_BEEP, toneMs)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "startTone error", e)
-                        }
-                        count++
-                        beepHandler.postDelayed(this, (toneMs + gapMs).toLong())
-                    }
+        // rc.5: dulu memakai ToneGenerator di jalur ALARM, yang di banyak TV box volumenya nol atau tidak
+        // tersedia sehingga bip tidak berbunyi. Sekarang memakai file bip yang sama dengan hitung mundur
+        // masuk waktu, diputar lewat jalur media (mengikuti volume TV).
+        Log.d(TAG, "Playing beep (isAzan=$isAzan) via media stream")
+        playBeepCountdown(PrayerType.DHUHR)
+    }
+
+    /**
+     * Tes suara dari menu Pengaturan: bunyikan jenis suara yang dipilih saat ini, persis seperti yang
+     * akan terdengar pada waktunya (tik-tik, bip, atau audio sendiri), tanpa menunggu waktu shalat.
+     */
+    fun playTest(
+        settings: AppSettings,
+        adzan: Boolean,
+    ) {
+        val type = if (adzan) settings.azanSoundType else settings.iqamahSoundType
+        Log.d(TAG, "Test sound: adzan=$adzan type=$type")
+        when (type) {
+            SoundType.COUNTDOWN_TICKING -> playCountdownTicking(5, PrayerType.DHUHR, settings.copy(soundEnabled = true))
+            SoundType.TRADITIONAL_BEEP -> playBeepCountdown(PrayerType.DHUHR)
+            SoundType.CUSTOM ->
+                if (adzan) {
+                    playAzanSound(settings.copy(azanSoundEnabled = true), PrayerType.DHUHR)
+                } else {
+                    playIqamahSound(settings.copy(iqamahSoundEnabled = true), PrayerType.DHUHR)
                 }
-            beepHandler.post(runner)
-            Log.d(TAG, "Playing beep pattern (isAzan=$isAzan, beeps=$totalBeeps)")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to play beep pattern", e)
         }
     }
 
@@ -81,7 +77,7 @@ class SoundManager(
      */
     fun playSingleBeep(finalBeep: Boolean = false) {
         try {
-            val tg = ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME)
+            val tg = ToneGenerator(AudioManager.STREAM_MUSIC, ToneGenerator.MAX_VOLUME)
             val tone = if (finalBeep) ToneGenerator.TONE_PROP_BEEP2 else ToneGenerator.TONE_PROP_BEEP
             val dur = if (finalBeep) 600 else 160
             tg.startTone(tone, dur)

@@ -75,7 +75,7 @@ object LauncherHelper {
                 .sortedBy { it.loadLabel(packageManager).toString().lowercase() } // Sort alphabetically
             
             if (allApps.isEmpty()) {
-                Toast.makeText(context, "No apps found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Tidak ada aplikasi lain", Toast.LENGTH_SHORT).show()
                 return false
             }
             
@@ -105,7 +105,7 @@ object LauncherHelper {
                         }
                     } catch (e: Exception) {
                         Log.e("LauncherHelper", "Failed to launch ${selectedApp.activityInfo.packageName}", e)
-                        Toast.makeText(context, "Failed to launch app: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Aplikasi tidak bisa dibuka", Toast.LENGTH_SHORT).show()
                     }
                     dialog.dismiss()
                 }
@@ -117,7 +117,7 @@ object LauncherHelper {
             true
         } catch (e: Exception) {
             Log.e("LauncherHelper", "Failed to open app chooser", e)
-            Toast.makeText(context, "Failed to open app chooser: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Daftar aplikasi tidak bisa dibuka", Toast.LENGTH_SHORT).show()
             false
         }
     }
@@ -152,7 +152,7 @@ object LauncherHelper {
             }
         } catch (e: Exception) {
             Log.e("LauncherHelper", "Failed to launch ${resolveInfo.activityInfo.packageName}", e)
-            Toast.makeText(context, "Failed to launch app: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Aplikasi tidak bisa dibuka", Toast.LENGTH_SHORT).show()
             false
         }
     }

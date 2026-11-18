@@ -8,6 +8,8 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import com.mosque.prayerclock.ui.tv.tvFocusHighlight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,9 +90,20 @@ private fun ScreenFrame(
 }
 
 @Composable
-private fun InfoCard(content: @Composable () -> Unit) {
+private fun InfoCard(
+    /** Kartu berisi teks saja dibuat bisa difokus; kartu yang punya tombol membiarkan tombolnya yang difokus. */
+    focusable: Boolean = false,
+    content: @Composable () -> Unit,
+) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        // Kartu bisa menerima fokus remote, jadi tombol bawah berpindah kartu demi kartu dan isinya
+        // sempat terbaca, tidak melompat ke tombol berikutnya yang jauh di bawah.
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .tvFocusHighlight(RoundedCornerShape(16.dp))
+                .then(if (focusable) Modifier.focusable() else Modifier),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -427,7 +440,7 @@ fun ConnectedSettingsScreen(
             item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Konten") }
             item {
                 SummaryCard(
-                    "Diatur dari website: Konten → Pengumuman, Teks berjalan, Slide & hadits",
+                    "Diatur dari website: Konten → Pengumuman, Teks berjalan, Slide, Hadits",
                     listOf(
                         "Slide & hadits" to
                             if (!local.contentEnabled) {
@@ -493,7 +506,7 @@ private fun SummaryCard(
     hint: String,
     rows: List<Pair<String, String>>,
 ) {
-    InfoCard {
+    InfoCard(focusable = true) {
         SummaryRows(rows)
         WebHint(hint)
     }

@@ -1,5 +1,6 @@
 package com.mosque.prayerclock.ui.screens
 
+import androidx.compose.material.icons.rounded.*
 import com.mosque.prayerclock.ui.tv.tvFocusHighlight
 
 import android.Manifest
@@ -375,6 +376,17 @@ fun SettingsScreen(
     }
 }
 
+/** Ikon flat untuk judul kartu pengaturan (menggantikan emoji), warnanya mengikuti tema. */
+@Composable
+internal fun SettingsIcon(icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    androidx.compose.material3.Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(end = 12.dp).size(28.dp),
+    )
+}
+
 /** Judul kelompok. Urutan dan nama kartu sama dengan menu Pengaturan di website (Jadwal, Suara, Tampilan, Konten). */
 @Composable
 internal fun SettingsGroupHeader(title: String) {
@@ -458,11 +470,7 @@ private fun MosqueNameSetting(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 8.dp),
             ) {
-                Text(
-                    text = "🕌",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Mosque)
                 Text(
                     text = stringResource(R.string.mosque_name),
                     style = MaterialTheme.typography.titleMedium,
@@ -492,11 +500,7 @@ private fun LanguageSetting(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 12.dp),
             ) {
-                Text(
-                    text = "🌐",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Language)
                 Text(
                     text = stringResource(R.string.language),
                     style = MaterialTheme.typography.titleMedium,
@@ -542,11 +546,7 @@ private fun PrayerServiceSettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 4.dp),
             ) {
-                Text(
-                    text = "📡",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.EventNote)
                 Text(
                     text = stringResource(R.string.prayer_service_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -1124,11 +1124,7 @@ private fun WeatherSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "🌤️",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.WbSunny)
                     Column {
                         Text(
                             text = stringResource(R.string.weather),
@@ -1237,11 +1233,7 @@ private fun ManualPrayerTimesSettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 16.dp),
             ) {
-                Text(
-                    text = "⏱️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Timer)
                 Text(
                     text = stringResource(R.string.prayer_times_setup_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -1307,11 +1299,7 @@ private fun IqamahGapSettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 16.dp),
             ) {
-                Text(
-                    text = "⏳",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.HourglassTop)
                 Text(
                     text = stringResource(R.string.iqamah_gaps_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -1390,11 +1378,7 @@ private fun JummaNightBayanSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "🌙",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.NightsStay)
                     Column {
                         Text(
                             text = stringResource(R.string.jumma_bayan_title),
@@ -1471,11 +1455,7 @@ private fun PrayerDisplaySettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 16.dp),
             ) {
-                Text(
-                    text = "⏰",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Alarm)
                 Text(
                     text = stringResource(R.string.prayer_display_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -1661,11 +1641,7 @@ private fun PrayerOffsetSettings(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "🎯",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Tune)
                     Text(
                         text = stringResource(R.string.prayer_offset_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -1737,11 +1713,7 @@ private fun ClockTypeSetting(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 12.dp),
             ) {
-                Text(
-                    text = "🕐",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Schedule)
                 Text(
                     text = stringResource(R.string.clock_type),
                     style = MaterialTheme.typography.titleMedium,
@@ -1778,11 +1750,7 @@ private fun ClockFormatSettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 12.dp),
             ) {
-                Text(
-                    text = "🔢",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Numbers)
                 Text(
                     text = "Jam",
                     style = MaterialTheme.typography.titleMedium,
@@ -1870,11 +1838,7 @@ private fun HijriDateSettings(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "🌙",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.NightsStay)
                 Text(
                     text = stringResource(R.string.hijri_date_source),
                     style = MaterialTheme.typography.titleMedium,
@@ -2575,11 +2539,7 @@ private fun FullScreenCountdownSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "⏱️",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Timer)
                     Column {
                         Text(
                             text = stringResource(R.string.fullscreen_countdown_title),
@@ -2642,11 +2602,7 @@ private fun DisplayVisibilitySettings(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 8.dp),
             ) {
-                Text(
-                    text = "👁️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Visibility)
                 Text(
                     text = stringResource(R.string.display_visibility_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -2929,11 +2885,7 @@ private fun ColorThemeSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "🎨",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Palette)
                     Column {
                         Text(
                             text = stringResource(R.string.color_theme_title),
@@ -3094,11 +3046,7 @@ internal fun SystemSettingsAccess() {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "⚙️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Settings)
                 Column {
                     Text(
                         text = stringResource(R.string.system_settings),
@@ -3119,7 +3067,7 @@ internal fun SystemSettingsAccess() {
             OutlinedButton(
                 onClick = {
                     if (!LauncherHelper.openDateTimeSettings(context)) {
-                        Toast.makeText(context, "Unable to open Date & Time settings", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Setelan tanggal & waktu tidak bisa dibuka di TV ini", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -3133,11 +3081,7 @@ internal fun SystemSettingsAccess() {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "⏰",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Alarm)
                     Column {
                         Text(
                             text = stringResource(R.string.date_time_settings),
@@ -3160,7 +3104,7 @@ internal fun SystemSettingsAccess() {
             OutlinedButton(
                 onClick = {
                     if (!LauncherHelper.openAndroidSettings(context)) {
-                        Toast.makeText(context, "Unable to open Android Settings", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Setelan Android tidak bisa dibuka di TV ini", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -3174,11 +3118,7 @@ internal fun SystemSettingsAccess() {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "⚙️",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Settings)
                     Column {
                         Text(
                             text = stringResource(R.string.android_settings),
@@ -3213,11 +3153,7 @@ internal fun SystemSettingsAccess() {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "📱",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Apps)
                     Column {
                         Text(
                             text = stringResource(R.string.open_app_drawer),
@@ -3240,7 +3176,7 @@ internal fun SystemSettingsAccess() {
             OutlinedButton(
                 onClick = {
                     if (!LauncherHelper.openLauncherChooser(context)) {
-                        Toast.makeText(context, "Unable to switch launcher", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Tidak bisa mengganti layar utama di TV ini", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -3254,11 +3190,7 @@ internal fun SystemSettingsAccess() {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "🏠",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Home)
                     Column {
                         Text(
                             text = stringResource(R.string.choose_launcher),
@@ -3296,11 +3228,7 @@ internal fun SystemSettingsAccess() {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "📁",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Folder)
                     Column {
                         Text(
                             text = stringResource(R.string.open_file_manager),
@@ -3344,11 +3272,7 @@ private fun DataManagementSettings(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "🗄️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Storage)
                 Column {
                     Text(
                         text = "Data tersimpan",
@@ -3455,13 +3379,13 @@ private fun DataManagementSettings(
                         )
                         Text("Menghapus…")
                     } else {
-                        Text("🗑️ Hapus semua data tersimpan")
+                        Text("Hapus semua data tersimpan")
                     }
                 }
             }
 
             Text(
-                text = "⚠️ Jadwal shalat dan tanggal Hijriah tersimpan akan dihapus, lalu diambil ulang dari sumber jadwal saat dibutuhkan.",
+                text = "Jadwal shalat dan tanggal Hijriah tersimpan akan dihapus, lalu diambil ulang dari sumber jadwal saat dibutuhkan.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
@@ -3485,11 +3409,7 @@ private fun DataManagementSettings(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "⚠️",
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(end = 12.dp),
-                        )
+                        SettingsIcon(Icons.Rounded.WarningAmber)
                         Text(
                             text = "Hapus semua data tersimpan?",
                             style = MaterialTheme.typography.titleLarge,
@@ -3533,13 +3453,13 @@ private fun DataManagementSettings(
                                         cacheStats = viewModel.getCacheStats()
                                         Toast.makeText(
                                             context,
-                                            "✅ Cache cleared successfully",
+                                            "Data tersimpan sudah dihapus",
                                             Toast.LENGTH_SHORT,
                                         ).show()
                                     } catch (e: Exception) {
                                         Toast.makeText(
                                             context,
-                                            "❌ Failed to clear cache: ${e.message}",
+                                            "Gagal menghapus data: ${e.message}",
                                             Toast.LENGTH_LONG,
                                         ).show()
                                     } finally {
@@ -3604,11 +3524,7 @@ internal fun AboutSettings(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "ℹ️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Info)
                 Column {
                     Text(
                         text = stringResource(R.string.about_app),
@@ -3805,7 +3721,7 @@ internal fun AboutSettings(
                                             modifier = Modifier.padding(12.dp),
                                         ) {
                                             Text(
-                                                text = "⚠️ Install Permission Required",
+                                                text = "Install Permission Required",
                                                 style =
                                                     MaterialTheme.typography.bodyMedium.copy(
                                                         fontWeight = FontWeight.Bold,
@@ -3893,9 +3809,9 @@ internal fun AboutSettings(
 
                                             if (installIntent.resolveActivity(context.packageManager) != null) {
                                                 context.startActivity(installIntent)
-                                                Toast.makeText(context, "Opening installer...", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Membuka pemasang aplikasi…", Toast.LENGTH_SHORT).show()
                                             } else {
-                                                Toast.makeText(context, "No installer app found", Toast.LENGTH_LONG).show()
+                                                Toast.makeText(context, "Pemasang aplikasi tidak ditemukan di TV ini", Toast.LENGTH_LONG).show()
                                             }
                                         } else {
                                             // Download the file
@@ -4015,11 +3931,7 @@ internal fun AboutSettings(
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "💻",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(end = 12.dp),
-                        )
+                        SettingsIcon(Icons.Rounded.Code)
                         Text(stringResource(R.string.github_repository))
                     }
                 }
@@ -4046,9 +3958,9 @@ private fun AzanSoundSettings(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted ->
             if (isGranted) {
-                Toast.makeText(context, "Permission granted. Please select audio again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Izin diberikan. Silakan pilih file audio lagi.", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Permission denied. Cannot access audio files.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Izin ditolak, file audio tidak bisa dibuka.", Toast.LENGTH_LONG).show()
             }
         }
     
@@ -4066,10 +3978,10 @@ private fun AzanSoundSettings(
                     )
                     onAzanSoundUriChange(it.toString())
                     Log.d("AzanSoundSettings", "Persistable permission granted for URI: $it")
-                    Toast.makeText(context, "Azan audio file selected", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Audio adzan dipilih", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     Log.e("AzanSoundSettings", "Failed to take persistable permission", e)
-                    Toast.makeText(context, "Error: Unable to access this file. Please try a different file.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "File ini tidak bisa dibuka. Coba pilih file lain.", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -4102,11 +4014,7 @@ private fun AzanSoundSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "🕌",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.Mosque)
                     Column {
                         Text(
                             text = stringResource(R.string.azan_sound_settings),
@@ -4203,7 +4111,7 @@ private fun AzanSoundSettings(
                                 } else {
                                     Column(modifier = Modifier.padding(top = 4.dp)) {
                                         Text(
-                                            text = "⚠️ File not accessible: $fileName",
+                                            text = "File not accessible: $fileName",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error,
                                         )
@@ -4282,9 +4190,9 @@ private fun IqamahSoundSettings(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted ->
             if (isGranted) {
-                Toast.makeText(context, "Permission granted. Please select audio again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Izin diberikan. Silakan pilih file audio lagi.", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Permission denied. Cannot access audio files.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Izin ditolak, file audio tidak bisa dibuka.", Toast.LENGTH_LONG).show()
             }
         }
     
@@ -4302,10 +4210,10 @@ private fun IqamahSoundSettings(
                     )
                     onIqamahSoundUriChange(it.toString())
                     Log.d("IqamahSoundSettings", "Persistable permission granted for URI: $it")
-                    Toast.makeText(context, "Iqamah audio file selected", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Audio iqamah dipilih", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     Log.e("IqamahSoundSettings", "Failed to take persistable permission", e)
-                    Toast.makeText(context, "Error: Unable to access this file. Please try a different file.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "File ini tidak bisa dibuka. Coba pilih file lain.", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -4338,11 +4246,7 @@ private fun IqamahSoundSettings(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(
-                        text = "🙏",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(end = 12.dp),
-                    )
+                    SettingsIcon(Icons.Rounded.NotificationsActive)
                     Column {
                         Text(
                             text = stringResource(R.string.iqamah_sound_settings),
@@ -4439,7 +4343,7 @@ private fun IqamahSoundSettings(
                                 } else {
                                     Column(modifier = Modifier.padding(top = 4.dp)) {
                                         Text(
-                                            text = "⚠️ File not accessible: $fileName",
+                                            text = "File not accessible: $fileName",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error,
                                         )
@@ -4474,11 +4378,7 @@ private fun ConnectServerCard(onConnectServer: () -> Unit) {
     SettingsCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "🔗",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
+                SettingsIcon(Icons.Rounded.Link)
                 Column {
                     Text(
                         text = "Hubungkan ke website SIWAK",
