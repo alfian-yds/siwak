@@ -1,16 +1,17 @@
 # SIWAK — Jam & Jadwal Shalat untuk Layar Masjid
 
-**SIWAK** (Sistem Informasi Waktu Shalat) adalah aplikasi Android TV untuk menampilkan jam,
-jadwal shalat, tanggal Hijriah, cuaca, dan pengumuman berjalan (running text) di layar masjid
-maupun musholla. Dirancang untuk layar besar dan navigasi remote (D-Pad), serta **offline-first**
-sehingga tetap berjalan meski internet mati.
+**SIWAK** (Sistem Informasi Waktu Shalat) adalah aplikasi Android TV untuk layar masjid dan musholla.
+Aplikasi ini menampilkan jam besar, jadwal shalat beserta jam iqamah, tanggal Hijriah, cuaca, teks berjalan,
+pengumuman, serta slide info masjid dan hadits. Tampilannya dirancang untuk layar besar dan remote (D-Pad),
+dan jadwal tetap berjalan walaupun internet putus.
 
-Mulai versi 2, TV dapat **dihubungkan ke server SIWAK** (<https://siwak.alfianys.id>) sehingga seluruh
-pengaturan, konten, dan pengumuman diatur dari HP lewat admin web, dan setiap TV dapat dipantau dari jauh.
-Tanpa server, aplikasi tetap berjalan dalam **mode mandiri** seperti versi 1.
+TV bisa dipakai **mandiri** (semua diatur dengan remote, tanpa akun) atau **dihubungkan ke website SIWAK**
+(<https://siwak.alfianys.id>) agar pengurus bisa mengatur isi layar dari HP dan memantau setiap TV dari jauh.
 
-> Proyek open source mandiri. Basis: [MosqueClock](https://github.com/mhdzumair/MosqueClock)
-> (open-source, Android TV) oleh Mohamed Zumair, diadaptasi penuh untuk Indonesia. Lisensi MIT.
+**[⬇ Unduh APK terbaru](https://github.com/alfian-yds/siwak/releases/latest)** ·
+**[Buku panduan (PDF)](https://siwak.alfianys.id/panduan.pdf)** ·
+[Panduan online](https://siwak.alfianys.id/panduan) ·
+[Server & website](https://github.com/alfian-yds/siwak-server)
 
 ---
 
@@ -18,178 +19,142 @@ Tanpa server, aplikasi tetap berjalan dalam **mode mandiri** seperti versi 1.
 
 <table>
   <tr>
-    <td width="50%"><img src="pic/1.png" alt="Layar utama, jam digital" /><br/><sub><b>Layar utama:</b> jam digital, tanggal Hijriah, cuaca, jadwal, running text</sub></td>
-    <td width="50%"><img src="pic/8.png" alt="Tema Amber Sunset" /><br/><sub><b>Tema warna:</b> salah satu dari 11 tema (Amber Sunset)</sub></td>
+    <td width="50%"><img src="screenshots/tv-galeri.jpg" alt="Slide hadits di samping jam" /><br/><sub><b>Di samping jam:</b> slide hadits dan info masjid bergantian di sebelah jam dan jadwal</sub></td>
+    <td width="50%"><img src="screenshots/tv-mandiri-utama.jpg" alt="Layar utama mode mandiri" /><br/><sub><b>Mode mandiri:</b> jam besar, tanggal Masehi &amp; Hijriah, waktu shalat berikutnya</sub></td>
   </tr>
   <tr>
-    <td><img src="pic/7.png" alt="Jam analog" /><br/><sub><b>Jam analog</b> dengan tanggal Hijriah &amp; Masehi</sub></td>
-    <td><img src="pic/2.png" alt="Format 12 jam" /><br/><sub><b>Format 12 jam</b> (AM/PM); Imsak &amp; Terbit dapat disembunyikan</sub></td>
+    <td><img src="screenshots/tv-layar-penuh.jpg" alt="Slide layar penuh" /><br/><sub><b>Slide layar penuh:</b> sesekali satu slide memenuhi layar, lalu kembali ke jam</sub></td>
+    <td><img src="screenshots/tv-galeri-kas.jpg" alt="Slide laporan kas" /><br/><sub><b>Info masjid:</b> laporan kas, petugas Jumat, agenda, hari besar, informasi, gambar</sub></td>
   </tr>
   <tr>
-    <td><img src="pic/3.png" alt="Hitung mundur menuju adzan" /><br/><sub><b>Menuju adzan:</b> hitung mundur (flip clock) &amp; label Adzan/Iqamah</sub></td>
-    <td><img src="pic/4.png" alt="Countdown layar penuh adzan" /><br/><sub><b>Countdown layar penuh</b> menjelang adzan</sub></td>
+    <td><img src="screenshots/tv-pengumuman.jpg" alt="Pengumuman di bawah layar" /><br/><sub><b>Pengumuman segera</b> dari HP, tampil bergiliran di bagian bawah layar</sub></td>
+    <td><img src="screenshots/tv-hubungkan.jpg" alt="Kode untuk menghubungkan TV" /><br/><sub><b>Hubungkan TV</b> ke website dengan kode 8 angka atau scan QR</sub></td>
   </tr>
   <tr>
-    <td><img src="pic/5.png" alt="Countdown iqamah" /><br/><sub><b>Countdown Iqamah;</b> jeda dapat diatur per waktu</sub></td>
-    <td><img src="pic/6.png" alt="Telah masuk waktu shalat" /><br/><sub><b>Masuk waktu shalat:</b> imbauan silent HP + jam</sub></td>
-  </tr>
-  <tr>
-    <td><img src="pic/9.png" alt="Layar Jumat" /><br/><sub><b>Layar Jumat:</b> info khutbah berlangsung (bisa dimatikan)</sub></td>
-    <td><img src="pic/10.png" alt="Mode Istirahat Malam" /><br/><sub><b>Mode Istirahat Malam:</b> layar redup otomatis (hemat listrik, awetkan TV)</sub></td>
+    <td><img src="screenshots/tv-sambutan.jpg" alt="Layar sambutan" /><br/><sub><b>Pemasangan pertama:</b> pilih mode mandiri atau terhubung ke website</sub></td>
+    <td><img src="screenshots/tv-pengaturan-mandiri.jpg" alt="Menu Pengaturan di TV" /><br/><sub><b>Pengaturan dengan remote,</b> urutannya sama dengan menu di website</sub></td>
   </tr>
 </table>
 
+<p align="center"><img src="screenshots/web-beranda.jpg" alt="Beranda website pengurus" width="80%" /><br/>
+<sub><b>Website pengurus:</b> jadwal hari ini, status setiap TV, dan perintah jarak jauh</sub></p>
+
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur
 
-### 🌐 Terhubung ke server (versi 2)
-- **Hubungkan TV** dengan kode 8 angka atau scan QR dari admin web; TV dikunci PIN yang bisa dilihat dan
-  diganti dari web.
-- **Semua pengaturan dari HP:** jadwal, koreksi menit, suara (termasuk audio unggahan), tampilan, teks
-  berjalan, slide, dan panel informasi (kas, petugas Jumat, agenda, hari besar). Perubahan sampai ke TV
-  paling lama 1 menit.
-- **Tata letak Galeri** dengan ilustrasi masjid yang berubah mengikuti waktu (fajar, siang, senja, malam)
-  dan fase bulan, serta **Mutiara Hadits** berkala dari pustaka hadits yang diperiksa.
-- **Pengumuman segera:** banner di atas layar untuk satu atau semua TV masjid, dengan masa tayang.
-- **Pemantauan jarak jauh:** status online/offline, apakah SIWAK sedang tampil, selisih jam TV, riwayat
-  kejadian, serta perintah **Buka SIWAK**, **Sinkron sekarang**, dan **Mulai ulang SIWAK**.
-- **Multi-masjid** dengan peran super admin, admin masjid, dan operator.
+### 🕌 Jadwal shalat
+- Dihitung dari **koordinat lokasi** dengan **metode Kemenag RI**, atau diisi manual penuh.
+- **Koreksi menit** per waktu agar sama dengan jadwal resmi setempat.
+- Nama waktu Indonesia: Imsak, Subuh, Terbit, Dzuhur, Ashar, Maghrib, Isya. Imsak dan Terbit bisa disembunyikan.
+- Jadwal disimpan untuk **7 hari ke depan**, sehingga tetap tampil saat internet putus.
 
-Server dan admin web ada di repositori terpisah:
-[alfian-yds/siwak-server](https://github.com/alfian-yds/siwak-server). Panduan pengurus:
-<https://siwak.alfianys.id/panduan>.
+### 🔔 Adzan, iqamah, dan Jumat
+- **Hitung mundur** menuju adzan (bisa layar penuh) dan hitung mundur **iqamah** dengan jeda per waktu.
+- Suara penanda: **tik-tik**, **bip**, atau **audio sendiri** (rekaman yang diunggah), lengkap dengan tombol tes suara.
+- **Layar waktu shalat** berisi imbauan menyenyapkan HP, **layar khutbah Jumat** (bisa dimatikan untuk musholla),
+  dan **bayan malam Jumat**.
 
-### 🕌 Jadwal shalat yang akurat
-Waktu shalat dihitung dari **koordinat lokasi** memakai **metode Kemenag RI** (AlAdhan, method 20),
-bukan jadwal tetap. Pindah kota cukup ganti lokasi, seluruh jadwal menyesuaikan otomatis. Tersedia
-**koreksi menit per-waktu** agar sama persis dengan jadwal cetak setempat, serta **jadwal manual** penuh.
-Nama waktu memakai istilah Indonesia: Imsak, Subuh, Terbit, Dzuhur, Ashar, Maghrib, Isya. Terbit dan
-Imsak dapat disembunyikan lewat sakelar.
+### 🖼️ Isi layar
+- **Teks berjalan** multi-pesan; pesan pendek pun tetap berjalan.
+- **Slide** info masjid: informasi, laporan kas, petugas Jumat, agenda kegiatan, hari besar, dan gambar,
+  dengan urutan, lama tampil, serta hari dan jam tayang yang bisa diatur.
+- **Hadits otomatis** dari kumpulan hadits terverifikasi, diacak setiap hari, atau hadits milik masjid sendiri.
+- Dua cara tampil: **di samping jam** dan **sesekali satu layar penuh**, dengan gambar masjid di latar slide.
+- **10 tema warna**, logo dan gambar latar sendiri, jam 12/24 jam, **cuaca**, dan **mode malam** yang meredupkan layar.
 
-### 🗓️ Penanggalan & jam
-Tanggal **Hijriah** (hisab) dengan **penyesuaian ±hari** agar cocok pengumuman setempat, ditampilkan
-berdampingan dengan tanggal Masehi. Jam tersedia mode **digital** maupun **analog**, format 24 jam atau
-12 jam, dengan **ukuran yang dapat diperbesar** supaya terbaca dari kejauhan.
+### 🌐 Terhubung ke website
+- **Semua diatur dari HP:** jadwal, suara, tampilan, teks berjalan, slide, dan hadits. Perubahan sampai ke TV paling lama 1 menit.
+- **Pengumuman segera** untuk satu atau semua TV masjid, dengan masa tayang.
+- **Pemantauan jarak jauh:** status ONLINE / PERLU DICEK / OFFLINE, serta perintah **Buka SIWAK**,
+  **Tampilkan slide layar penuh**, **Perbarui data TV**, dan **Mulai ulang SIWAK**.
+- **Pratinjau** layar TV di website, **riwayat perubahan**, serta peran super admin, admin masjid, dan operator.
+- TV tetap menghitung jadwal sendiri; bila internet putus, TV memakai data terakhir.
 
-### 🔔 Siklus adzan & iqamah
-- **Hitung mundur sebelum adzan** (jumlah menit dapat diatur), lengkap dengan tampilan layar penuh.
-- **Suara penanda** yang dapat dipilih: bip/pip nyaring, tik-tik hitung mundur, atau **audio kustom**
-  (mis. kumandang azan yang diunggah sendiri).
-- **Layar "Telah masuk waktu shalat"** berisi imbauan menyenyapkan HP, tampil selama durasi yang diatur.
-- **Hitung mundur Iqamah** dengan jeda per-waktu.
-- **Layar Jumat** menampilkan info khutbah berlangsung tanpa hitung mundur, dan **bisa dimatikan** untuk
-  musholla yang tidak menyelenggarakan shalat Jumat.
+### 📡 Andal dan mudah dirawat
+- **Pembaruan otomatis** dari GitHub Releases tanpa menyetel ulang TV; semua pengaturan tetap tersimpan.
+- **Selalu kembali ke SIWAK** bila tertutup aplikasi lain, dan menyala sendiri setelah TV dihidupkan.
 
-### 🎨 Tampilan & informasi
-- **11 tema warna** (Emerald Garden, Classic Mosque, Midnight Blue, Ocean Teal, Royal Purple, dan lainnya).
-- **Running text** multi-pesan bergilir untuk pengumuman, hadits, atau imbauan.
-- **Cuaca** dari OpenWeather **berbasis koordinat** (satu lokasi dengan jadwal), dengan **ikon lokal
-  untuk semua kondisi cuaca** dan **cache offline**. TV yang terhubung mendapat cuaca dari server SIWAK;
-  pada mode mandiri, cuaca tampil bila pengurus mengisi kunci OpenWeather miliknya sendiri.
-- **Media** dapat diunggah sendiri: logo masjid dan gambar latar (utama, layar shalat, iqamah).
-- **Mode Istirahat Malam** meredupkan layar otomatis pada rentang jam malam untuk menghemat listrik dan
-  memperpanjang umur TV.
+---
 
-### 📡 Andal & mudah dirawat
-- **Offline-first:** jadwal & cuaca di-cache. Aplikasi **prefetch jadwal 7 hari** dan menyimpan cuaca
-  terakhir, jadi tetap tampil saat jaringan tidak stabil, lalu menyegar otomatis begitu online.
-- **Self-update** (flavor `github`) mendeteksi rilis baru di GitHub dan memasang pembaruan **tanpa perlu
-  menyetel ulang TV**; seluruh pengaturan tetap tersimpan.
+## 📥 Memasang
+
+1. Unduh APK dari [halaman rilis](https://github.com/alfian-yds/siwak/releases/latest) (Android 5.0 ke atas).
+2. Buka berkas APK di TV dan izinkan pemasangan dari sumber tidak dikenal bila diminta.
+3. Buka **SIWAK**, lalu pilih mode mandiri atau hubungkan ke website.
+
+Langkah lengkap bergambar ada di **[Buku Panduan SIWAK](https://siwak.alfianys.id/panduan.pdf)**.
 
 ---
 
 ## 🛠️ Teknologi
 
-- Kotlin + Jetpack Compose (UI) · Leanback (Android TV)
-- Hilt (DI) · Room (cache jadwal/hijriah) · DataStore Preferences (pengaturan, **bertahan saat update**)
-- Retrofit + OkHttp + Gson (AlAdhan, OpenWeather, server SIWAK) · Coil (gambar) · ZXing (QR)
+- Kotlin + Jetpack Compose (Material 3) · Leanback (Android TV)
+- Hilt · Room (cache jadwal/Hijriah) · DataStore (pengaturan, bertahan saat pembaruan)
+- Retrofit + OkHttp + Gson (AlAdhan, OpenWeather, server SIWAK) · Coil · ZXing (QR)
 - minSdk 21 · targetSdk/compileSdk 34
-
----
 
 ## 🚀 Build
 
-**Prasyarat: JDK 17** (mis. Microsoft OpenJDK 17). JBR 25 bawaan terlalu baru untuk Gradle 8.13.
+**Prasyarat: JDK 17.**
 
 ```bash
 gradlew.bat clean :app:assembleGithubDebug
 ```
 
-APK debug: `app/build/outputs/apk/github/debug/app-github-debug.apk`
+APK debug: `app/build/outputs/apk/github/debug/app-github-debug.apk`. Build debug terhubung ke server
+lokal di `http://10.0.2.2:8080` (emulator); jalankan [siwak-server](https://github.com/alfian-yds/siwak-server)
+di komputer Anda untuk mencobanya.
 
-Untuk build rilis yang ditandatangani (untuk update TV), lihat **[SIGNING.md](SIGNING.md)**:
+Build rilis yang ditandatangani dijelaskan di **[SIGNING.md](SIGNING.md)**:
 
 ```bash
 gradlew.bat clean :app:assembleGithubRelease
 ```
 
-### Flavor distribusi
+| Flavor      | Pembaruan otomatis | Untuk                          |
+|-------------|--------------------|--------------------------------|
+| `github`    | ✅ aktif            | Pasang langsung (sideload)     |
+| `playstore` | ❌ nonaktif         | Google Play                    |
 
-| Flavor      | Self-update | Untuk                           |
-|-------------|-------------|---------------------------------|
-| `github`    | ✅ aktif     | Sideload / distribusi langsung  |
-| `playstore` | ❌ nonaktif  | Google Play (kebijakan Google)  |
+Pengaturan disimpan di DataStore. Selama `applicationId` dan tanda tangan APK tetap sama, TV yang
+diperbarui tidak perlu diatur ulang.
 
----
-
-## ⚙️ Pengaturan (via remote TV)
-
-Pada **mode mandiri**, semua konfigurasi ada di layar Settings, disusun agar mudah diakses remote.
-Bila TV terhubung ke server, pengaturan dilakukan dari admin web dan menu di TV dikunci PIN.
-
-1. **Pengaturan Sistem** (akses cepat di paling atas)
-2. **Identitas Masjid:** nama, logo, background, bahasa
-3. **Lokasi & Jadwal:** kota/koordinat, metode Kemenag, koreksi menit (on/off), jadwal manual, sembunyikan Terbit/Imsak, penyesuaian Hijriah
-4. **Waktu & Countdown:** menit sebelum adzan, jeda iqamah, durasi layar silent HP
-5. **Tampilan:** jam digital/analog, ukuran jam, tema warna, running text, Layar Jumat, Mode Istirahat Malam
-6. **Suara:** adzan & iqamah (beep / tik-tik / audio kustom)
-7. **Cuaca:** kunci OpenWeather milik sendiri (hanya mode mandiri), sinkronisasi (lokasi mengikuti Lokasi & Jadwal)
-8. **Sistem:** Data Management (status cache jadwal/hijriah/cuaca), izin, tentang
-
-### Update tanpa setup ulang
-
-Pengaturan disimpan di **DataStore** yang bertahan lintas update aplikasi. Selama `applicationId`
-dan tanda tangan APK **tetap sama** (lihat SIGNING.md), TV yang di-update tidak perlu dikonfigurasi ulang.
-
----
-
-## 📁 Struktur Kode
+## 📁 Struktur kode
 
 ```
 app/src/main/java/com/mosque/prayerclock/
-├── data/
-│   ├── model/        # Settings, PrayerTimes, WeatherInfo, enum (SoundType, ClockType, ...)
-│   ├── repository/   # SettingsRepository (DataStore), PrayerTimesRepository, WeatherRepository, HijriDateRepository
-│   └── service/      # AlAdhan & OpenWeather API, UpdateChecker (GitHub Releases)
-├── domain/           # Aturan layar (prioritas, slide, pengumuman, periode ilustrasi)
-├── server/           # Pairing, heartbeat, bundle, konten & media dari server SIWAK
-├── service/          # SoundManager, PrayerNotificationService (siklus adzan/iqamah)
+├── data/          # model, repository (DataStore, jadwal, cuaca, Hijriah), service API & UpdateChecker
+├── domain/        # aturan layar: prioritas, daftar putar slide, pengumuman, periode ilustrasi
+├── server/        # penyambungan, heartbeat, bundle, konten & media dari server SIWAK
+├── service/       # SoundManager, siklus adzan/iqamah, layanan latar
 ├── ui/
-│   ├── components/    # DigitalClock, AnalogClock, WeatherCard, ...
+│   ├── components/    # jam, kartu cuaca, teks berjalan, ...
 │   ├── screens/       # MainScreen, SettingsScreen
-│   ├── server/        # Layar Hubungkan, PIN, pengaturan terbatas
-│   ├── gallery/       # Tata letak Galeri, ilustrasi, Mutiara Hadits
-│   ├── announcement/  # Banner pengumuman segera
-│   └── theme/         # ColorTheme (11 tema), Theme, Color
-└── viewmodel/         # MainViewModel, SettingsViewModel
+│   ├── server/        # layar Hubungkan, izin aplikasi, pengaturan TV terhubung
+│   ├── gallery/       # tata letak slide, ilustrasi masjid, hadits
+│   ├── announcement/  # pita pengumuman
+│   └── theme/         # tema warna
+└── viewmodel/
 ```
 
 ---
 
 ## ⚠️ Penafian jadwal shalat
 
-Jadwal shalat dihitung dari koordinat masjid dengan metode Kemenag RI, sehingga dapat berbeda beberapa
-menit dari jadwal resmi setempat. Pengurus masjid wajib mencocokkannya dengan jadwal Kementerian Agama
-setempat dan memakai fitur koreksi menit bila perlu.
+Jadwal dihitung dari koordinat masjid dengan metode Kemenag RI, sehingga bisa berbeda beberapa menit dari
+jadwal resmi setempat. Pengurus masjid wajib mencocokkannya dengan jadwal Kementerian Agama setempat dan
+memakai koreksi menit bila perlu.
 
----
+## 💬 Masukan
 
-## 📜 Lisensi & Kredit
+Pertanyaan, saran, dan laporan masalah: [GitHub Issues](https://github.com/alfian-yds/siwak/issues).
 
-MIT.<br>
-Berbasis MosqueClock (open-source) oleh Mohamed Zumair.<br>
-Dikembangkan oleh Alfian Yudisurya.
+## 📜 Lisensi & kredit
+
+MIT. Dikembangkan oleh Alfian Yudisurya.<br>
+Berawal dari [MosqueClock](https://github.com/mhdzumair/MosqueClock) (open source, MIT) oleh Mohamed Zumair,
+lalu diadaptasi dan dikembangkan penuh untuk masjid di Indonesia.
 
 | Dokumen | Isi |
 |---|---|
