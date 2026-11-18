@@ -174,9 +174,9 @@ enum class PrayerServiceType(
 enum class SoundType(
     val displayName: String,
 ) {
-    COUNTDOWN_TICKING("Tik-tik hitung mundur (5 detik)"),
-    TRADITIONAL_BEEP("Bip / pip (nyaring)"),
-    CUSTOM("Audio kustom (mis. kumandang azan)"),
+    COUNTDOWN_TICKING("Tik-tik (hitung mundur 5 detik)"),
+    TRADITIONAL_BEEP("Bip (nyaring)"),
+    CUSTOM("Audio sendiri (mis. rekaman adzan)"),
 }
 
 data class LocationInfo(

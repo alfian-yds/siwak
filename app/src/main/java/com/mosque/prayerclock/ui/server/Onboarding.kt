@@ -96,7 +96,7 @@ fun WelcomeScreen(
             Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 ChoiceCard(
-                    title = "Hubungkan ke server",
+                    title = "Hubungkan ke website SIWAK",
                     lines =
                         listOf(
                             "Atur jadwal, suara, tampilan, slide, dan pengumuman dari HP",
@@ -114,7 +114,7 @@ fun WelcomeScreen(
                         listOf(
                             "Diatur langsung lewat remote TV",
                             "Tetap jalan tanpa internet",
-                            "Bisa dihubungkan ke server kapan saja dari Pengaturan",
+                            "Bisa dihubungkan ke website kapan saja dari Pengaturan",
                         ),
                     primary = false,
                     modifier = Modifier.weight(1f),
@@ -178,7 +178,7 @@ fun PermissionReminderDialog(
         title = { Text("Izin SIWAK belum lengkap", fontSize = 20.sp) },
         text = {
             Text(
-                "Tanpa izin ini, perintah dari HP (buka, sinkron, mulai ulang SIWAK) bisa tidak sampai ke TV. " +
+                "Tanpa izin ini, layar bisa tertutup aplikasi lain dan perintah dari HP (buka, perbarui, mulai ulang SIWAK) bisa tidak sampai ke TV. " +
                     "Atur sekali saja, sekitar satu menit.",
                 fontSize = 15.sp,
             )
@@ -190,13 +190,9 @@ fun PermissionReminderDialog(
                     onOpen()
                 },
                 modifier = Modifier.focusRequester(focus),
-                colors = ButtonDefaults.buttonColors(containerColor = ZamrudTerang),
             ) { Text("Atur izin", fontSize = 15.sp) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Nanti", fontSize = 15.sp) } },
-        containerColor = Kartu,
-        titleContentColor = Color.White,
-        textContentColor = Color.White.copy(alpha = 0.85f),
     )
 }
 
@@ -217,7 +213,7 @@ fun ServerOfflineChip(
     ) {
         Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFD0584A)))
         Text(
-            if (since != null) "Server tidak terjangkau sejak $since · memakai data terakhir" else "Belum tersambung ke server · memakai data terakhir",
+            if (since != null) "Website SIWAK tidak terjangkau sejak $since · memakai data terakhir" else "Belum tersambung ke website SIWAK · memakai data terakhir",
             color = Color.White.copy(alpha = 0.85f),
             fontSize = 12.sp,
         )
@@ -245,7 +241,7 @@ fun PairedToast(
             Text("✓", color = Kuningan, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Column {
                 Text(
-                    "Terhubung ke ${mosqueName ?: "server SIWAK"}" + (deviceName?.let { " sebagai TV $it" } ?: ""),
+                    "Terhubung ke ${mosqueName ?: "website SIWAK"}" + (deviceName?.let { " sebagai TV $it" } ?: ""),
                     color = Color.White,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,

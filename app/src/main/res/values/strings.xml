@@ -31,7 +31,7 @@
     <string name="language">Language</string>
     <string name="region">Region</string>
     <string name="city">City</string>
-    <string name="mosque_name">Mosque Name</string>
+    <string name="mosque_name">Mosque name</string>
     <string name="clock_type">Clock Type</string>
     <string name="theme">Theme</string>
     <string name="font_size">Font Size</string>
@@ -44,13 +44,13 @@
     <string name="sound_description" translatable="false">Play 5-second countdown ticking before azan, iqamah, and sunrise</string>
     
     <!-- Enhanced Sound Settings -->
-    <string name="azan_sound_settings">Azan Sound Settings</string>
-    <string name="iqamah_sound_settings">Iqamah Sound Settings</string>
+    <string name="azan_sound_settings">Azan sound</string>
+    <string name="iqamah_sound_settings">Iqamah sound</string>
     <string name="enable_azan_sound">Enable Azan Sound</string>
     <string name="enable_iqamah_sound">Enable Iqamah Sound</string>
     <string name="azan_sound_description">Play sound notification for azan times</string>
     <string name="iqamah_sound_description">Play sound notification for iqamah times</string>
-    <string name="sound_type">Sound Type</string>
+    <string name="sound_type">Sound type</string>
     <string name="sound_type_countdown">5-Second Countdown Ticking</string>
     <string name="sound_type_beep">Traditional Beep</string>
     <string name="sound_type_custom">Custom Audio</string>
@@ -73,7 +73,7 @@
     <string name="prayer_notification_channel_desc">Notifications for Azan and Iqamah times</string>
     
     <!-- Full Screen Countdown Settings -->
-    <string name="fullscreen_countdown_title">Full-Screen Countdown</string>
+    <string name="fullscreen_countdown_title">Full-screen countdown</string>
     <string name="fullscreen_countdown_description">Show full-screen countdown 10 minutes before azan and during iqamah gap</string>
     
     <!-- Clock Types -->
@@ -134,31 +134,31 @@
     <string name="manual_coordinates_desc">Enter the exact latitude &amp; longitude of the mosque for maximum accuracy</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
-    <string name="iqamah_gaps_title">Iqamah Time Gaps (minutes after Azan)</string>
-    <string name="prayer_offset_title">Time Correction (minutes)</string>
+    <string name="iqamah_gaps_title">Iqamah (minutes after azan)</string>
+    <string name="prayer_offset_title">Minute correction</string>
     <string name="prayer_offset_desc">Fine-tune each time (+/-) to match the local Kemenag printed schedule</string>
-    <string name="countdown_minutes_before">Minutes before Azan</string>
-    <string name="display_visibility_title">Show / Hide Times</string>
+    <string name="countdown_minutes_before">Start before azan</string>
+    <string name="display_visibility_title">Times shown</string>
     <string name="show_sunrise_label">Show Sunrise (Terbit)</string>
     <string name="show_imsak_label">Show Imsak</string>
-    <string name="iqamah_cycle_label">Cycle Azan / Iqamah</string>
+    <string name="iqamah_cycle_label">Alternate azan &amp; iqamah times</string>
     <string name="iqamah_cycle_desc">Cards alternate between Azan and Iqamah time; off = show Azan only</string>
     <string name="prayer_times_setup_title">Manual Prayer Times</string>
-    <string name="jumma_bayan_title">Thursday Night Bayan</string>
+    <string name="jumma_bayan_title">Thursday night bayan</string>
     <string name="jumma_bayan_desc">Special timing for Thursday night</string>
     <string name="jumma_bayan_info">When enabled, Thursday night Isha Iqamah is delayed by the set duration for the Bayan.</string>
-    <string name="bayan_duration">Bayan Duration</string>
-    <string name="prayer_display_title">Prayer Display Settings</string>
+    <string name="bayan_duration">Bayan duration</string>
+    <string name="prayer_display_title">Prayer &amp; Friday screens</string>
     <string name="jumuah_duration_desc">How long to show Friday (Jumu\'ah) prayer as active after Azan</string>
-    <string name="jumuah_duration_label">Friday Duration</string>
-    <string name="show_jumuah_screen_label">Show Friday Screen</string>
+    <string name="jumuah_duration_label">Friday screen duration</string>
+    <string name="show_jumuah_screen_label">Friday screen</string>
     <string name="show_jumuah_screen_desc">Show a full-screen display during Friday prayer</string>
     <string name="dua_duration_desc">How long to show the \'Prayer Time\' screen after Iqamah</string>
-    <string name="dua_duration_label">Prayer Screen Duration</string>
+    <string name="dua_duration_label">Prayer screen duration</string>
     <string name="weather_api_free_key">Get a free key at weatherapi.com</string>
     <string name="openweather_free_key">Get a free key at openweathermap.org/api</string>
     <string name="clock_both_auto">Both (Auto Cycle)</string>
-    <string name="hijri_date_source">Hijri Date Source</string>
+    <string name="hijri_date_source">Hijri date</string>
     <string name="provider_label">Provider</string>
     <string name="sync_now">Sync Now</string>
     <string name="syncing">Syncing…</string>
@@ -169,10 +169,10 @@
     <string name="clock_size_normal">Normal</string>
     <string name="clock_size_large">Large</string>
     <string name="clock_size_xlarge">Extra Large</string>
-    <string name="running_text_title">Running Text</string>
+    <string name="running_text_title">Running text</string>
     <string name="running_text_desc">Announcements/hadith shown at the bottom. Separate multiple messages with ||</string>
     <string name="running_text_hint">Straighten the rows || Silence your phone</string>
-    <string name="media_title">Logo &amp; Background</string>
+    <string name="media_title">Logo &amp; backgrounds</string>
     <string name="logo_label">Mosque Logo</string>
     <string name="background_label">Main Background</string>
     <string name="background_prayer_label">Prayer-time Screen Background</string>
@@ -181,15 +181,15 @@
     <string name="image_set">Image set</string>
     <string name="choose_image">Choose</string>
     <string name="clear_image">Remove</string>
-    <string name="night_mode_title">Night Rest Mode</string>
+    <string name="night_mode_title">Night mode</string>
     <string name="night_mode_desc">Dim the screen during set night hours (saves power)</string>
     <string name="night_start">Start hour</string>
     <string name="night_end">End hour</string>
     <string name="night_dim_level">Dim level</string>
 
     <!-- Prayer Service (SIWAK) -->
-    <string name="prayer_service_title">Prayer Times Source</string>
-    <string name="prayer_service_desc">Choose how prayer times are obtained</string>
+    <string name="prayer_service_title">Schedule source</string>
+    <string name="prayer_service_desc">Choose how prayer times are determined.</string>
     <string name="select_city_kabupaten">City / Regency</string>
     <string name="select_city_hint">Select city</string>
     <string name="mosque_name_hint">Enter mosque name</string>
@@ -312,11 +312,11 @@
     <string name="backend_api_key_hint" translatable="false">Enter backend API key</string>
     
     <!-- Color Theme -->
-    <string name="color_theme_title">Color Theme</string>
+    <string name="color_theme_title">Color theme</string>
     <string name="color_theme_description">Choose your preferred color palette</string>
     
     <!-- About/Version -->
-    <string name="about_app" translatable="false">About</string>
+    <string name="about_app" translatable="false">About &amp; updates</string>
     <string name="app_version" translatable="false">Version</string>
     <string name="check_for_updates" translatable="false">Check for Updates</string>
     <string name="checking_updates" translatable="false">Checking for updates…</string>

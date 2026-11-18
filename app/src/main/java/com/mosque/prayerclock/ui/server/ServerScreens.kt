@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.key.Key
@@ -89,10 +90,15 @@ private fun ScreenFrame(
 @Composable
 private fun InfoCard(content: @Composable () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-    ) { Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) { content() } }
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) {
+        androidx.compose.material3.ProvideTextStyle(MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { content() }
+        }
+    }
 }
 
 private fun qrBitmap(
@@ -120,12 +126,12 @@ fun PairingScreen(
     LaunchedEffect(Unit) { viewModel.start() }
     LaunchedEffect(ui) { if (ui is PairingUi.Done) onPaired() }
 
-    ScreenFrame("Hubungkan ke server SIWAK", onBack) {
+    ScreenFrame("Hubungkan ke website SIWAK", onBack) {
         Row(horizontalArrangement = Arrangement.spacedBy(32.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
                     "1. Buka ${server?.serverUrl?.removePrefix("https://") ?: "siwak.alfianys.id"}/admin di HP dan masuk.\n" +
-                        "2. Pilih masjid → TV → Hubungkan TV.\n" +
+                        "2. Pilih masjid → Beranda → Hubungkan TV.\n" +
                         "3. Ketik kode di bawah, atau tekan Scan QR dan arahkan kamera ke QR ini.",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -157,12 +163,12 @@ fun PairingScreen(
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "Server: ${server?.serverUrl.orEmpty()}",
+                            "Alamat website: ${server?.serverUrl.orEmpty()}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         )
                         Spacer(Modifier.width(12.dp))
-                        TextButton(onClick = { editingUrl = true }) { Text("Ubah alamat server") }
+                        TextButton(onClick = { editingUrl = true }) { Text("Ubah alamat website") }
                     }
                 }
             }
@@ -208,9 +214,9 @@ private fun ServerUrlEditor(
 ) {
     var value by remember { mutableStateOf(current) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(value = value, onValueChange = { value = it }, label = { Text("Alamat server") }, singleLine = true, modifier = Modifier.width(520.dp))
+        OutlinedTextField(value = value, onValueChange = { value = it }, label = { Text("Alamat website") }, singleLine = true, modifier = Modifier.width(520.dp))
         Text(
-            "Ubah hanya bila masjid Anda memakai server SIWAK sendiri.",
+            "Ubah hanya bila masjid Anda memakai website SIWAK sendiri (dipasang di server sendiri).",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
         )
@@ -301,7 +307,9 @@ fun PinGate(
     }
 }
 
-// ---- Pengaturan terbatas untuk TV terhubung (F-TV-17) --------------------------------
+// ---- Pengaturan TV terhubung (F-TV-17) ------------------------------------------------
+// Kelompok dan urutannya sama dengan mode mandiri dan menu website (Koneksi, Jadwal, Suara, Tampilan, Konten,
+// Sistem). Yang diatur dari website tampil sebagai ringkasan agar pengurus tahu nilainya dan di mana mengubahnya.
 
 @Composable
 fun ConnectedSettingsScreen(
@@ -309,61 +317,134 @@ fun ConnectedSettingsScreen(
     onUnpaired: () -> Unit,
     viewModel: ConnectedSettingsViewModel = hiltViewModel(),
 ) {
-    // rc.3: tanpa PIN. Pengaturan TV terhubung memang terbatas; perubahan utama dilakukan dari admin web.
     val server by viewModel.server.collectAsStateWithLifecycle()
     val status by viewModel.status.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     var confirmUnpair by remember { mutableStateOf(false) }
-    val canOpen = AppForegroundTracker.canOpenFromBackground(context)
     val fmt = remember { DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) }
     val s = server
     val localVm: com.mosque.prayerclock.viewmodel.SettingsViewModel = hiltViewModel()
     val local by localVm.settings.collectAsStateWithLifecycle()
+    val web = (s?.serverUrl ?: BuildConfig.SIWAK_SERVER_URL).removePrefix("https://").removeSuffix("/")
+    val onOff = { b: Boolean -> if (b) "Aktif" else "Mati" }
 
-    ScreenFrame("Pengaturan TV", onBack) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            item { GroupHeader("Koneksi") }
+    // Bingkai sama dengan Pengaturan mode mandiri: latar gradasi tema, tombol Kembali di kiri, judul Pengaturan.
+    BackHandler { onBack() }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surface))),
+    ) {
+        Column(Modifier.fillMaxSize().padding(24.dp)) {
+        com.mosque.prayerclock.ui.screens.SettingsHeader(onNavigateBack = onBack)
+        Spacer(Modifier.height(24.dp))
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Koneksi") }
             item {
                 InfoCard {
-                    Text("Terhubung ke server", style = MaterialTheme.typography.titleLarge)
+                    Text("Terhubung ke website SIWAK", style = MaterialTheme.typography.titleMedium)
                     Text("Masjid: ${s?.mosqueName ?: "—"}")
                     Text("Nama TV: ${s?.deviceName ?: "—"}")
-                    Text("Server: ${s?.serverUrl ?: "—"}")
+                    Text("Alamat website: $web")
                     Text(
-                        "Sinkron terakhir: " + (s?.lastSyncAt?.takeIf { it > 0 }?.let { fmt.format(Date(it)) } ?: "belum pernah") +
-                            " · Kontak terakhir: " + (s?.lastContactAt?.takeIf { it > 0 }?.let { fmt.format(Date(it)) } ?: "belum pernah"),
+                        "Terakhir diperbarui: " + (s?.lastSyncAt?.takeIf { it > 0 }?.let { fmt.format(Date(it)) } ?: "belum pernah") +
+                            " · Terakhir menghubungi website: " + (s?.lastContactAt?.takeIf { it > 0 }?.let { fmt.format(Date(it)) } ?: "belum pernah"),
                     )
                     status.lastError?.let { Text("Masalah terakhir: $it", color = MaterialTheme.colorScheme.error) }
                     Text(
-                        "Pengaturan jadwal, suara, dan tampilan diubah dari admin web, bukan dari TV.",
+                        "Jadwal, suara, tampilan, dan konten diubah dari HP: buka $web/admin → pilih masjid → Pengaturan atau Konten. " +
+                            "Urutan menunya sama dengan halaman ini.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Button(onClick = viewModel::syncNow, enabled = !status.syncing) { Text(if (status.syncing) "Menyinkron…" else "Sinkron sekarang") }
+                    Button(onClick = viewModel::syncNow, enabled = !status.syncing) { Text(if (status.syncing) "Memperbarui…" else "Perbarui sekarang") }
                 }
             }
-            item { GroupHeader("Suara") }
+
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Jadwal") }
+            item {
+                SummaryCard(
+                    "Diatur dari website: Pengaturan → Jadwal",
+                    listOf(
+                        "Nama masjid" to local.mosqueName.ifBlank { s?.mosqueName ?: "—" },
+                        "Sumber jadwal" to local.prayerServiceType.displayName,
+                        "Waktu yang ditampilkan" to listOfNotNull("Imsak".takeIf { local.showImsak }, "Terbit".takeIf { local.showSunrise }).ifEmpty { listOf("Hanya 5 waktu shalat") }.joinToString(", "),
+                        "Koreksi menit" to onOff(local.prayerOffsetEnabled),
+                        "Iqamah" to
+                            "Subuh ${local.fajrIqamahGap} · Dzuhur ${local.dhuhrIqamahGap} · Ashar ${local.asrIqamahGap} · " +
+                            "Maghrib ${local.maghribIqamahGap} · Isya ${local.ishaIqamahGap} menit",
+                        "Hitung mundur layar penuh" to if (local.fullScreenCountdownEnabled) "Aktif, ${local.fullScreenCountdownMinutes} menit sebelum adzan" else "Mati",
+                        "Layar waktu shalat & Jumat" to
+                            "Layar shalat ${local.duaDisplayDurationMinutes} menit · " +
+                            if (local.showJummahScreen) "layar Jumat ${local.jummahDurationMinutes} menit" else "tanpa layar Jumat",
+                        "Bayan malam Jumat" to if (local.jummaNightBayanEnabled) "Aktif, ${local.jummaNightBayanMinutes} menit" else "Mati",
+                    ),
+                )
+            }
+
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Suara") }
             item {
                 InfoCard {
-                    Text("Tes suara", style = MaterialTheme.typography.titleLarge)
+                    SummaryRows(
+                        listOf(
+                            "Suara adzan" to if (local.azanSoundEnabled) local.azanSoundType.displayName else "Mati",
+                            "Suara iqamah" to if (local.iqamahSoundEnabled) local.iqamahSoundType.displayName else "Mati",
+                        ),
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedButton(onClick = { viewModel.testSound(true) }) { Text("Tes suara adzan") }
                         OutlinedButton(onClick = { viewModel.testSound(false) }) { Text("Tes suara iqamah") }
                     }
+                    WebHint("Diatur dari website: Pengaturan → Suara")
                 }
             }
-            item { GroupHeader("Sistem") }
+
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Tampilan") }
             item {
-                InfoCard {
-                    Text("Izin aplikasi", style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        "Izin berikut dibutuhkan agar perintah dari HP (buka, sinkron, mulai ulang) selalu sampai dan bisa dijalankan.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    PermissionsList()
-                }
+                SummaryCard(
+                    "Diatur dari website: Pengaturan → Tampilan",
+                    listOf(
+                        "Logo & gambar latar" to
+                            listOfNotNull(
+                                "logo".takeIf { local.mosqueLogoUri.isNotBlank() },
+                                "latar utama".takeIf { local.backgroundMainUri.isNotBlank() },
+                                "latar waktu shalat".takeIf { local.backgroundPrayerUri.isNotBlank() },
+                                "latar iqamah".takeIf { local.backgroundIqamahUri.isNotBlank() },
+                            ).ifEmpty { listOf("belum ada") }.joinToString(", "),
+                        "Tema warna" to local.colorTheme.split('_').joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } },
+                        "Bahasa" to local.language.displayName,
+                        "Jam" to (if (local.show24HourFormat) "24 jam" else "12 jam") + if (local.showSeconds) ", dengan detik" else ", tanpa detik",
+                        "Mode malam" to
+                            if (local.nightModeEnabled) {
+                                "Aktif, %02d.00–%02d.00".format(local.nightStartHour, local.nightEndHour)
+                            } else {
+                                "Mati"
+                            },
+                        "Cuaca" to if (local.showWeather) "Tampil" else "Tidak tampil",
+                    ),
+                )
             }
+
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Konten") }
+            item {
+                SummaryCard(
+                    "Diatur dari website: Konten → Pengumuman, Teks berjalan, Slide & hadits",
+                    listOf(
+                        "Slide & hadits" to
+                            if (!local.contentEnabled) {
+                                "Mati (jam & jadwal saja)"
+                            } else {
+                                listOfNotNull(
+                                    "di samping jam".takeIf { local.layout == "GALERI" },
+                                    "layar penuh setiap ${local.mutiaraEveryMinutes} menit".takeIf { local.mutiaraHaditsEnabled },
+                                ).ifEmpty { listOf("belum dipilih cara tampilnya") }.joinToString(" + ").replaceFirstChar { it.uppercase() }
+                            },
+                        "Teks berjalan & pengumuman" to "Dikirim dari website dan tampil di bagian bawah layar",
+                    ),
+                )
+            }
+
+            item { com.mosque.prayerclock.ui.screens.SettingsGroupHeader("Sistem") }
+            item { PermissionsCard() }
             item { com.mosque.prayerclock.ui.screens.SystemSettingsAccess() }
             item {
                 // Versi, pengembang, kredit, tautan legal, dan pembaruan aplikasi: sama dengan mode mandiri.
@@ -375,42 +456,61 @@ fun ConnectedSettingsScreen(
             if (s?.minAppVersion != null && isOlderVersion(BuildConfig.VERSION_NAME, s.minAppVersion)) {
                 item {
                     InfoCard {
-                        Text("Server membutuhkan versi aplikasi yang lebih baru. Perbarui lewat tombol di atas.", color = MaterialTheme.colorScheme.primary)
+                        Text("Website SIWAK membutuhkan versi aplikasi yang lebih baru. Perbarui lewat tombol di atas.", color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
             item {
                 InfoCard {
-                    Text("Lepas dari server", style = MaterialTheme.typography.titleLarge)
-                    Text("TV kembali ke mode mandiri dengan pengaturan terakhir. Untuk menghubungkan lagi dibutuhkan kode baru.")
-                    OutlinedButton(onClick = { confirmUnpair = true }) { Text("Lepas dari server", color = MaterialTheme.colorScheme.error) }
+                    Text("Putuskan dari website", style = MaterialTheme.typography.titleMedium)
+                    Text("TV kembali ke mode mandiri dengan pengaturan terakhir, lalu bisa diatur langsung dengan remote. Untuk menghubungkan lagi dibutuhkan kode baru.")
+                    OutlinedButton(onClick = { confirmUnpair = true }) { Text("Putuskan dari website", color = MaterialTheme.colorScheme.error) }
                 }
             }
+        }
         }
     }
 
     if (confirmUnpair) {
         AlertDialog(
             onDismissRequest = { confirmUnpair = false },
-            title = { Text("Lepas TV dari server?") },
+            title = { Text("Putuskan TV dari website?") },
             text = { Text("TV kembali ke mode mandiri dengan pengaturan terakhir.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmUnpair = false
                     viewModel.unpair(onUnpaired)
-                }) { Text("Lepas") }
+                }) { Text("Putuskan") }
             },
             dismissButton = { TextButton(onClick = { confirmUnpair = false }) { Text("Batal") } },
         )
     }
 }
 
+/** Ringkasan pengaturan yang diubah dari website (hanya dibaca di TV). */
 @Composable
-private fun GroupHeader(title: String) {
-    Text(
-        text = title.uppercase(),
-        style = MaterialTheme.typography.titleSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
-    )
+private fun SummaryCard(
+    hint: String,
+    rows: List<Pair<String, String>>,
+) {
+    InfoCard {
+        SummaryRows(rows)
+        WebHint(hint)
+    }
 }
+
+@Composable
+private fun SummaryRows(rows: List<Pair<String, String>>) {
+    rows.forEach { (label, value) ->
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text(label, modifier = Modifier.width(260.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun WebHint(text: String) {
+    Text("✎ $text", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+}
+

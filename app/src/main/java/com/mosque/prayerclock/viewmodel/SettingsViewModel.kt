@@ -37,6 +37,7 @@ class SettingsViewModel
         private val prayerTimesRepository: PrayerTimesRepository,
         private val hijriDateRepository: HijriDateRepository,
         private val weatherRepository: WeatherRepository,
+        @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
     ) : ViewModel() {
         val settings =
             settingsRepository
@@ -422,6 +423,19 @@ class SettingsViewModel
         fun updateAzanSoundUri(uri: String) {
             viewModelScope.launch {
                 settingsRepository.updateAzanSoundUri(uri)
+            }
+        }
+
+        /** Tes suara adzan/iqamah dengan pengaturan yang sedang tersimpan (sama dengan mode terhubung). */
+        fun testSound(adzan: Boolean) {
+            viewModelScope.launch {
+                val current = settingsRepository.getSettings().first()
+                val sm = com.mosque.prayerclock.service.SoundManager(appContext)
+                if (adzan) {
+                    sm.playAzanSound(current, com.mosque.prayerclock.data.model.PrayerType.DHUHR)
+                } else {
+                    sm.playIqamahSound(current, com.mosque.prayerclock.data.model.PrayerType.DHUHR)
+                }
             }
         }
 

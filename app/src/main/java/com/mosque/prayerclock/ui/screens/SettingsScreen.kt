@@ -83,7 +83,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.stringResource
+import com.mosque.prayerclock.ui.localizedStringResource as stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -162,14 +162,13 @@ fun SettingsScreen(
                 item {
                     ConnectServerCard(onConnectServer)
                 }
-                item { SettingsGroupHeader("Identitas masjid") }
+                item { SettingsGroupHeader("Jadwal") }
                 item {
                     MosqueNameSetting(
                         mosqueName = settings.mosqueName,
                         onMosqueNameChange = viewModel::updateMosqueName,
                     )
                 }
-                item { SettingsGroupHeader("Jadwal") }
                 item {
                     PrayerServiceSettings(
                         selectedServiceType = settings.prayerServiceType,
@@ -201,6 +200,14 @@ fun SettingsScreen(
                     }
                 }
                 item {
+                    DisplayVisibilitySettings(
+                        showSunrise = settings.showSunrise,
+                        showImsak = settings.showImsak,
+                        onShowSunriseChange = viewModel::updateShowSunrise,
+                        onShowImsakChange = viewModel::updateShowImsak,
+                    )
+                }
+                item {
                     PrayerOffsetSettings(
                         settings = settings,
                         onUpdateOffset = viewModel::updatePrayerOffset,
@@ -223,6 +230,8 @@ fun SettingsScreen(
                     IqamahGapSettings(
                         settings = settings,
                         onUpdateIqamahGap = viewModel::updateIqamahGap,
+                        showIqamahCycle = settings.showIqamahCycle,
+                        onShowIqamahCycleChange = viewModel::updateShowIqamahCycle,
                     )
                 }
                 item {
@@ -231,14 +240,6 @@ fun SettingsScreen(
                         fullScreenCountdownMinutes = settings.fullScreenCountdownMinutes,
                         onFullScreenCountdownEnabledChange = viewModel::updateFullScreenCountdownEnabled,
                         onFullScreenCountdownMinutesChange = viewModel::updateFullScreenCountdownMinutes,
-                    )
-                }
-                item {
-                    JummaNightBayanSettings(
-                        jummaNightBayanEnabled = settings.jummaNightBayanEnabled,
-                        jummaNightBayanMinutes = settings.jummaNightBayanMinutes,
-                        onJummaNightBayanEnabledChange = viewModel::updateJummaNightBayanEnabled,
-                        onJummaNightBayanMinutesChange = viewModel::updateJummaNightBayanMinutes,
                     )
                 }
                 item {
@@ -251,6 +252,14 @@ fun SettingsScreen(
                         onShowJummahScreenChange = viewModel::updateShowJummahScreen,
                     )
                 }
+                item {
+                    JummaNightBayanSettings(
+                        jummaNightBayanEnabled = settings.jummaNightBayanEnabled,
+                        jummaNightBayanMinutes = settings.jummaNightBayanMinutes,
+                        onJummaNightBayanEnabledChange = viewModel::updateJummaNightBayanEnabled,
+                        onJummaNightBayanMinutesChange = viewModel::updateJummaNightBayanMinutes,
+                    )
+                }
                 item { SettingsGroupHeader("Suara") }
                 item {
                     AzanSoundSettings(
@@ -260,6 +269,7 @@ fun SettingsScreen(
                         onAzanSoundEnabledChange = viewModel::updateAzanSoundEnabled,
                         onAzanSoundTypeChange = viewModel::updateAzanSoundType,
                         onAzanSoundUriChange = viewModel::updateAzanSoundUri,
+                        onTest = { viewModel.testSound(true) },
                     )
                 }
                 item {
@@ -270,6 +280,7 @@ fun SettingsScreen(
                         onIqamahSoundEnabledChange = viewModel::updateIqamahSoundEnabled,
                         onIqamahSoundTypeChange = viewModel::updateIqamahSoundType,
                         onIqamahSoundUriChange = viewModel::updateIqamahSoundUri,
+                        onTest = { viewModel.testSound(false) },
                     )
                 }
                 item { SettingsGroupHeader("Tampilan") }
@@ -334,18 +345,6 @@ fun SettingsScreen(
                         onSyncWeather = viewModel::syncWeatherNow,
                     )
                 }
-                item {
-                    DisplayVisibilitySettings(
-                        showSunrise = settings.showSunrise,
-                        showImsak = settings.showImsak,
-                        clockSizePercent = settings.clockSizePercent,
-                        showIqamahCycle = settings.showIqamahCycle,
-                        onShowSunriseChange = viewModel::updateShowSunrise,
-                        onShowImsakChange = viewModel::updateShowImsak,
-                        onClockSizeChange = viewModel::updateClockSizePercent,
-                        onShowIqamahCycleChange = viewModel::updateShowIqamahCycle,
-                    )
-                }
                 item { SettingsGroupHeader("Konten") }
                 item {
                     RunningTextSettings(
@@ -355,7 +354,7 @@ fun SettingsScreen(
                 }
                 item { SettingsGroupHeader("Sistem") }
                 item {
-                    PermissionsStatus()
+                    com.mosque.prayerclock.ui.server.PermissionsCard()
                 }
                 item {
                     SystemSettingsAccess()
@@ -376,9 +375,9 @@ fun SettingsScreen(
     }
 }
 
-/** Judul kelompok, urutannya sama dengan menu admin web (Jadwal, Suara, Tampilan, Konten). */
+/** Judul kelompok. Urutan dan nama kartu sama dengan menu Pengaturan di website (Jadwal, Suara, Tampilan, Konten). */
 @Composable
-private fun SettingsGroupHeader(title: String) {
+internal fun SettingsGroupHeader(title: String) {
     Text(
         text = title.uppercase(),
         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp),
@@ -421,7 +420,7 @@ private fun LongPressIconButton(
 }
 
 @Composable
-private fun SettingsHeader(onNavigateBack: () -> Unit) {
+internal fun SettingsHeader(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -611,7 +610,7 @@ private fun PrayerServiceSettings(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Your backend authentication key",
+                    text = "Kunci autentikasi backend",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -1299,6 +1298,8 @@ private fun ManualPrayerTimesSettings(
 private fun IqamahGapSettings(
     settings: AppSettings,
     onUpdateIqamahGap: (String, Int) -> Unit,
+    showIqamahCycle: Boolean,
+    onShowIqamahCycleChange: (Boolean) -> Unit,
 ) {
     SettingsCard {
         Column {
@@ -1347,6 +1348,25 @@ private fun IqamahGapSettings(
                 gap = settings.ishaIqamahGap,
                 onGapChange = { onUpdateIqamahGap("isha", it) },
             )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.iqamah_cycle_label),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.iqamah_cycle_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                }
+                Switch(checked = showIqamahCycle, onCheckedChange = onShowIqamahCycleChange)
+            }
         }
     }
 }
@@ -1764,7 +1784,7 @@ private fun ClockFormatSettings(
                     modifier = Modifier.padding(end = 12.dp),
                 )
                 Text(
-                    text = "Clock Format",
+                    text = "Jam",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -2135,7 +2155,7 @@ private fun TextInputDialog(
                                     .defaultMinSize(minHeight = buttonHeight),
                         ) {
                             Text(
-                                text = "Cancel",
+                                text = "Batal",
                                 style =
                                     MaterialTheme.typography.labelLarge.copy(
                                         fontSize = buttonFontSize,
@@ -2613,12 +2633,8 @@ private fun FullScreenCountdownSettings(
 private fun DisplayVisibilitySettings(
     showSunrise: Boolean,
     showImsak: Boolean,
-    clockSizePercent: Int,
-    showIqamahCycle: Boolean,
     onShowSunriseChange: (Boolean) -> Unit,
     onShowImsakChange: (Boolean) -> Unit,
-    onClockSizeChange: (Int) -> Unit,
-    onShowIqamahCycleChange: (Boolean) -> Unit,
 ) {
     SettingsCard {
         Column {
@@ -2643,19 +2659,6 @@ private fun DisplayVisibilitySettings(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.show_sunrise_label),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-                Switch(checked = showSunrise, onCheckedChange = onShowSunriseChange)
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
                     text = stringResource(R.string.show_imsak_label),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -2663,28 +2666,20 @@ private fun DisplayVisibilitySettings(
                 )
                 Switch(checked = showImsak, onCheckedChange = onShowImsakChange)
             }
-            // SIWAK: sakelar pergantian tampilan Adzan <-> Iqamah pada kartu waktu
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.iqamah_cycle_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.iqamah_cycle_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    )
-                }
-                Switch(checked = showIqamahCycle, onCheckedChange = onShowIqamahCycleChange)
+                Text(
+                    text = stringResource(R.string.show_sunrise_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(checked = showSunrise, onCheckedChange = onShowSunriseChange)
             }
-            // rc.3: ukuran jam otomatis memenuhi kotaknya; pilihan ukuran dihapus.
-        }
+                    }
     }
 }
 
@@ -3080,247 +3075,6 @@ private fun ColorPreviewBox(color: androidx.compose.ui.graphics.Color) {
 }
 
 @Composable
-private fun PermissionsStatus() {
-    val context = LocalContext.current
-    var permissionsList by remember { mutableStateOf<List<com.mosque.prayerclock.utils.PermissionsHelper.PermissionStatus>>(emptyList()) }
-    var isExpanded by remember { mutableStateOf(false) }
-
-    // Permission launcher for runtime permissions
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-        ) { isGranted ->
-            // Refresh permissions list after permission result
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-            if (isGranted) {
-                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    // Overlay permission launcher
-    val overlayPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) {
-            // Refresh permissions list after returning from settings
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-        }
-
-    // Install packages permission launcher
-    val installPackagesLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) {
-            // Refresh permissions list after returning from settings
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-        }
-
-    // Default launcher permission launcher
-    val defaultLauncherLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) {
-            // Refresh permissions list after returning from settings
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-        }
-
-    // Battery optimization launcher
-    val batteryOptimizationLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) {
-            // Refresh permissions list after returning from settings
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-        }
-
-    // Load permissions on first composition
-    LaunchedEffect(Unit) {
-        permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-    }
-
-    // Refresh permissions when expanded
-    LaunchedEffect(isExpanded) {
-        if (isExpanded) {
-            permissionsList = com.mosque.prayerclock.utils.PermissionsHelper.getAllPermissionStatuses(context)
-        }
-    }
-
-    val grantedCount = permissionsList.count { it.isGranted }
-    val totalCount = permissionsList.size
-    val allGranted = grantedCount == totalCount
-
-    SettingsCard {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            // Header with expand/collapse
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .tvFocusHighlight().clickable { isExpanded = !isExpanded },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = if (allGranted) "✅" else "⚠️",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(end = 12.dp),
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "App Permissions",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = "$grantedCount of $totalCount permissions granted",
-                        style = MaterialTheme.typography.bodySmall,
-                        color =
-                            if (allGranted) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            },
-                    )
-                }
-                Text(
-                    text = if (isExpanded) "▼" else "▶",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                )
-            }
-
-            // Expandable permission list
-            if (isExpanded) {
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                permissionsList.forEach { permission ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            CardDefaults.cardColors(
-                                containerColor =
-                                    if (permission.isGranted) {
-                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                                    } else {
-                                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
-                                    },
-                            ),
-                    ) {
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .tvFocusHighlight().clickable {
-                                        // Only allow clicking if permission is not granted
-                                        if (!permission.isGranted) {
-                                            when (permission.permissionType) {
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.RUNTIME -> {
-                                                    // Request runtime permission directly
-                                                    permission.permissionName?.let {
-                                                        permissionLauncher.launch(it)
-                                                    }
-                                                }
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.OVERLAY -> {
-                                                    // Request overlay permission
-                                                    permission.settingsIntent?.let {
-                                                        overlayPermissionLauncher.launch(it)
-                                                    }
-                                                }
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.INSTALL_PACKAGES -> {
-                                                    // Request install packages permission
-                                                    permission.settingsIntent?.let {
-                                                        installPackagesLauncher.launch(it)
-                                                    }
-                                                }
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.DEFAULT_LAUNCHER -> {
-                                                    // Request default launcher
-                                                    permission.settingsIntent?.let {
-                                                        defaultLauncherLauncher.launch(it)
-                                                    }
-                                                }
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.BATTERY_OPTIMIZATION -> {
-                                                    // Request battery optimization
-                                                    permission.settingsIntent?.let {
-                                                        batteryOptimizationLauncher.launch(it)
-                                                    }
-                                                }
-                                                com.mosque.prayerclock.utils.PermissionsHelper.PermissionType.SYSTEM_SETTINGS -> {
-                                                    // Open system settings
-                                                    permission.settingsIntent?.let {
-                                                        com.mosque.prayerclock.utils.PermissionsHelper.openPermissionSettings(
-                                                            context,
-                                                            it,
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }.padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = if (permission.isGranted) "✓" else if (permission.isRequired) "✗" else "○",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color =
-                                            if (permission.isGranted) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else if (permission.isRequired) {
-                                                MaterialTheme.colorScheme.error
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                                            },
-                                        modifier = Modifier.padding(end = 8.dp),
-                                    )
-                                    Text(
-                                        text = permission.name,
-                                        style =
-                                            MaterialTheme.typography.bodyMedium.copy(
-                                                fontWeight = FontWeight.SemiBold,
-                                            ),
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                    if (permission.isRequired) {
-                                        Text(
-                                            text = " *",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.error,
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = permission.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                )
-                            }
-                            if (!permission.isGranted) {
-                                Text(
-                                    text = "→",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Legend
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "* Required permissions    ✓ Granted    ✗ Not granted    ○ Optional",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                )
-            }
-        }
-    }
-}
-
-@Composable
 internal fun SystemSettingsAccess() {
     val context = LocalContext.current
     var showAppPicker by remember { mutableStateOf(false) }
@@ -3597,12 +3351,12 @@ private fun DataManagementSettings(
                 )
                 Column {
                     Text(
-                        text = "Data Management",
+                        text = "Data tersimpan",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "Manage cached prayer times and hijri dates",
+                        text = "Jadwal shalat, tanggal Hijriah, dan cuaca yang disimpan di TV agar tetap jalan tanpa internet",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     )
@@ -3630,7 +3384,7 @@ private fun DataManagementSettings(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = "Prayer Times Cached:",
+                                text = "Jadwal shalat tersimpan:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
@@ -3646,7 +3400,7 @@ private fun DataManagementSettings(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = "Hijri Dates Cached:",
+                                text = "Tanggal Hijriah tersimpan:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
@@ -3699,15 +3453,15 @@ private fun DataManagementSettings(
                             modifier = Modifier.size(20.dp).padding(end = 8.dp),
                             strokeWidth = 2.dp,
                         )
-                        Text("Clearing cache...")
+                        Text("Menghapus…")
                     } else {
-                        Text("🗑️ Clear All Cached Data")
+                        Text("🗑️ Hapus semua data tersimpan")
                     }
                 }
             }
 
             Text(
-                text = "⚠️ This will clear all cached prayer times and hijri dates. Data will be re-fetched from your selected sources when needed.",
+                text = "⚠️ Jadwal shalat dan tanggal Hijriah tersimpan akan dihapus, lalu diambil ulang dari sumber jadwal saat dibutuhkan.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
@@ -3737,14 +3491,14 @@ private fun DataManagementSettings(
                             modifier = Modifier.padding(end = 12.dp),
                         )
                         Text(
-                            text = "Clear All Cached Data?",
+                            text = "Hapus semua data tersimpan?",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
 
                     Text(
-                        text = "This will delete all cached prayer times and hijri dates. The app will need to fetch fresh data from your configured sources.",
+                        text = "Jadwal shalat dan tanggal Hijriah tersimpan akan dihapus. Aplikasi akan mengambil data baru dari sumber jadwal.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                     )
@@ -3765,7 +3519,7 @@ private fun DataManagementSettings(
                             onClick = { showConfirmDialog = false },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Cancel")
+                            Text("Batal")
                         }
 
                         Button(
@@ -3799,7 +3553,7 @@ private fun DataManagementSettings(
                                     containerColor = MaterialTheme.colorScheme.error,
                                 ),
                         ) {
-                            Text("Clear")
+                            Text("Hapus")
                         }
                     }
                 }
@@ -4061,7 +3815,7 @@ internal fun AboutSettings(
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text =
-                                                    "To install updates, you need to grant install permission for this app.",
+                                                    "Untuk memasang pembaruan, izinkan SIWAK memasang aplikasi.",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                             )
@@ -4092,7 +3846,7 @@ internal fun AboutSettings(
                                             Toast
                                                 .makeText(
                                                     context,
-                                                    "Please allow installing from this source to update the app",
+                                                    "Izinkan pemasangan dari sumber ini agar SIWAK bisa diperbarui",
                                                     Toast.LENGTH_LONG,
                                                 ).show()
                                             return@Button
@@ -4282,6 +4036,7 @@ private fun AzanSoundSettings(
     onAzanSoundEnabledChange: (Boolean) -> Unit,
     onAzanSoundTypeChange: (SoundType) -> Unit,
     onAzanSoundUriChange: (String) -> Unit,
+    onTest: () -> Unit = {},
 ) {
     val context = LocalContext.current
     
@@ -4368,6 +4123,8 @@ private fun AzanSoundSettings(
                 Switch(checked = azanSoundEnabled, onCheckedChange = onAzanSoundEnabledChange)
             }
 
+            OutlinedButton(onClick = onTest) { Text("Tes suara adzan") }
+
             // Sound type selection (only shown when enabled)
             if (azanSoundEnabled) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4451,7 +4208,7 @@ private fun AzanSoundSettings(
                                             color = MaterialTheme.colorScheme.error,
                                         )
                                         Text(
-                                            text = "Please re-select the audio file",
+                                            text = "Pilih ulang file audionya",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                                         )
@@ -4515,6 +4272,7 @@ private fun IqamahSoundSettings(
     onIqamahSoundEnabledChange: (Boolean) -> Unit,
     onIqamahSoundTypeChange: (SoundType) -> Unit,
     onIqamahSoundUriChange: (String) -> Unit,
+    onTest: () -> Unit = {},
 ) {
     val context = LocalContext.current
     
@@ -4601,6 +4359,8 @@ private fun IqamahSoundSettings(
                 Switch(checked = iqamahSoundEnabled, onCheckedChange = onIqamahSoundEnabledChange)
             }
 
+            OutlinedButton(onClick = onTest) { Text("Tes suara iqamah") }
+
             // Sound type selection (only shown when enabled)
             if (iqamahSoundEnabled) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4684,7 +4444,7 @@ private fun IqamahSoundSettings(
                                             color = MaterialTheme.colorScheme.error,
                                         )
                                         Text(
-                                            text = "Please re-select the audio file",
+                                            text = "Pilih ulang file audionya",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                                         )
@@ -4721,19 +4481,19 @@ private fun ConnectServerCard(onConnectServer: () -> Unit) {
                 )
                 Column {
                     Text(
-                        text = "Hubungkan ke server SIWAK",
+                        text = "Hubungkan ke website SIWAK",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "Atur jadwal, suara, tampilan, dan teks berjalan dari HP lewat admin web. Pengurus juga bisa memantau dan membuka SIWAK dari jauh.",
+                        text = "Atur jadwal, suara, tampilan, pengumuman, slide, dan hadits dari HP lewat siwak.alfianys.id. Pengurus juga bisa memantau dan membuka SIWAK dari jauh.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     )
                 }
             }
             Button(onClick = onConnectServer, modifier = Modifier.fillMaxWidth()) {
-                Text("Hubungkan ke server")
+                Text("Hubungkan ke website SIWAK")
             }
         }
     }

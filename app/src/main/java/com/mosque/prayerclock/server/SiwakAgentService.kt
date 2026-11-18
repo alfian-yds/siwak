@@ -87,13 +87,13 @@ class SiwakAgentService : Service() {
 
     private fun buildNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "SIWAK terhubung ke server", NotificationManager.IMPORTANCE_MIN)
+            val channel = NotificationChannel(CHANNEL_ID, "SIWAK terhubung ke website", NotificationManager.IMPORTANCE_MIN)
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
         return NotificationCompat
             .Builder(this, CHANNEL_ID)
             .setContentTitle("SIWAK")
-            .setContentText("Terhubung ke server SIWAK")
+            .setContentText("Terhubung ke website SIWAK")
             .setSmallIcon(android.R.drawable.stat_notify_sync)
             .setSilent(true)
             .setOngoing(true)

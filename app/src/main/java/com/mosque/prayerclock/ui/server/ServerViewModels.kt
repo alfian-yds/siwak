@@ -126,9 +126,9 @@ class PairingViewModel
             baseUrl: String,
         ): String =
             when (res) {
-                is ApiResult.NetworkError -> "Tidak bisa menghubungi $baseUrl. Periksa internet TV dan alamat server."
+                is ApiResult.NetworkError -> "Tidak bisa menghubungi $baseUrl. Periksa internet TV dan alamat website."
                 is ApiResult.HttpError -> res.message ?: "Server menolak permintaan (${res.status})."
-                else -> "Jawaban server tidak dikenali."
+                else -> "Jawaban website SIWAK tidak dikenali."
             }
 
         private fun randomNonce(): String {
@@ -181,7 +181,7 @@ class ConnectedSettingsViewModel
             val hash = s.pinHash
             if (salt == null || hash == null) {
                 // PIN belum diterima dari server (sinkron pertama belum selesai).
-                _pinMessage.value = "PIN belum diterima dari server. Tunggu sinkron atau periksa internet TV."
+                _pinMessage.value = "PIN belum diterima. Tunggu sebentar atau periksa internet TV."
                 return
             }
             if (sha256Hex(salt + pin).equals(hash, ignoreCase = true)) {
