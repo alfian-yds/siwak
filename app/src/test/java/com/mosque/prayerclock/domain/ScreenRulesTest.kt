@@ -135,7 +135,21 @@ class ScreenRulesTest {
     @Test fun satuSlideTetapBergantiDenganHadits() {
         // Bug rc.2: dengan satu slide, hadits tidak pernah disisipkan sehingga panel macet di gambar.
         val list = SlidePlaylist.build(listOf(SlideDto("s", "img", 20, null, null, null)), listOf(c("img", "image")), 0, 600, listOf(c("h1", "hadith"), c("h2", "hadith")), autoSeconds = 15)
-        assertEquals(listOf("img", "h1"), list.map { it.content.id })
+        // Satu slide: hadits disisipkan tiap slide, dan slide diulang sampai semua hadits kebagian.
+        assertEquals(listOf("img", "h1", "img", "h2"), list.map { it.content.id })
         assertEquals(15, list[1].durationSec)
+    }
+
+    @Test fun semuaHaditsKebagianTampilDanUrutannyaBergantiTiapHari() {
+        val slides = listOf("a", "b", "c").map { SlideDto("s$it", it, null, null, null, null) }
+        val content = listOf("a", "b", "c").map { c(it) }
+        val hadits = (1..12).map { c("h$it", "hadith") }
+        val day1 = SlidePlaylist.build(slides, content, 0, 600, hadits, shuffleSeed = 20_000L)
+        val shown1 = day1.filter { it.auto }.map { it.content.id }
+        assertEquals(hadits.map { it.id }.toSet(), shown1.toSet()) // semua 12 hadits tampil, tidak berulang
+        assertEquals(12, shown1.size)
+        assertEquals(shown1, SlidePlaylist.build(slides, content, 0, 600, hadits, shuffleSeed = 20_000L).filter { it.auto }.map { it.content.id })
+        val shown2 = SlidePlaylist.build(slides, content, 0, 600, hadits, shuffleSeed = 20_001L).filter { it.auto }.map { it.content.id }
+        assertTrue(shown1 != shown2) // hari berikutnya urutannya lain
     }
 }

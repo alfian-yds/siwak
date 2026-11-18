@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,12 +39,15 @@ private val BannerSolid = Color(0xFFA83A2C)
  * (menutupi teks berjalan),
  * label "PENGUMUMAN" di kiri, teks maks. 2 baris. Masuk geser naik 300 ms, keluar pudar 300 ms.
  */
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun AnnouncementBanner(
-    announcement: AnnouncementDto?,
+    announcements: List<AnnouncementDto>,
     modifier: Modifier = Modifier,
 ) {
+    // rc.5: beberapa pengumuman ditampilkan bergiliran; berganti hanya setelah teks selesai bergulir
+    // satu putaran penuh, agar setiap pengumuman terbaca utuh.
+    var index by remember { mutableStateOf(0) }
+    val announcement = if (announcements.isEmpty()) null else announcements[index % announcements.size]
     // Teks terakhir tetap tampil selama banner memudar keluar.
     var last by remember { mutableStateOf(announcement) }
     if (announcement != null) last = announcement
@@ -75,13 +77,11 @@ fun AnnouncementBanner(
                 maxLines = 1,
             )
             Crossfade(targetState = last, animationSpec = tween(300), label = "pengumuman", modifier = Modifier.weight(1f)) { a ->
-                Text(
-                    a?.text.orEmpty(),
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                com.mosque.prayerclock.ui.components.SiwakMarquee(
+                    text = a?.text.orEmpty(),
+                    style = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
+                    modifier = Modifier.fillMaxWidth(),
+                    onCycle = { if (announcements.size > 1) index = (index + 1) % announcements.size },
                 )
             }
         }

@@ -161,6 +161,10 @@ class ServerSyncManager
                         store.removePendingResults(pending.map { it.id }.toSet())
                         store.markContact(res.data.minAppVersion)
                         val hb = res.data
+                        // Selisih jam TV terhadap server, dipakai untuk masa tayang pengumuman (jam TV box sering meleset).
+                        hb.serverTime?.let { st ->
+                            runCatching { kotlinx.datetime.Instant.parse(st).toEpochMilliseconds() }.getOrNull()?.let { ServerClock.offsetMs = it - System.currentTimeMillis() }
+                        }
                         val bundleChanged =
                             force || hb.configVersion != state.configVersion || hb.contentVersion != state.contentVersion
                         var error: String? = null
@@ -346,3 +350,11 @@ class ServerSyncManager
             becomeStandalone()
         }
     }
+
+/** Selisih jam server terhadap jam TV (ms), diperbarui setiap heartbeat berhasil. 0 sebelum heartbeat pertama. */
+object ServerClock {
+    @Volatile var offsetMs: Long = 0L
+
+    /** Waktu sekarang menurut jam server (perkiraan). */
+    fun nowMs(localMs: Long = System.currentTimeMillis()): Long = localMs + offsetMs
+}

@@ -132,6 +132,8 @@ object SlidePlaylist {
         minutes: Int,
         autoHadiths: List<ContentDto>,
         autoSeconds: Int = DEFAULT_SECONDS,
+        /** Benih acak urutan hadits otomatis (mis. nomor hari): urutan berganti tiap hari, tetap dalam sehari. */
+        shuffleSeed: Long? = null,
     ): List<PlaylistItem> {
         val byId = content.associateBy { it.id }
         val scheduled =
@@ -146,19 +148,23 @@ object SlidePlaylist {
             scheduled.addAll(jumat + rest)
         }
         val slideIds = scheduled.map { it.content.id }.toSet()
-        val autos = autoHadiths.filter { it.id !in slideIds }.map { PlaylistItem(it, autoSeconds.coerceIn(10, 60), auto = true) }
+        val pool = autoHadiths.filter { it.id !in slideIds }
+        val ordered = if (shuffleSeed != null) pool.shuffled(kotlin.random.Random(shuffleSeed)) else pool
+        val autos = ordered.map { PlaylistItem(it, autoSeconds.coerceIn(10, 60), auto = true) }
         if (scheduled.isEmpty()) return autos
         if (autos.isEmpty()) return scheduled
 
-        // Hadits otomatis disisipkan setiap 2 slide.
+        // Hadits otomatis disisipkan setiap 2 slide (tiap slide bila slide hanya satu). Urutan slide diulang
+        // sampai semua hadits kebagian tampil, agar tidak hanya hadits pertama-kedua yang terus muncul.
+        val every = if (scheduled.size >= 2) 2 else 1
         val out = mutableListOf<PlaylistItem>()
         var a = 0
-        scheduled.forEachIndexed { i, item ->
-            out += item
-            // Hadits disisipkan tiap 2 slide; bila slide hanya satu, tiap slide (agar panel tetap berganti).
-            val every = if (scheduled.size >= 2) 2 else 1
-            if ((i + 1) % every == 0) out += autos[a++ % autos.size]
-        }
+        do {
+            scheduled.forEachIndexed { i, item ->
+                out += item
+                if ((i + 1) % every == 0 && a < autos.size) out += autos[a++]
+            }
+        } while (a < autos.size)
         return out
     }
 

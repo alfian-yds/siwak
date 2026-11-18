@@ -14,7 +14,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -541,6 +540,8 @@ fun MainLayout(
                 nowMinutes,
                 serverContent.hadiths,
                 settings.contentSlideSeconds,
+                // Urutan hadits otomatis diacak per hari (tetap selama sehari agar semua kebagian tampil).
+                shuffleSeed = localNow.date.toEpochDays().toLong(),
             )
         }
 
@@ -873,8 +874,8 @@ fun MainLayout(
             paired &&
                 com.mosque.prayerclock.domain.AnnouncementRules.visibleOn(decision.screen) &&
                 com.mosque.prayerclock.domain.AnnouncementRules.current(
-                    com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, nowMs),
-                    nowMs,
+                    com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, com.mosque.prayerclock.server.ServerClock.nowMs(nowMs)),
+                    com.mosque.prayerclock.server.ServerClock.nowMs(nowMs),
                 ) != null
         val fullscreenBottomInset = if (announcementShowing) 72.dp else 36.dp
         androidx.compose.animation.AnimatedVisibility(
@@ -934,14 +935,10 @@ fun MainLayout(
         // SIWAK V2: banner pengumuman segera, lapisan paling atas (tidak ikut redup malam) untuk
         // prioritas 4–6; disembunyikan saat shalat, hitung mundur iqamah, dan Jumat (App Flow §3.2).
         val activeAnnouncements =
-            if (paired) com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, nowMs) else emptyList()
+            if (paired) com.mosque.prayerclock.domain.AnnouncementRules.active(serverContent.announcements, com.mosque.prayerclock.server.ServerClock.nowMs(nowMs)) else emptyList()
         com.mosque.prayerclock.ui.announcement.AnnouncementBanner(
-            announcement =
-                if (com.mosque.prayerclock.domain.AnnouncementRules.visibleOn(decision.screen)) {
-                    com.mosque.prayerclock.domain.AnnouncementRules.current(activeAnnouncements, nowMs)
-                } else {
-                    null
-                },
+            announcements =
+                if (com.mosque.prayerclock.domain.AnnouncementRules.visibleOn(decision.screen)) activeAnnouncements else emptyList(),
             // rc.3: banner menempel di bawah, menutupi teks berjalan agar tampilan tetap rapi.
             modifier = Modifier.align(Alignment.BottomCenter),
         )
@@ -993,13 +990,16 @@ private fun RunningTextBar(messages: List<String>) {
                 )
                 .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
-        Text(
+        // rc.5: selalu bergulir walau teksnya pendek.
+        com.mosque.prayerclock.ui.components.SiwakMarquee(
             text = joined,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-            maxLines = 1,
-            modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+            style =
+                androidx.compose.ui.text.TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 18.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                ),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
