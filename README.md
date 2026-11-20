@@ -9,6 +9,7 @@ TV bisa dipakai **mandiri** (semua diatur dengan remote, tanpa akun) atau **dihu
 (<https://siwak.alfianys.id>) agar pengurus bisa mengatur isi layar dari HP dan memantau setiap TV dari jauh.
 
 **[⬇ Unduh APK terbaru](https://github.com/alfian-yds/siwak/releases/latest)** ·
+**[▶ Coba demo layar TV](https://siwak.alfianys.id/demo)** ·
 **[Buku panduan (PDF)](https://siwak.alfianys.id/panduan.pdf)** ·
 [Panduan online](https://siwak.alfianys.id/panduan) ·
 [Server & website](https://github.com/alfian-yds/siwak-server)
