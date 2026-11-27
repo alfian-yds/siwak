@@ -152,6 +152,20 @@
     <string name="night_start">Jam mulai</string>
     <string name="night_end">Jam selesai</string>
     <string name="night_dim_level">Tingkat redup</string>
+    <string name="dim_days_title">Redup pada hari tertentu</string>
+    <string name="dim_days_desc">Redupkan layar sepanjang hari, misalnya akhir pekan atau tanggal merah, agar hemat listrik dan layar lebih awet.</string>
+    <string name="dim_days_weekly">Setiap pekan</string>
+    <string name="dim_days_holidays">Hari libur nasional (tanggal merah)</string>
+    <string name="dim_days_cuti">Cuti bersama</string>
+    <string name="dim_days_brighten">Tetap terang saat waktu shalat</string>
+    <string name="dim_days_brighten_desc">Layar terang saat hitung mundur adzan, iqamah, dan layar shalat, lalu redup lagi.</string>
+    <string name="day_short_mon">Sen</string>
+    <string name="day_short_tue">Sel</string>
+    <string name="day_short_wed">Rab</string>
+    <string name="day_short_thu">Kam</string>
+    <string name="day_short_fri">Jum</string>
+    <string name="day_short_sat">Sab</string>
+    <string name="day_short_sun">Ahad</string>
 
     <!-- Override menu sistem (aslinya translatable=false) -->
     <string name="both_clocks">Keduanya</string>

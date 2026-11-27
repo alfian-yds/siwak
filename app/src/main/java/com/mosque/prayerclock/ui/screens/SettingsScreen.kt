@@ -327,6 +327,21 @@ fun SettingsScreen(
                         onStartHourChange = viewModel::updateNightStartHour,
                         onEndHourChange = viewModel::updateNightEndHour,
                         onDimLevelChange = viewModel::updateNightDimLevel,
+                        showDimLevel = settings.nightModeEnabled || settings.dimDaysEnabled,
+                    )
+                }
+                item {
+                    DimDaysSettings(
+                        enabled = settings.dimDaysEnabled,
+                        weekdays = com.mosque.prayerclock.domain.DimDays.parseWeekdays(settings.dimWeekdays),
+                        nationalHolidays = settings.dimNationalHolidays,
+                        cutiBersama = settings.dimCutiBersama,
+                        brightenForPrayer = settings.dimBrightenForPrayer,
+                        onEnabledChange = viewModel::updateDimDaysEnabled,
+                        onWeekdaysChange = viewModel::updateDimWeekdays,
+                        onNationalHolidaysChange = viewModel::updateDimNationalHolidays,
+                        onCutiBersamaChange = viewModel::updateDimCutiBersama,
+                        onBrightenForPrayerChange = viewModel::updateDimBrightenForPrayer,
                     )
                 }
                 item {
@@ -2790,6 +2805,7 @@ private fun NightModeSettings(
     onStartHourChange: (Int) -> Unit,
     onEndHourChange: (Int) -> Unit,
     onDimLevelChange: (Int) -> Unit,
+    showDimLevel: Boolean = enabled,
 ) {
     SettingsCard {
         Column {
@@ -2818,6 +2834,8 @@ private fun NightModeSettings(
             if (enabled) {
                 NightHourRow(stringResource(R.string.night_start), startHour, onStartHourChange)
                 NightHourRow(stringResource(R.string.night_end), endHour, onEndHourChange)
+            }
+            if (showDimLevel) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -2840,6 +2858,97 @@ private fun NightModeSettings(
                 }
             }
         }
+    }
+}
+
+// SIWAK 2.1: redup sepanjang hari pada hari tertentu (akhir pekan, tanggal merah).
+@Composable
+private fun DimDaysSettings(
+    enabled: Boolean,
+    weekdays: Set<Int>,
+    nationalHolidays: Boolean,
+    cutiBersama: Boolean,
+    brightenForPrayer: Boolean,
+    onEnabledChange: (Boolean) -> Unit,
+    onWeekdaysChange: (Set<Int>) -> Unit,
+    onNationalHolidaysChange: (Boolean) -> Unit,
+    onCutiBersamaChange: (Boolean) -> Unit,
+    onBrightenForPrayerChange: (Boolean) -> Unit,
+) {
+    val dayNames =
+        listOf(
+            1 to R.string.day_short_mon,
+            2 to R.string.day_short_tue,
+            3 to R.string.day_short_wed,
+            4 to R.string.day_short_thu,
+            5 to R.string.day_short_fri,
+            6 to R.string.day_short_sat,
+            7 to R.string.day_short_sun,
+        )
+    SettingsCard {
+        Column {
+            DimSwitchRow(
+                title = stringResource(R.string.dim_days_title),
+                desc = stringResource(R.string.dim_days_desc),
+                checked = enabled,
+                onChange = onEnabledChange,
+                emoji = "📅",
+            )
+            if (enabled) {
+                Text(
+                    text = stringResource(R.string.dim_days_weekly),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    dayNames.forEach { (day, label) ->
+                        val selected = day in weekdays
+                        OutlinedButton(
+                            onClick = { onWeekdaysChange(if (selected) weekdays - day else weekdays + day) },
+                            colors =
+                                androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (selected) MaterialTheme.colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent,
+                                    contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                ),
+                        ) { Text(stringResource(label)) }
+                    }
+                }
+                DimSwitchRow(stringResource(R.string.dim_days_holidays), null, nationalHolidays, onNationalHolidaysChange)
+                DimSwitchRow(stringResource(R.string.dim_days_cuti), null, cutiBersama, onCutiBersamaChange)
+                DimSwitchRow(stringResource(R.string.dim_days_brighten), stringResource(R.string.dim_days_brighten_desc), brightenForPrayer, onBrightenForPrayerChange)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DimSwitchRow(
+    title: String,
+    desc: String?,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+    emoji: String? = null,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+            if (emoji != null) Text(text = emoji, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(end = 12.dp))
+            Column {
+                Text(
+                    text = title,
+                    style = if (emoji != null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (desc != null) {
+                    Text(text = desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                }
+            }
+        }
+        Switch(checked = checked, onCheckedChange = onChange)
     }
 }
 

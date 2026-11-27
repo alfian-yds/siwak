@@ -564,11 +564,24 @@ fun MainLayout(
     val mutiaraDue =
         contentOn && settings.mutiaraHaditsEnabled && contentPool.isNotEmpty() &&
             (mutiaraUntil > nowMs || nowMs - mutiaraLastEnd >= settings.mutiaraEveryMinutes * 60_000L)
+    // Redup sepanjang hari (2.1): hari dalam pekan, tanggal merah, dan tanggal tambahan.
+    val serverHolidays = remember(settings.dimServerHolidays) { com.mosque.prayerclock.domain.DimDays.parseServer(settings.dimServerHolidays) }
+    val dimDay =
+        settings.dimDaysEnabled &&
+            com.mosque.prayerclock.domain.DimDays.isDimDay(
+                date = localNow.date.toString(),
+                isoDayOfWeek = localNow.dayOfWeek.ordinal + 1, // kotlinx: MONDAY = 0 … SUNDAY = 6
+                weekdays = com.mosque.prayerclock.domain.DimDays.parseWeekdays(settings.dimWeekdays),
+                nationalHolidays = settings.dimNationalHolidays,
+                cutiBersama = settings.dimCutiBersama,
+                extraDates = settings.dimExtraDates.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+                serverHolidays = serverHolidays,
+            )
     val nightHours =
-        settings.nightModeEnabled && isWithinNightHours(localNow.hour, settings.nightStartHour, settings.nightEndHour)
+        dimDay || (settings.nightModeEnabled && isWithinNightHours(localNow.hour, settings.nightStartHour, settings.nightEndHour))
     val secondsUntilPriority =
         successState?.let { s ->
-            val next = createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer }
+            val next = nextPrayerInfoOf(s, globalCurrentTime)
             com.mosque.prayerclock.domain.Periods.minutes(next?.azanTime)?.let { azan ->
                 val lead = if (settings.fullScreenCountdownEnabled) settings.fullScreenCountdownMinutes else 0
                 var diff = (azan - lead) * 60L - (nowMinutes * 60L + localNow.second)
@@ -586,6 +599,7 @@ fun MainLayout(
                 mutiaraDue = mutiaraDue,
                 secondsUntilPriorityScreen = secondsUntilPriority,
                 nightHours = nightHours,
+                dimAllScreens = dimDay && !settings.dimBrightenForPrayer,
             ),
         )
     val showMutiara = decision.screen == com.mosque.prayerclock.domain.TvScreen.MUTIARA_HADITS
@@ -656,18 +670,45 @@ fun MainLayout(
                             thinBorder = true,
                         )
                         // Waktu shalat berikutnya, selebar kolom.
-                        val nextInfo = createPrayerInfoList(successState.prayerTimes, globalCurrentTime).find { it.type == successState.nextPrayer }
-                        val remainingText =
+                        // Antara adzan dan iqamah: hitung mundur ke iqamah; setelahnya (layar shalat/Jumat): berlangsung.
+                        val nextInfo = nextPrayerInfoOf(successState, globalCurrentTime)
+                        val m = com.mosque.prayerclock.domain.Periods::minutes
+                        val label =
                             nextInfo?.let { info ->
-                                com.mosque.prayerclock.domain.Periods.minutes(info.azanTime)?.let { azan ->
-                                    val left = ((azan - nowMinutes) % 1440 + 1440) % 1440
-                                    if (left >= 60) "${left / 60} jam ${left % 60} menit lagi" else "$left menit lagi"
+                                m(info.azanTime)?.let { azan ->
+                                    com.mosque.prayerclock.domain.NextPrayerRule.label(
+                                        azan = azan,
+                                        iqamah = m(info.iqamahTime),
+                                        now = nowMinutes,
+                                        prayerScreenMinutes = settings.duaDisplayDurationMinutes,
+                                        jummahMinutes =
+                                            settings.jummahDurationMinutes.takeIf {
+                                                info.type == PrayerType.DHUHR && localNow.dayOfWeek == DayOfWeek.FRIDAY
+                                            },
+                                    )
                                 }
                             }
+                        val phase = label?.phase ?: com.mosque.prayerclock.domain.NextPrayerRule.Phase.ADZAN
+                        val left = label?.minutesLeft
                         com.mosque.prayerclock.ui.components.GalleryNextPrayerCard(
-                            title = nextInfo?.let { "Adzan ${it.name}" } ?: "Waktu shalat",
-                            time = nextInfo?.azanTime ?: "--:--",
-                            remaining = remainingText,
+                            title =
+                                nextInfo?.let {
+                                    when (phase) {
+                                        com.mosque.prayerclock.domain.NextPrayerRule.Phase.ADZAN -> "Adzan ${it.name}"
+                                        com.mosque.prayerclock.domain.NextPrayerRule.Phase.IQAMAH -> "Iqamah ${it.name}"
+                                        com.mosque.prayerclock.domain.NextPrayerRule.Phase.BERLANGSUNG -> it.name
+                                    }
+                                } ?: "Waktu shalat",
+                            time =
+                                (if (phase == com.mosque.prayerclock.domain.NextPrayerRule.Phase.IQAMAH) nextInfo?.iqamahTime else nextInfo?.azanTime)
+                                    ?: "--:--",
+                            remaining =
+                                when {
+                                    phase == com.mosque.prayerclock.domain.NextPrayerRule.Phase.BERLANGSUNG -> "Sedang berlangsung"
+                                    left == null -> null
+                                    left >= 60 -> "${left / 60} jam ${left % 60} menit lagi"
+                                    else -> "$left menit lagi"
+                                },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
@@ -885,7 +926,7 @@ fun MainLayout(
         ) {
             val item = remember(mutiaraIndex) { fullscreenItem }
             if (item != null) {
-                val next = successState?.let { s -> createPrayerInfoList(s.prayerTimes, globalCurrentTime).find { it.type == s.nextPrayer } }
+                val next = successState?.let { s -> nextPrayerInfoOf(s, globalCurrentTime) }
                 val clockText = "%02d:%02d".format(localNow.hour, localNow.minute)
                 val nextText = next?.let { "${it.name} ${it.azanTime}" }
                 if (item.content.type == "hadith") {
@@ -1230,6 +1271,18 @@ fun AnimatedPrayerTimesSection(
         }
     }
 }
+
+/** Waktu shalat berikutnya; setelah Isya memakai jadwal Subuh besok bila sudah tersedia. */
+@Composable
+private fun nextPrayerInfoOf(
+    s: MainUiState.Success,
+    now: Instant,
+): PrayerInfo? =
+    if (s.nextPrayer == PrayerType.FAJR && s.nextDayFajr != null) {
+        createPrayerInfoList(s.nextDayFajr, now).find { it.type == PrayerType.FAJR }
+    } else {
+        createPrayerInfoList(s.prayerTimes, now).find { it.type == s.nextPrayer }
+    }
 
 @Composable
 private fun createPrayerInfoList(

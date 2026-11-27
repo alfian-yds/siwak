@@ -63,6 +63,8 @@ TV bisa dipakai **mandiri** (semua diatur dengan remote, tanpa akun) atau **dihu
 - **Hadits otomatis** dari kumpulan hadits terverifikasi, diacak setiap hari, atau hadits milik masjid sendiri.
 - Dua cara tampil: **di samping jam** dan **sesekali satu layar penuh**, dengan gambar masjid di latar slide.
 - **10 tema warna**, logo dan gambar latar sendiri, jam 12/24 jam, **cuaca**, dan **mode malam** yang meredupkan layar.
+- **Redup pada hari tertentu:** akhir pekan, tanggal merah dan cuti bersama (SKB 3 Menteri), atau tanggal pilihan, dengan
+  pilihan tetap terang saat waktu shalat. Cocok untuk musholla yang sepi pada hari libur.
 
 ### 🌐 Terhubung ke website
 - **Semua diatur dari HP:** jadwal, suara, tampilan, teks berjalan, slide, dan hadits. Perubahan sampai ke TV paling lama 1 menit.

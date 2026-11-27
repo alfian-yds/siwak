@@ -94,6 +94,13 @@ class SettingsRepository
             val NIGHT_START_HOUR = intPreferencesKey("night_start_hour")
             val NIGHT_END_HOUR = intPreferencesKey("night_end_hour")
             val NIGHT_DIM_LEVEL = intPreferencesKey("night_dim_level")
+            val DIM_DAYS_ENABLED = booleanPreferencesKey("dim_days_enabled")
+            val DIM_WEEKDAYS = stringPreferencesKey("dim_weekdays")
+            val DIM_NATIONAL_HOLIDAYS = booleanPreferencesKey("dim_national_holidays")
+            val DIM_CUTI_BERSAMA = booleanPreferencesKey("dim_cuti_bersama")
+            val DIM_EXTRA_DATES = stringPreferencesKey("dim_extra_dates")
+            val DIM_BRIGHTEN_FOR_PRAYER = booleanPreferencesKey("dim_brighten_for_prayer")
+            val DIM_SERVER_HOLIDAYS = stringPreferencesKey("dim_server_holidays")
             val MOSQUE_LOGO_URI = stringPreferencesKey("mosque_logo_uri")
             val BACKGROUND_MAIN_URI = stringPreferencesKey("background_main_uri")
             val BACKGROUND_PRAYER_URI = stringPreferencesKey("background_prayer_uri")
@@ -234,6 +241,13 @@ class SettingsRepository
                     nightStartHour = preferences[PreferencesKeys.NIGHT_START_HOUR] ?: 22,
                     nightEndHour = preferences[PreferencesKeys.NIGHT_END_HOUR] ?: 4,
                     nightDimLevel = preferences[PreferencesKeys.NIGHT_DIM_LEVEL] ?: 85,
+                    dimDaysEnabled = preferences[PreferencesKeys.DIM_DAYS_ENABLED] ?: false,
+                    dimWeekdays = preferences[PreferencesKeys.DIM_WEEKDAYS] ?: "",
+                    dimNationalHolidays = preferences[PreferencesKeys.DIM_NATIONAL_HOLIDAYS] ?: true,
+                    dimCutiBersama = preferences[PreferencesKeys.DIM_CUTI_BERSAMA] ?: false,
+                    dimExtraDates = preferences[PreferencesKeys.DIM_EXTRA_DATES] ?: "",
+                    dimBrightenForPrayer = preferences[PreferencesKeys.DIM_BRIGHTEN_FOR_PRAYER] ?: true,
+                    dimServerHolidays = preferences[PreferencesKeys.DIM_SERVER_HOLIDAYS] ?: "",
                     mosqueLogoUri = preferences[PreferencesKeys.MOSQUE_LOGO_URI] ?: "",
                     backgroundMainUri = preferences[PreferencesKeys.BACKGROUND_MAIN_URI] ?: "",
                     backgroundPrayerUri = preferences[PreferencesKeys.BACKGROUND_PRAYER_URI] ?: "",
@@ -515,6 +529,26 @@ class SettingsRepository
             dataStore.edit { preferences -> preferences[PreferencesKeys.NIGHT_END_HOUR] = hour }
         }
 
+        suspend fun updateDimDaysEnabled(enabled: Boolean) {
+            dataStore.edit { it[PreferencesKeys.DIM_DAYS_ENABLED] = enabled }
+        }
+
+        suspend fun updateDimWeekdays(encoded: String) {
+            dataStore.edit { it[PreferencesKeys.DIM_WEEKDAYS] = encoded }
+        }
+
+        suspend fun updateDimNationalHolidays(enabled: Boolean) {
+            dataStore.edit { it[PreferencesKeys.DIM_NATIONAL_HOLIDAYS] = enabled }
+        }
+
+        suspend fun updateDimCutiBersama(enabled: Boolean) {
+            dataStore.edit { it[PreferencesKeys.DIM_CUTI_BERSAMA] = enabled }
+        }
+
+        suspend fun updateDimBrightenForPrayer(enabled: Boolean) {
+            dataStore.edit { it[PreferencesKeys.DIM_BRIGHTEN_FOR_PRAYER] = enabled }
+        }
+
         suspend fun updateNightDimLevel(level: Int) {
             dataStore.edit { preferences -> preferences[PreferencesKeys.NIGHT_DIM_LEVEL] = level }
         }
@@ -685,6 +719,13 @@ class SettingsRepository
                 p[PreferencesKeys.NIGHT_START_HOUR] = s.nightStartHour
                 p[PreferencesKeys.NIGHT_END_HOUR] = s.nightEndHour
                 p[PreferencesKeys.NIGHT_DIM_LEVEL] = s.nightDimLevel
+                p[PreferencesKeys.DIM_DAYS_ENABLED] = s.dimDaysEnabled
+                p[PreferencesKeys.DIM_WEEKDAYS] = s.dimWeekdays
+                p[PreferencesKeys.DIM_NATIONAL_HOLIDAYS] = s.dimNationalHolidays
+                p[PreferencesKeys.DIM_CUTI_BERSAMA] = s.dimCutiBersama
+                p[PreferencesKeys.DIM_EXTRA_DATES] = s.dimExtraDates
+                p[PreferencesKeys.DIM_BRIGHTEN_FOR_PRAYER] = s.dimBrightenForPrayer
+                p[PreferencesKeys.DIM_SERVER_HOLIDAYS] = s.dimServerHolidays
                 p[PreferencesKeys.SHOW_WEATHER] = s.showWeather
                 p[PreferencesKeys.RUNNING_TEXT_MESSAGES] = s.runningTextMessages
                 p[PreferencesKeys.MOSQUE_LOGO_URI] = s.mosqueLogoUri

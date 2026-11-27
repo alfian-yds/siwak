@@ -59,6 +59,7 @@ object BundleMapper {
         val disp = s?.display
         val clock = disp?.clock
         val night = disp?.nightMode
+        val dim = disp?.dimDays
         val media = disp?.media
         val adzanUri = snd?.adzan?.takeIf { it.type == "CUSTOM" }?.mediaId.let(mediaUri)
         val iqamahUri = snd?.iqamah?.takeIf { it.type == "CUSTOM" }?.mediaId.let(mediaUri)
@@ -152,6 +153,25 @@ object BundleMapper {
             nightStartHour = night?.startHour.inRange(0, 23, current.nightStartHour),
             nightEndHour = night?.endHour.inRange(0, 23, current.nightEndHour),
             nightDimLevel = night?.dimPercent.inRange(0, 100, current.nightDimLevel),
+            dimDaysEnabled = dim?.enabled ?: current.dimDaysEnabled,
+            dimWeekdays = dim?.weekdays?.let { w -> w.filter { it in 1..7 }.distinct().sorted().joinToString(",") } ?: current.dimWeekdays,
+            dimNationalHolidays = dim?.nationalHolidays ?: current.dimNationalHolidays,
+            dimCutiBersama = dim?.cutiBersama ?: current.dimCutiBersama,
+            dimExtraDates = dim?.extraDates?.let { d -> d.filter { DATE.matches(it) }.distinct().joinToString(",") } ?: current.dimExtraDates,
+            dimBrightenForPrayer = dim?.brightenForPrayer ?: current.dimBrightenForPrayer,
+            dimServerHolidays =
+                bundle.holidays?.let { list ->
+                    com.mosque.prayerclock.domain.DimDays.encode(
+                        list.mapNotNull { h ->
+                            val date = h.date?.takeIf { DATE.matches(it) } ?: return@mapNotNull null
+                            when (h.kind) {
+                                "LIBUR" -> date to com.mosque.prayerclock.domain.DimDays.Kind.LIBUR
+                                "CUTI" -> date to com.mosque.prayerclock.domain.DimDays.Kind.CUTI
+                                else -> null
+                            }
+                        },
+                    )
+                } ?: current.dimServerHolidays,
             showWeather = disp?.showWeather ?: current.showWeather,
             // Media dari server menggantikan pilihan lokal; kosong = memakai bawaan.
             mosqueLogoUri = if (disp != null) mediaUri(media?.logoId) ?: "" else current.mosqueLogoUri,

@@ -15,6 +15,7 @@ import com.mosque.prayerclock.data.repository.HijriDateRepository
 import com.mosque.prayerclock.data.repository.PrayerTimesRepository
 import com.mosque.prayerclock.data.repository.SettingsRepository
 import com.mosque.prayerclock.data.repository.WeatherRepository
+import com.mosque.prayerclock.domain.NextPrayerRule
 import com.mosque.prayerclock.utils.NetworkStatus
 import com.mosque.prayerclock.utils.SystemChangeEvent
 import com.mosque.prayerclock.utils.TimeUtils
@@ -31,6 +32,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -90,6 +93,46 @@ class MainViewModel
         init {
             // SIWAK: tampilkan cuaca dari cache dulu (offline / sebelum jaringan siap)
             loadCachedWeather()
+            // Waktu "berikutnya" dan pergantian hari diperiksa berkala di sini, tidak bergantung pada komponen
+            // yang sedang tampil (tata letak Galeri, layar shalat, dan hitung mundur layar penuh tidak memicunya).
+            viewModelScope.launch(Dispatchers.IO) {
+                while (isActive) {
+                    delay(TICK_MS)
+                    try {
+                        tick()
+                    } catch (e: Exception) {
+                        Log.w("MainViewModel", "Pemeriksaan berkala gagal: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        private suspend fun tick() {
+            val state = _uiState.value as? MainUiState.Success ?: return
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+            if (lastLoadedDate != null && lastLoadedDate != today) {
+                // Tengah malam terlewati: muat jadwal hari yang baru.
+                Log.i("MainViewModel", "Hari berganti ($lastLoadedDate -> $today), memuat jadwal baru")
+                loadPrayerTimes()
+                return
+            }
+            refreshNextPrayer(state)
+        }
+
+        /** Hitung ulang waktu berikutnya; setelah Isya, sertakan jadwal Subuh besok. */
+        private suspend fun refreshNextPrayer(state: MainUiState.Success) {
+            val next = calculateNextPrayer(state.prayerTimes)
+            val tomorrow =
+                if (next == PrayerType.FAJR && isAllPrayersCompleted(state.prayerTimes)) {
+                    state.nextDayFajr ?: getTomorrowPrayerTimesOptimized(settings.value)
+                } else {
+                    null
+                }
+            if (next == state.nextPrayer && tomorrow == state.nextDayFajr) return
+            // Jangan menimpa jadwal yang baru dimuat di antara perhitungan ini.
+            _uiState.update { cur ->
+                if (cur is MainUiState.Success && cur.prayerTimes == state.prayerTimes) cur.copy(nextPrayer = next, nextDayFajr = tomorrow) else cur
+            }
         }
 
         /**
@@ -191,13 +234,8 @@ class MainViewModel
 
         // Function to recalculate next prayer - can be called from UI when needed
         fun updateNextPrayer() {
-            val currentState = _uiState.value
-            if (currentState is MainUiState.Success) {
-                val newNextPrayer = calculateNextPrayer(currentState.prayerTimes)
-                if (newNextPrayer != currentState.nextPrayer) {
-                    _uiState.value = currentState.copy(nextPrayer = newNextPrayer)
-                }
-            }
+            val currentState = _uiState.value as? MainUiState.Success ?: return
+            viewModelScope.launch(Dispatchers.IO) { refreshNextPrayer(currentState) }
         }
 
         fun loadPrayerTimes() {
@@ -341,68 +379,33 @@ class MainViewModel
 
         // Weather job management moved to WeatherRepository
 
+        private companion object {
+            const val TICK_MS = 5_000L
+        }
+
         override fun onCleared() {
             super.onCleared()
         }
 
         private fun calculateNextPrayer(prayerTimes: PrayerTimesWithIqamah): PrayerType? {
-            val now =
-                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            val currentTime =
-                "${now.hour.toString().padStart(2, '0')}:${now.minute.toString().padStart(2, '0')}"
-            val isFriday = now.dayOfWeek == DayOfWeek.FRIDAY
-            val currentSettings = settings.value
-
-            // Check if we're in the 5-minute buffer after any Iqamah time
-            val prayers =
-                listOf(
-                    PrayerType.FAJR to Pair(prayerTimes.fajrAzan, prayerTimes.fajrIqamah),
-                    PrayerType.SUNRISE to Pair(prayerTimes.sunrise, null), // Sunrise has no Iqamah
-                    PrayerType.DHUHR to
-                        Pair(
-                            prayerTimes.dhuhrAzan,
-                            if (isFriday) null else prayerTimes.dhuhrIqamah,
-                        ), // No Iqamah on Friday
-                    PrayerType.ASR to Pair(prayerTimes.asrAzan, prayerTimes.asrIqamah),
-                    PrayerType.MAGHRIB to
-                        Pair(prayerTimes.maghribAzan, prayerTimes.maghribIqamah),
-                    PrayerType.ISHA to Pair(prayerTimes.ishaAzan, prayerTimes.ishaIqamah),
-                )
-
-            // First check if we're between Azan and Iqamah time OR within Dua duration after Iqamah
-            for ((prayerType, times) in prayers) {
-                val azanTime = times.first
-                val iqamahTime = times.second
-
-                if (iqamahTime != null) { // Only check if Iqamah time exists
-                    val bufferTime = TimeUtils.addMinutesToTime(iqamahTime, currentSettings.duaDisplayDurationMinutes)
-
-                    // Check if we're between Azan and Iqamah + Dua duration buffer
-                    if (TimeUtils.compareTimeStrings(azanTime, currentTime) <= 0 &&
-                        TimeUtils.compareTimeStrings(currentTime, bufferTime) < 0
-                    ) {
-                        // We're in the current prayer period (from Azan to Iqamah + Dua duration)
-                        return prayerType
-                    }
-                } else if (prayerType == PrayerType.DHUHR && isFriday) {
-                    // For Friday, use configurable Jummah duration after Azan for Bayan
-                    val bayanEndTime = TimeUtils.addMinutesToTime(times.first, currentSettings.jummahDurationMinutes)
-                    if (TimeUtils.compareTimeStrings(times.first, currentTime) <= 0 &&
-                        TimeUtils.compareTimeStrings(currentTime, bayanEndTime) < 0
-                    ) {
-                        return prayerType
-                    }
-                }
-            }
-
-            // Regular logic: find next prayer that hasn't started yet
-            val nextTodayPrayer =
-                prayers
-                    .firstOrNull { (_, times) -> TimeUtils.compareTimeStrings(currentTime, times.first) < 0 }
-                    ?.first
-
-            // If no more prayers today, next prayer is Fajr of tomorrow
-            return nextTodayPrayer ?: PrayerType.FAJR
+            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val currentTime = "%02d:%02d".format(now.hour, now.minute)
+            val s = settings.value
+            return NextPrayerRule.calculate(
+                slots =
+                    listOf(
+                        NextPrayerRule.Slot(PrayerType.FAJR, prayerTimes.fajrAzan, prayerTimes.fajrIqamah),
+                        NextPrayerRule.Slot(PrayerType.SUNRISE, prayerTimes.sunrise, null),
+                        NextPrayerRule.Slot(PrayerType.DHUHR, prayerTimes.dhuhrAzan, prayerTimes.dhuhrIqamah),
+                        NextPrayerRule.Slot(PrayerType.ASR, prayerTimes.asrAzan, prayerTimes.asrIqamah),
+                        NextPrayerRule.Slot(PrayerType.MAGHRIB, prayerTimes.maghribAzan, prayerTimes.maghribIqamah),
+                        NextPrayerRule.Slot(PrayerType.ISHA, prayerTimes.ishaAzan, prayerTimes.ishaIqamah),
+                    ),
+                now = currentTime,
+                isFriday = now.dayOfWeek == DayOfWeek.FRIDAY,
+                prayerScreenMinutes = s.duaDisplayDurationMinutes,
+                jummahMinutes = s.jummahDurationMinutes,
+            )
         }
 
         private fun isAllPrayersCompleted(prayerTimes: PrayerTimesWithIqamah): Boolean {

@@ -16,6 +16,8 @@ data class ScreenInputs(
     /** Detik sampai layar prioritas 1–4 berikutnya dimulai (null bila tidak diketahui). */
     val secondsUntilPriorityScreen: Long?,
     val nightHours: Boolean,
+    /** Hari redup dengan pilihan "tetap terang saat waktu shalat" dimatikan: redup di semua layar. */
+    val dimAllScreens: Boolean = false,
 )
 
 data class ScreenDecision(
@@ -43,7 +45,7 @@ object ScreenPriorityResolver {
                 else -> TvScreen.UTAMA
             }
         val priority = screen.ordinal <= TvScreen.ADZAN_COUNTDOWN.ordinal
-        return ScreenDecision(screen = screen, dimForNight = screen == TvScreen.UTAMA && i.nightHours, slidesPaused = priority)
+        return ScreenDecision(screen = screen, dimForNight = i.dimAllScreens || (screen == TvScreen.UTAMA && i.nightHours), slidesPaused = priority)
     }
 }
 

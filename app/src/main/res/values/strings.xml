@@ -186,6 +186,20 @@
     <string name="night_start">Start hour</string>
     <string name="night_end">End hour</string>
     <string name="night_dim_level">Dim level</string>
+    <string name="dim_days_title">Dim on certain days</string>
+    <string name="dim_days_desc">Dim the screen all day, e.g. weekends or public holidays, to save power and extend screen life.</string>
+    <string name="dim_days_weekly">Every week</string>
+    <string name="dim_days_holidays">National public holidays</string>
+    <string name="dim_days_cuti">Collective leave days (cuti bersama)</string>
+    <string name="dim_days_brighten">Stay bright at prayer times</string>
+    <string name="dim_days_brighten_desc">Brighten for the adzan and iqamah countdowns and the prayer screen.</string>
+    <string name="day_short_mon">Mon</string>
+    <string name="day_short_tue">Tue</string>
+    <string name="day_short_wed">Wed</string>
+    <string name="day_short_thu">Thu</string>
+    <string name="day_short_fri">Fri</string>
+    <string name="day_short_sat">Sat</string>
+    <string name="day_short_sun">Sun</string>
 
     <!-- Prayer Service (SIWAK) -->
     <string name="prayer_service_title">Schedule source</string>

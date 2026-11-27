@@ -45,6 +45,7 @@ class BundleMapperTest {
               "layout": "BAR_BAWAH", "colorTheme": "emerald_garden", "language": "en",
               "clock": { "type": "ANALOG", "showSeconds": false, "use24h": false, "sizePercent": 130 },
               "nightMode": { "enabled": true, "startHour": 21, "endHour": 3, "dimPercent": 70 },
+              "dimDays": { "enabled": true, "weekdays": [7, 6, 9], "nationalHolidays": true, "cutiBersama": true, "extraDates": ["2027-07-01", "salah"], "brightenForPrayer": false },
               "media": { "logoId": null, "backgroundMainId": null, "backgroundPrayerId": null, "backgroundIqamahId": null },
               "showWeather": false,
               "illustration": { "silhouette": "KUBAH", "useMosquePhoto": false },
@@ -62,12 +63,23 @@ class BundleMapperTest {
           "slides": [], "content": [],
           "announcements": [ { "id": "a1", "text": "Parkir di halaman belakang", "startsAt": "2026-11-16T05:00:00.000Z", "expiresAt": "2026-11-16T06:00:00.000Z" } ],
           "media": [],
+          "holidays": [ { "date": "2028-01-01", "kind": "LIBUR" }, { "date": "2028-02-25", "kind": "CUTI" }, { "date": "rusak", "kind": "LIBUR" } ],
           "fieldBaruDariServer": { "diabaikan": true }
         }
         """.trimIndent()
 
     private val bundle = gson.fromJson(bundleJson, BundleDto::class.java)
     private val result = BundleMapper.toAppSettings(AppSettings(), bundle, today = "2026-11-16")
+
+    @Test
+    fun redupPadaHariTertentu() {
+        assertTrue(result.dimDaysEnabled)
+        assertEquals("6,7", result.dimWeekdays)
+        assertTrue(result.dimCutiBersama)
+        assertEquals("2027-07-01", result.dimExtraDates)
+        assertFalse(result.dimBrightenForPrayer)
+        assertEquals("2028-01-01:L,2028-02-25:C", result.dimServerHolidays)
+    }
 
     @Test
     fun masjidDanLokasi() {

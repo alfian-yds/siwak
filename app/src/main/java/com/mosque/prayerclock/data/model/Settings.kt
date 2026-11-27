@@ -72,6 +72,14 @@ data class AppSettings(
     val nightStartHour: Int = 22, // mulai redup (jam 0-23)
     val nightEndHour: Int = 4, // berhenti redup (jam 0-23)
     val nightDimLevel: Int = 85, // persen kegelapan overlay (0-100)
+    // SIWAK 2.1: redup sepanjang hari pada hari tertentu (tingkat redup = nightDimLevel)
+    val dimDaysEnabled: Boolean = false,
+    val dimWeekdays: String = "", // "6,7" (1 = Senin … 7 = Ahad)
+    val dimNationalHolidays: Boolean = true,
+    val dimCutiBersama: Boolean = false,
+    val dimExtraDates: String = "", // "2026-12-31,2027-01-02" (dari server)
+    val dimBrightenForPrayer: Boolean = true,
+    val dimServerHolidays: String = "", // tanggal merah terbaru dari bundle: "2027-01-01:L,2027-02-05:C"
     // SIWAK: logo & background kustom (URI; kosong = default)
     val mosqueLogoUri: String = "",
     val backgroundMainUri: String = "",

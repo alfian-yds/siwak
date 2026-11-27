@@ -324,6 +324,27 @@ class SettingsViewModel
             viewModelScope.launch { settingsRepository.updateNightEndHour(hour) }
         }
 
+        fun updateDimDaysEnabled(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.updateDimDaysEnabled(enabled) }
+        }
+
+        /** Hari dalam pekan yang diredupkan (1 = Senin … 7 = Ahad). */
+        fun updateDimWeekdays(days: Set<Int>) {
+            viewModelScope.launch { settingsRepository.updateDimWeekdays(days.filter { it in 1..7 }.sorted().joinToString(",")) }
+        }
+
+        fun updateDimNationalHolidays(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.updateDimNationalHolidays(enabled) }
+        }
+
+        fun updateDimCutiBersama(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.updateDimCutiBersama(enabled) }
+        }
+
+        fun updateDimBrightenForPrayer(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.updateDimBrightenForPrayer(enabled) }
+        }
+
         fun updateNightDimLevel(level: Int) {
             viewModelScope.launch { settingsRepository.updateNightDimLevel(level) }
         }

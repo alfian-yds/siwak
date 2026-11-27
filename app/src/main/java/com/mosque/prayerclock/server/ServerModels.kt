@@ -118,6 +118,19 @@ data class ClockDto(val type: String?, val showSeconds: Boolean?, val use24h: Bo
 
 data class NightModeDto(val enabled: Boolean?, val startHour: Int?, val endHour: Int?, val dimPercent: Int?)
 
+/** Redup sepanjang hari pada hari tertentu (2.1). weekdays: 1 = Senin … 7 = Ahad. */
+data class DimDaysDto(
+    val enabled: Boolean?,
+    val weekdays: List<Int>?,
+    val nationalHolidays: Boolean?,
+    val cutiBersama: Boolean?,
+    val extraDates: List<String>?,
+    val brightenForPrayer: Boolean?,
+)
+
+/** Tanggal merah dari server. kind: LIBUR (libur nasional) atau CUTI (cuti bersama). */
+data class HolidayDto(val date: String?, val kind: String?)
+
 data class DisplayMediaDto(
     val logoId: String?,
     val backgroundMainId: String?,
@@ -138,6 +151,7 @@ data class DisplayDto(
     val language: String?,
     val clock: ClockDto?,
     val nightMode: NightModeDto?,
+    val dimDays: DimDaysDto? = null,
     val media: DisplayMediaDto?,
     val showWeather: Boolean?,
     val illustration: IllustrationDto?,
@@ -198,6 +212,7 @@ data class BundleDto(
     val content: List<ContentDto>? = null,
     val announcements: List<AnnouncementDto>? = null,
     val media: List<MediaRefDto>? = null,
+    val holidays: List<HolidayDto>? = null,
 )
 
 /** Cuaca dari server (Backend Schema §5.4). */
