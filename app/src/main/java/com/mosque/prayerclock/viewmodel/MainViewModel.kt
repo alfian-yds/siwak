@@ -387,8 +387,17 @@ class MainViewModel
             super.onCleared()
         }
 
-        private fun calculateNextPrayer(prayerTimes: PrayerTimesWithIqamah): PrayerType? {
-            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        private fun calculateNextPrayer(prayerTimes: PrayerTimesWithIqamah): PrayerType? =
+            nextPrayerAt(prayerTimes, Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+
+        /**
+         * Waktu shalat yang sedang berlangsung atau berikutnya pada [now]. Dipakai juga oleh layar setiap detik
+         * agar pergantian (mis. akhir layar shalat) langsung terlihat tanpa menunggu pemeriksaan berkala.
+         */
+        fun nextPrayerAt(
+            prayerTimes: PrayerTimesWithIqamah,
+            now: kotlinx.datetime.LocalDateTime,
+        ): PrayerType {
             val currentTime = "%02d:%02d".format(now.hour, now.minute)
             val s = settings.value
             return NextPrayerRule.calculate(

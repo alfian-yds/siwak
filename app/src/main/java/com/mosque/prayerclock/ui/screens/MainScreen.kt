@@ -233,7 +233,7 @@ fun MainScreen(
                 ),
     ) {
         MainLayout(
-            uiState = uiState,
+            rawUiState = uiState,
             weatherState = weatherState,
             settings = settings,
             viewModel = viewModel,
@@ -245,7 +245,7 @@ fun MainScreen(
 
 @Composable
 fun MainLayout(
-    uiState: MainUiState,
+    rawUiState: MainUiState,
     weatherState: WeatherUiState,
     settings: AppSettings,
     viewModel: MainViewModel,
@@ -263,6 +263,14 @@ fun MainLayout(
             kotlinx.coroutines.delay(1000)
         }
     }
+
+    // Waktu berikutnya dihitung dari jam saat ini setiap detik, sehingga pergantian (mis. saat layar shalat
+    // selesai) langsung tampil tanpa menunggu pemeriksaan berkala di ViewModel.
+    val uiState: MainUiState =
+        (rawUiState as? MainUiState.Success)?.let { s ->
+            val next = viewModel.nextPrayerAt(s.prayerTimes, globalCurrentTime.toLocalDateTime(TimeZone.currentSystemDefault()))
+            if (next == s.nextPrayer) s else s.copy(nextPrayer = next, nextDayFajr = s.nextDayFajr.takeIf { next == PrayerType.FAJR })
+        } ?: rawUiState
 
     // Calculate countdown visibility, prayer state, full-screen countdown state, dua display, and Jummah display
     val (
